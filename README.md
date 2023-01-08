@@ -88,13 +88,13 @@ This benchmark inserts a random sequence into the tree, then removes the element
 
 |               Method |     Mean |     Error |    StdDev | InstructionRetired/Op | CacheMisses/Op |     Gen0 |     Gen1 |  Allocated |
 |--------------------- |---------:|----------:|----------:|----------------------:|---------------:|---------:|---------:|-----------:|
-|     ReferenceAvlTree | 3.310 ms | 0.0263 ms | 0.0246 ms |            28,546,875 |          6,423 |  23.4375 |   7.8125 |  320.66 KB |
-|   MutableJoinAvlTree | 2.573 ms | 0.0136 ms | 0.0127 ms |            17,350,260 |          6,721 |  27.3438 |   7.8125 |  384.24 KB |
-| ImmutableJoinAvlTree | 4.250 ms | 0.0603 ms | 0.0564 ms |            32,058,854 |         51,823 | 757.8125 | 460.9375 | 9712.08 KB |
-|    MutableJoinWBTree | 2.178 ms | 0.0122 ms | 0.0108 ms |            19,399,219 |          6,715 |  27.3438 |   7.8125 |  384.24 KB |
-|  ImmutableJoinWBTree | 3.670 ms | 0.0331 ms | 0.0310 ms |            33,866,927 |         38,463 | 746.0938 | 484.3750 |  9550.6 KB |
-|            SortedSet | 2.000 ms | 0.0073 ms | 0.0064 ms |            10,907,812 |          5,626 |  23.4375 |   7.8125 |  320.24 KB |
-|         ImmutableSet | 5.940 ms | 0.0566 ms | 0.0529 ms |            53,709,375 |         72,619 | 757.8125 | 460.9375 | 9713.33 KB |
+|     ReferenceAvlTree | 3.326 ms | 0.0234 ms | 0.0219 ms |            28,540,104 |          6,189 |  23.4375 |   7.8125 |  320.66 KB |
+|   MutableJoinAvlTree | 2.567 ms | 0.0060 ms | 0.0056 ms |            17,372,917 |          6,849 |  27.3438 |   7.8125 |  384.24 KB |
+| ImmutableJoinAvlTree | 4.204 ms | 0.0661 ms | 0.0552 ms |            32,066,667 |         45,107 | 757.8125 | 460.9375 | 9712.08 KB |
+|    MutableJoinWBTree | 2.183 ms | 0.0131 ms | 0.0123 ms |            19,393,490 |          6,487 |  27.3438 |   7.8125 |  384.24 KB |
+|  ImmutableJoinWBTree | 3.703 ms | 0.0422 ms | 0.0374 ms |            33,895,573 |         49,957 | 746.0938 | 484.3750 |  9550.6 KB |
+|            SortedSet | 2.008 ms | 0.0143 ms | 0.0133 ms |            10,904,167 |          5,609 |  23.4375 |   7.8125 |  320.24 KB |
+|         ImmutableSet | 5.963 ms | 0.0757 ms | 0.0632 ms |            53,734,375 |         77,965 | 757.8125 | 460.9375 | 9713.33 KB |
 
 ## FindBenchmark
 
@@ -102,13 +102,13 @@ This benchmark inserts a random sequence into the tree, then searches for each i
 
 |               Method |     Mean |   Error |  StdDev | InstructionRetired/Op | CacheMisses/Op |
 |--------------------- |---------:|--------:|--------:|----------------------:|---------------:|
-|            SortedSet | 431.5 us | 3.02 us | 2.82 us |             2,871,419 |            481 |
-|        ReferenceTree | 364.1 us | 2.68 us | 2.51 us |             2,236,589 |            401 |
-|   MutableJoinAvlTree | 287.4 us | 2.39 us | 2.11 us |             1,196,582 |            383 |
-| ImmutableJoinAvlTree | 266.1 us | 1.79 us | 1.67 us |             1,195,312 |            268 |
-|    MutableJoinWBTree | 293.3 us | 2.03 us | 1.90 us |             1,216,585 |            461 |
-|  ImmutableJoinWBTree | 270.0 us | 2.08 us | 1.95 us |             1,214,746 |            283 |
-|         ImmutableSet | 405.7 us | 2.02 us | 1.89 us |             2,961,035 |            372 |
+|            SortedSet | 430.0 us | 2.73 us | 2.55 us |             2,872,241 |            445 |
+|        ReferenceTree | 359.8 us | 1.47 us | 1.30 us |             2,236,198 |            301 |
+|   MutableJoinAvlTree | 286.5 us | 2.75 us | 2.57 us |             1,195,705 |            338 |
+| ImmutableJoinAvlTree | 263.9 us | 1.56 us | 1.38 us |             1,195,768 |            238 |
+|    MutableJoinWBTree | 292.2 us | 5.58 us | 5.48 us |             1,215,208 |            437 |
+|  ImmutableJoinWBTree | 281.9 us | 1.69 us | 1.41 us |             1,214,160 |            534 |
+|         ImmutableSet | 414.1 us | 2.91 us | 2.72 us |             2,962,923 |            335 |
 
 Join tree has even better lookup performance than standard `SortedSet` and `ImmutableSet`.
 

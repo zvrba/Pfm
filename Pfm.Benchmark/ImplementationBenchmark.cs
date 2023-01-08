@@ -85,6 +85,7 @@ public class ImplementationBenchmark
     internal struct MutableTraits : Pfm.Collections.JoinTree.INodeTraits<int>
     {
         public static int Compare(int left, int right) => left - right;
+        public static int Merge(int left, int right) => left;
         public static bool IsPersistent => false;
         public static Pfm.Collections.JoinTree.Node<int> Clone(Pfm.Collections.JoinTree.Node<int> node) => node;
     }
@@ -92,6 +93,7 @@ public class ImplementationBenchmark
     internal struct ImmutableTraits : Pfm.Collections.JoinTree.INodeTraits<int>
     {
         public static int Compare(int left, int right) => left - right;
+        public static int Merge(int left, int right) => left;
         public static bool IsPersistent => true;
         public static Pfm.Collections.JoinTree.Node<int> Clone(Pfm.Collections.JoinTree.Node<int> node) => new(node);
     }

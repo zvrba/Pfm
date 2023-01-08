@@ -312,6 +312,10 @@ public struct JoinTree<TValue, TNodeTraits, TTreeTraits>
         var s = Split(t1, t2.V);
         var l = Union(s.L, t2.L);
         var r = Union(s.R, t2.R);
+        if (s.M != null) {
+            t2 = TNodeTraits.Clone(t2);
+            t2.V = TNodeTraits.Merge(s.M.V, t2.V);
+        }
         return TTreeTraits.Join(l, t2, r);
     }
 
@@ -330,7 +334,12 @@ public struct JoinTree<TValue, TNodeTraits, TTreeTraits>
         var s = Split(t1, t2.V);
         var l = Intersection(s.L, t2.L);
         var r = Intersection(s.R, t2.R);
-        return s.M != null ? TTreeTraits.Join(l, t2, r) : Join2(l, r);
+        if (s.M != null) {
+            t2 = TNodeTraits.Clone(t2);
+            t2.V = TNodeTraits.Merge(s.M.V, t2.V);
+            return TTreeTraits.Join(l, t2, r);
+        }
+        return Join2(l, r);
     }
 
     /// <summary>

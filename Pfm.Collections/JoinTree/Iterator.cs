@@ -61,6 +61,9 @@ public struct Iterator<TValue>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Node<TValue> TryPop() => Count > 0 ? Path[--Count] : null;
 
+    // public bool Find(TValue value);  TODO: Would need TNodeTraits as generic argument.
+    // public void Seek(int index);
+
     public Node<TValue> First() {
         Clear();
         for (var n = Root; n != null; n = n.L)

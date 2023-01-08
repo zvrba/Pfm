@@ -17,6 +17,18 @@ public interface INodeTraits<TValue>
         => Comparison(left, right);
 
     /// <summary>
+    /// Determines how to merge conflicting values for set operations.
+    /// This occurs when the set key is a subset of the fields of <typeparamref name="TValue"/>.
+    /// </summary>
+    /// <param name="left">Value from the left operand.</param>
+    /// <param name="right">Value from the right operand.</param>
+    /// <returns>
+    /// A merged value with key fields preserved.  A valid implementation may just return <paramref name="left"/>
+    /// or <paramref name="right"/>.
+    /// </returns>
+    public abstract static TValue Merge(TValue left, TValue right);
+
+    /// <summary>
     /// True if the underlying node traits are "persistent", i.e., copied on modification.
     /// </summary>
     public abstract static bool IsPersistent { get; }
@@ -24,27 +36,9 @@ public interface INodeTraits<TValue>
     /// <summary>
     /// Cloning method.  When <see cref="IsPersistent"/> is true, the method must clone the node
     /// and, if desired, also the value.  When <see cref="IsPersistent"/> is false, it can just
-    /// return <c>this</c>.
+    /// return <paramref name="node"/>.
     /// </summary>
     public abstract static Node<TValue> Clone(Node<TValue> node);
-}
-
-/// <summary>
-/// Predefined tratis using default from <see cref="INodeTraits{TValue}"/>.
-/// </summary>
-public struct MutableNodeTraits<TValue> : INodeTraits<TValue>
-{
-    public static bool IsPersistent => false;
-    public static Node<TValue> Clone(Node<TValue> node) => node;
-}
-
-/// <summary>
-/// Predefined traits that clone the node but NOT the value.  Default comparison is used.
-/// </summary>
-public struct ImmutableNodeTraits<TValue> : INodeTraits<TValue>
-{
-    public static bool IsPersistent => true;
-    public static Node<TValue> Clone(Node<TValue> node) => new(node);
 }
 
 /// <summary>

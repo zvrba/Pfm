@@ -7,7 +7,7 @@ public static class Program
 {
     public static void Main() {
         // NB! Running time grows at least quadratically with element count.
-        var sequences = GetSequences(518);
+        var sequences = GetSequences(211);
 
         Vector_BasicTest.Run(3, 2);
         Vector_MutationTest.Run(3, 2);
@@ -23,39 +23,34 @@ public static class Program
             sequences);
 #endif
 
-        JoinTest<
-            Pfm.Collections.JoinTree.MutableNodeTraits<int>,
-            Pfm.Collections.JoinTree.AvlTree<int, Pfm.Collections.JoinTree.MutableNodeTraits<int>>
-        >.Run(sequences);
+        JoinTest<MutableTraits, Pfm.Collections.JoinTree.AvlTree<int, MutableTraits>>.Run(sequences);
+        JoinTest<ImmutableTraits, Pfm.Collections.JoinTree.AvlTree<int, ImmutableTraits>>.Run(sequences);
 
-        JoinTest<
-            Pfm.Collections.JoinTree.ImmutableNodeTraits<int>,
-            Pfm.Collections.JoinTree.AvlTree<int, Pfm.Collections.JoinTree.ImmutableNodeTraits<int>>
-        >.Run(sequences);
+        JoinTest<MutableTraits, Pfm.Collections.JoinTree.WBTree<int, MutableTraits>>.Run(sequences);
+        JoinTest<ImmutableTraits, Pfm.Collections.JoinTree.WBTree<int, ImmutableTraits>>.Run(sequences);
 
-        JoinTest<
-            Pfm.Collections.JoinTree.MutableNodeTraits<int>,
-            Pfm.Collections.JoinTree.WBTree<int, Pfm.Collections.JoinTree.MutableNodeTraits<int>>
-        >.Run(sequences);
-
-        JoinTest<
-            Pfm.Collections.JoinTree.ImmutableNodeTraits<int>,
-            Pfm.Collections.JoinTree.WBTree<int, Pfm.Collections.JoinTree.ImmutableNodeTraits<int>>
-        >.Run(sequences);
-
-        JoinSetTest<
-            Pfm.Collections.JoinTree.MutableNodeTraits<int>,
-            Pfm.Collections.JoinTree.AvlTree<int, Pfm.Collections.JoinTree.MutableNodeTraits<int>>
-        >.Run(230);
-
-        JoinSetTest<
-            Pfm.Collections.JoinTree.ImmutableNodeTraits<int>,
-            Pfm.Collections.JoinTree.WBTree<int, Pfm.Collections.JoinTree.ImmutableNodeTraits<int>>
-        >.Run(230);
+        JoinSetTest<MutableTraits, Pfm.Collections.JoinTree.AvlTree<int, MutableTraits>>.Run(518);
+        JoinSetTest<ImmutableTraits, Pfm.Collections.JoinTree.WBTree<int, ImmutableTraits>>.Run(518);
 
         IntrusiveTreeTest.Run(sequences);
 
         CompactTest.Run(sequences);
+    }
+
+    struct MutableTraits : Pfm.Collections.JoinTree.INodeTraits<int>
+    {
+        public static int Compare(int left, int right) => left - right;
+        public static int Merge(int left, int right) => left;
+        public static bool IsPersistent => false;
+        public static Pfm.Collections.JoinTree.Node<int> Clone(Pfm.Collections.JoinTree.Node<int> x) => x;
+    }
+
+    struct ImmutableTraits : Pfm.Collections.JoinTree.INodeTraits<int>
+    {
+        public static int Compare(int left, int right) => left - right;
+        public static int Merge(int left, int right) => left;
+        public static bool IsPersistent => true;
+        public static Pfm.Collections.JoinTree.Node<int> Clone(Pfm.Collections.JoinTree.Node<int> x) => new(x);
     }
 
     private static List<int[]> GetSequences(int max) {
