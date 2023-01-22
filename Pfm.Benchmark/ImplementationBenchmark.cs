@@ -5,7 +5,7 @@ using BenchmarkDotNet.Diagnostics.Windows;
 
 namespace Pfm.Benchmark;
 
-[HardwareCounters(HardwareCounter.InstructionRetired, HardwareCounter.CacheMisses)]
+[HardwareCounters(HardwareCounter.InstructionRetired, HardwareCounter.CacheMisses, HardwareCounter.BranchInstructions)]
 [MemoryDiagnoser]
 public class ImplementationBenchmark
 {
@@ -20,32 +20,24 @@ public class ImplementationBenchmark
     }
 
     [Benchmark]
-    public void ReferenceAvlTree() {
-        var tree = new Pfm.Collections.ReferenceTree.AvlTree<int>(new Comparison<int>((x, y) => x - y));
-        for (int i = 0; i < data.Length; ++i)
-            tree.Insert(data[i], out var _);
-        for (int i = data.Length - 1; i >= 0; --i)
-            tree.Delete(data[i]);
-    }
-
-    [Benchmark]
     public void MutableJoinAvlTree() {
-        Pfm.Collections.JoinTree.JoinTree<int, MutableTraits, Pfm.Collections.JoinTree.AvlTree<int, MutableTraits>> tree = default;
+        Pfm.Collections.TreeSet.JoinableTreeSet<MutableAvlTraits, int> tree = new();
         for (int i = 0; i < data.Length; ++i)
-            tree.Insert(data[i], out var _);
+            tree.Add(data[i]);
         for (int i = data.Length - 1; i >= 0; --i)
-            tree.Delete(data[i], out var _);
+            tree.Remove(data[i]);
     }
 
     [Benchmark]
     public void ImmutableJoinAvlTree() {
-        Pfm.Collections.JoinTree.JoinTree<int, ImmutableTraits, Pfm.Collections.JoinTree.AvlTree<int, ImmutableTraits>> tree = default;
+        Pfm.Collections.TreeSet.JoinableTreeSet<ImmutableAvlTraits, int> tree = new();
         for (int i = 0; i < data.Length; ++i)
-            tree.Insert(data[i], out var _);
+            tree.Add(data[i]);
         for (int i = data.Length - 1; i >= 0; --i)
-            tree.Delete(data[i], out var _);
+            tree.Remove(data[i]);
     }
 
+#if false
     [Benchmark]
     public void MutableJoinWBTree() {
         Pfm.Collections.JoinTree.JoinTree<int, MutableTraits, Pfm.Collections.JoinTree.WBTree<int, MutableTraits>> tree = default;
@@ -63,6 +55,7 @@ public class ImplementationBenchmark
         for (int i = data.Length - 1; i >= 0; --i)
             tree.Delete(data[i], out var _);
     }
+#endif
 
     [Benchmark]
     public void SortedSet() {
@@ -82,19 +75,23 @@ public class ImplementationBenchmark
             s = s.Remove(data[i]);
     }
 
-    internal struct MutableTraits : Pfm.Collections.JoinTree.INodeTraits<int>
+    internal interface IIntValueTraits : Pfm.Collections.TreeSet.IValueTraits<int>
     {
-        public static int Compare(int left, int right) => left - right;
-        public static int Merge(int left, int right) => left;
-        public static bool IsPersistent => false;
-        public static Pfm.Collections.JoinTree.Node<int> Clone(Pfm.Collections.JoinTree.Node<int> node) => node;
+        static void Pfm.Collections.TreeSet.IValueTraits<int>.CombineValues(in int left, ref int middle, in int right) => middle = left;
+        static int Pfm.Collections.TreeSet.IValueTraits<int>.CompareKey(in int left, in int right) => left - right;
     }
 
-    internal struct ImmutableTraits : Pfm.Collections.JoinTree.INodeTraits<int>
+    internal struct MutableAvlTraits :
+        IIntValueTraits,
+        Pfm.Collections.TreeSet.IPersistenceTraits<int>.IMutable,
+        Pfm.Collections.TreeSet.IAvlTree<MutableAvlTraits, int>
     {
-        public static int Compare(int left, int right) => left - right;
-        public static int Merge(int left, int right) => left;
-        public static bool IsPersistent => true;
-        public static Pfm.Collections.JoinTree.Node<int> Clone(Pfm.Collections.JoinTree.Node<int> node) => new(node);
+    }
+
+    internal struct ImmutableAvlTraits :
+        IIntValueTraits,
+        Pfm.Collections.TreeSet.IPersistenceTraits<int>.IShallowImmutable,
+        Pfm.Collections.TreeSet.IAvlTree<ImmutableAvlTraits, int>
+    {
     }
 }

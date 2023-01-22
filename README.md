@@ -11,6 +11,11 @@ The solution consists of three assemblies:
 
 This project has been inspired by "Persistence for the Masses" paper, hence also the name.
 
+
+Tentative comment:
+Converting recursion to iteration, by manually maintaining a stack in an araray, made algorithms
+slower due to frequent calls to `CORINFO_HELP_ASSIGN_REF`.  See https://github.com/dotnet/runtime/issues/59031
+
 # Collections
 
 Collection namespaces are divided by data structure and implementation technique:

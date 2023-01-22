@@ -1,56 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
+using Pfm.Collections.TreeSet;
 
 namespace Pfm.Test;
 
 public static class Program
 {
+    const int SequenceSize = 211;
+
     public static void Main() {
         // NB! Running time grows at least quadratically with element count.
-        var sequences = GetSequences(211);
+        var sequences = GetSequences(SequenceSize);
 
         Vector_BasicTest.Run(3, 2);
         Vector_MutationTest.Run(3, 2);
         //Vector_BasicTest.Run(5, 5); // NB! Slow-ish.
 
-
-        ReferenceTest.Run(
-            () => new Pfm.Collections.ReferenceTree.AvlTree<int>(new Comparison<int>((x, y) => x - y)),
-            sequences);
-#if false   // Commented out because the tree gets degenerate, overflowing the iterator.
-        ReferenceTest.Run(
-            () => new ZipTree<int>(new Comparison<int>((x, y) => x - y)) { Random = new Random(314159) },
-            sequences);
-#endif
-
-        JoinTest<MutableTraits, Pfm.Collections.JoinTree.AvlTree<int, MutableTraits>>.Run(sequences);
-        JoinTest<ImmutableTraits, Pfm.Collections.JoinTree.AvlTree<int, ImmutableTraits>>.Run(sequences);
-
-        JoinTest<MutableTraits, Pfm.Collections.JoinTree.WBTree<int, MutableTraits>>.Run(sequences);
-        JoinTest<ImmutableTraits, Pfm.Collections.JoinTree.WBTree<int, ImmutableTraits>>.Run(sequences);
-
-        JoinSetTest<MutableTraits, Pfm.Collections.JoinTree.AvlTree<int, MutableTraits>>.Run(518);
-        JoinSetTest<ImmutableTraits, Pfm.Collections.JoinTree.WBTree<int, ImmutableTraits>>.Run(518);
-
-        IntrusiveTreeTest.Run(sequences);
-
-        CompactTest.Run(sequences);
+        JoinableTreeSet1<MutableAvlTree>.Run(sequences);
+        JoinableTreeSet1<ImmutableAvlTree>.Run(sequences);
     }
 
-    struct MutableTraits : Pfm.Collections.JoinTree.INodeTraits<int>
+    internal interface IIntValueTraits : IValueTraits<int>
     {
-        public static int Compare(int left, int right) => left - right;
-        public static int Merge(int left, int right) => left;
-        public static bool IsPersistent => false;
-        public static Pfm.Collections.JoinTree.Node<int> Clone(Pfm.Collections.JoinTree.Node<int> x) => x;
+        static void IValueTraits<int>.CombineValues(in int left, ref int middle, in int right) => middle = left;
+        static int IValueTraits<int>.CompareKey(in int left, in int right) => left - right;
     }
 
-    struct ImmutableTraits : Pfm.Collections.JoinTree.INodeTraits<int>
+    internal struct MutableAvlTree : IIntValueTraits, IAvlTree<MutableAvlTree, int>, IPersistenceTraits<int>.IMutable
     {
-        public static int Compare(int left, int right) => left - right;
-        public static int Merge(int left, int right) => left;
-        public static bool IsPersistent => true;
-        public static Pfm.Collections.JoinTree.Node<int> Clone(Pfm.Collections.JoinTree.Node<int> x) => new(x);
+    }
+
+    internal struct ImmutableAvlTree : IIntValueTraits, IAvlTree<ImmutableAvlTree, int>, IPersistenceTraits<int>.IShallowImmutable
+    {
     }
 
     private static List<int[]> GetSequences(int max) {
