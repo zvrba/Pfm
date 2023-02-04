@@ -9,13 +9,13 @@ namespace Pfm.Benchmark;
 
 [HardwareCounters(HardwareCounter.InstructionRetired, HardwareCounter.CacheMisses, HardwareCounter.BranchInstructions)]
 [MemoryDiagnoser]
-public class ImplementationBenchmark
+public class TreeModifyBenchmark
 {
     public const int Size = 8197;
 
     private readonly int[] data = new int[Size];
 
-    public ImplementationBenchmark() {
+    public TreeModifyBenchmark() {
         for (int i = 0; i < data.Length; ++i)
             data[i] = i;
         Pfm.Collections.PermutationGenerators.Random(data);

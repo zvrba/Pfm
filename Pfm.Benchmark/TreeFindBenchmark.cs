@@ -7,7 +7,7 @@ using Pfm.Collections.TreeSet;
 namespace Pfm.Benchmark;
 
 [HardwareCounters(HardwareCounter.InstructionRetired, HardwareCounter.CacheMisses, HardwareCounter.BranchInstructions)]
-public class FindBenchmark
+public class TreeFindBenchmark
 {
     public const int Size = 8197;
 
@@ -25,7 +25,7 @@ public class FindBenchmark
         Pfm.Collections.JoinTree.WBTree<int, ImplementationBenchmark.ImmutableTraits>> joinImmWBTree;
 #endif
 
-    public FindBenchmark() {
+    public TreeFindBenchmark() {
         for (int i = 0; i < data.Length; ++i)
             data[i] = i;
         Pfm.Collections.PermutationGenerators.Random(data);

@@ -32,9 +32,8 @@ Collection namespaces are divided by data structure and implementation technique
   access to n'th element in sorted order, and user-defined monoidal "augmentations" that can be used to implement,
   for example, an interval tree.
 
-  Tests include cases that cover correctness of copy on write semantics.  However, I was not able to design a
-  benchmark that could meaningfully compare the cost of a COW mutable collection with "always copy" semantics
-  of an immutable collection.
+  Tests include cases that cover correctness of copy on write semantics.  Benchmarks attempt to cover the cost of
+  COW semantics.
 
 # Future work
 
@@ -72,36 +71,58 @@ the other benchmarks.
 
 The following benchmarks use a random sequence of 8197 elements.
 
-## ImplementationBenchmark
+## TreeModifyBenchmark
 This benchmark inserts a random sequence into the tree, then removes the elements in reverse order of insertion.
 
-|               Method |     Mean |     Error |    StdDev | InstructionRetired/Op | CacheMisses/Op |     Gen0 |     Gen1 |  Allocated |
-|--------------------- |---------:|----------:|----------:|----------------------:|---------------:|---------:|---------:|-----------:|
-|     ReferenceAvlTree | 3.326 ms | 0.0234 ms | 0.0219 ms |            28,540,104 |          6,189 |  23.4375 |   7.8125 |  320.66 KB |
-|   MutableJoinAvlTree | 2.567 ms | 0.0060 ms | 0.0056 ms |            17,372,917 |          6,849 |  27.3438 |   7.8125 |  384.24 KB |
-| ImmutableJoinAvlTree | 4.204 ms | 0.0661 ms | 0.0552 ms |            32,066,667 |         45,107 | 757.8125 | 460.9375 | 9712.08 KB |
-|    MutableJoinWBTree | 2.183 ms | 0.0131 ms | 0.0123 ms |            19,393,490 |          6,487 |  27.3438 |   7.8125 |  384.24 KB |
-|  ImmutableJoinWBTree | 3.703 ms | 0.0422 ms | 0.0374 ms |            33,895,573 |         49,957 | 746.0938 | 484.3750 |  9550.6 KB |
-|            SortedSet | 2.008 ms | 0.0143 ms | 0.0133 ms |            10,904,167 |          5,609 |  23.4375 |   7.8125 |  320.24 KB |
-|         ImmutableSet | 5.963 ms | 0.0757 ms | 0.0632 ms |            53,734,375 |         77,965 | 757.8125 | 460.9375 | 9713.33 KB |
+|       Method |     Mean |     Error |    StdDev | BranchInstructions/Op | InstructionRetired/Op | CacheMisses/Op |     Gen0 |     Gen1 |  Allocated |
+|------------- |---------:|----------:|----------:|----------------------:|----------------------:|---------------:|---------:|---------:|-----------:|
+|   AvlTreeSet | 2.806 ms | 0.0203 ms | 0.0190 ms |             5,132,036 |            26,197,461 |          5,660 |  27.3438 |   7.8125 |  384.29 KB |
+|    WBTreeSet | 2.389 ms | 0.0068 ms | 0.0060 ms |             4,860,134 |            27,351,823 |          5,278 |  27.3438 |   7.8125 |  384.29 KB |
+|    AvlCOWSet | 2.949 ms | 0.0085 ms | 0.0079 ms |             5,216,734 |            26,441,406 |          8,294 |  62.5000 |  39.0625 |  833.37 KB |
+|     WBCOWSet | 2.584 ms | 0.0139 ms | 0.0123 ms |             4,965,466 |            27,795,312 |          8,067 |  62.5000 |  31.2500 |  827.98 KB |
+|    SortedSet | 2.206 ms | 0.0084 ms | 0.0078 ms |             3,708,473 |            11,000,260 |          4,551 |  23.4375 |   7.8125 |  320.24 KB |
+| ImmutableSet | 6.636 ms | 0.0581 ms | 0.0485 ms |            12,854,511 |            54,083,333 |         43,002 | 757.8125 | 460.9375 | 9713.33 KB |
 
-## FindBenchmark
+"COW" benchmarks attempt to show the cost of COW semantics where the whole tree is rebuilt twice.  These benchmarks
+proceed as follows:
+
+- First, only even numbers from the sequence are inserted into the tree.
+- Then, a COW copy of the tree is made and all odd numbers are inserted into the copy.
+- Then, another COW copy is made and all elements are removed in reverse order of insertion.
+
+## TreeFindBenchmark
 
 This benchmark inserts a random sequence into the tree, then searches for each inserted element in increasing order (0, 1, ..., max).
 
-|               Method |     Mean |   Error |  StdDev | InstructionRetired/Op | CacheMisses/Op |
-|--------------------- |---------:|--------:|--------:|----------------------:|---------------:|
-|            SortedSet | 430.0 us | 2.73 us | 2.55 us |             2,872,241 |            445 |
-|        ReferenceTree | 359.8 us | 1.47 us | 1.30 us |             2,236,198 |            301 |
-|   MutableJoinAvlTree | 286.5 us | 2.75 us | 2.57 us |             1,195,705 |            338 |
-| ImmutableJoinAvlTree | 263.9 us | 1.56 us | 1.38 us |             1,195,768 |            238 |
-|    MutableJoinWBTree | 292.2 us | 5.58 us | 5.48 us |             1,215,208 |            437 |
-|  ImmutableJoinWBTree | 281.9 us | 1.69 us | 1.41 us |             1,214,160 |            534 |
-|         ImmutableSet | 414.1 us | 2.91 us | 2.72 us |             2,962,923 |            335 |
+|       Method |     Mean |   Error |  StdDev | CacheMisses/Op | BranchInstructions/Op | InstructionRetired/Op |
+|------------- |---------:|--------:|--------:|---------------:|----------------------:|----------------------:|
+|   AvlTreeSet | 298.3 us | 0.87 us | 0.81 us |             87 |               375,178 |             1,208,659 |
+|    WBTreeSet | 300.1 us | 0.75 us | 0.66 us |             79 |               383,311 |             1,229,199 |
+|    SortedSet | 474.3 us | 2.20 us | 2.06 us |            128 |             1,050,059 |             2,901,164 |
+| ImmutableSet | 465.4 us | 1.92 us | 1.70 us |            103 |             1,169,875 |             2,992,643 |
 
 Join tree has even better lookup performance than standard `SortedSet` and `ImmutableSet`.
 
-# Random implementation remarks
+## VectorModifyBenchmark
+
+This benchmark creates a vector of 16384 elements and adds 1 to each element.
+
+|        Method |        Mean |     Error |    StdDev | BranchInstructions/Op | InstructionRetired/Op | CacheMisses/Op |
+|-------------- |------------:|----------:|----------:|----------------------:|----------------------:|---------------:|
+|          List |    13.12 us |  0.028 us |  0.027 us |                49,407 |               280,485 |              2 |
+| ImmutableList | 5,138.95 us | 20.923 us | 19.571 us |             9,529,344 |            43,057,812 |         57,847 |
+|     DenseTrie |   392.71 us |  0.823 us |  0.729 us |             1,332,262 |             6,028,385 |             54 |
+
+As expected, the built-in mutable list has the best performance.  Still, COW `DenseTrie` has significantly better performance
+than the built-in immutable list.
+
+## Remarks
+
+`TreeSet` has significantly better lookup performance than `SortedSet`.  I ascribe this to two factors:
+
+- Sorted set uses internally a red-black tree, which is on average deeper than WB or AVL trees.
+- Inspection of the generated assembly shows that JIT is able to inline key comparison method when implemented by
+  a abstract static interface method.  This is not the case for `SortedSet` where the comparison method is a delegate.
 
 I have attempted to convert recursive tree algorithms to iterative algorithms, using `TreeIterator` as a manually
 maintained stack.  Surprisingly, the result was _slower_ due to frequent calls to `CORINFO_HELP_ASSIGN_REF`, which
