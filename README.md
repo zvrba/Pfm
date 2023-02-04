@@ -32,8 +32,8 @@ Collection namespaces are divided by data structure and implementation technique
   access to n'th element in sorted order, and user-defined monoidal "augmentations" that can be used to implement,
   for example, an interval tree.
 
-  Tests include cases that cover correctness of copy on write semantics.  Benchmarks attempt to cover the cost of
-  COW semantics.
+Tests include cases that cover correctness of copy on write semantics.  Benchmarks attempt to cover the cost of
+COW semantics.
 
 # Future work
 
