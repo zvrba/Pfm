@@ -2,8 +2,8 @@
 
 namespace Pfm.Collections.TreeSet;
 
-public partial interface IJoinTree<TSelf, TValue>
-    where TSelf : struct, IJoinTree<TSelf, TValue>, IValueTraits<TValue>, IPersistenceTraits<TValue>
+public partial class JoinTree<TValue, TTreeTraits>
+    where TTreeTraits : struct, IValueTraits<TValue>, IBalanceTraits<TTreeTraits, TValue>
 {
     /// <summary>
     /// State threaded by reference through recursive calls to insert and delete.
@@ -37,15 +37,15 @@ public partial interface IJoinTree<TSelf, TValue>
     /// <returns>
     /// Tree root after the update.
     /// </returns>
-    public static TreeNode<TValue> Insert(TreeNode<TValue> root, ref ModificationState ma) {
+    public TreeNode<TValue> Insert(TreeNode<TValue> root, ref ModificationState ma) {
         if (root == null) {
-            var node = new TreeNode<TValue>() { V = ma.Input };
-            node.Update<TSelf>();
+            var node = new TreeNode<TValue>(transient) { V = ma.Input };
+            node.Update<TTreeTraits>();
             ma.Success = true;
             return node;
         }
 
-        int c = TSelf.CompareKey(ma.Input, root.V);
+        int c = TTreeTraits.CompareKey(ma.Input, root.V);
         if (c == 0) {
             ma.Output = root.V;
             ma.Success = false;
@@ -54,10 +54,10 @@ public partial interface IJoinTree<TSelf, TValue>
         
         if (c < 0) {
             var i = Insert(root.L, ref ma);
-            return !ma.Success ? root : TSelf.Join(i, root, root.R);
+            return !ma.Success ? root : TTreeTraits.Join(this, i, root, root.R);
         } else {
             var i = Insert(root.R, ref ma);
-            return !ma.Success ? root : TSelf.Join(root.L, root, i);
+            return !ma.Success ? root : TTreeTraits.Join(this, root.L, root, i);
         }
     }
 
@@ -72,13 +72,13 @@ public partial interface IJoinTree<TSelf, TValue>
     /// <returns>
     /// Tree root after the update.
     /// </returns>
-    public static TreeNode<TValue> Delete(TreeNode<TValue> root, ref ModificationState ma) {
+    public TreeNode<TValue> Delete(TreeNode<TValue> root, ref ModificationState ma) {
         if (root == null) {
             ma.Success = false;
             return null;
         }
 
-        var c = TSelf.CompareKey(ma.Input, root.V);
+        var c = TTreeTraits.CompareKey(ma.Input, root.V);
         if (c == 0) {
             ma.Output = root.V;
             ma.Success = true;
@@ -88,10 +88,10 @@ public partial interface IJoinTree<TSelf, TValue>
         
         if (c < 0) {
             var d = Delete(root.L, ref ma);
-            return !ma.Success ? root : TSelf.Join(d, root, root.R);
+            return !ma.Success ? root : TTreeTraits.Join(this, d, root, root.R);
         } else {
             var d = Delete(root.R, ref ma);
-            return !ma.Success ? root : TSelf.Join(root.L, root, d);
+            return !ma.Success ? root : TTreeTraits.Join(this, root.L, root, d);
         }
     }
 }

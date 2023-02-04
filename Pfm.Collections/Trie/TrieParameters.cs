@@ -8,7 +8,7 @@ namespace Pfm.Collections.Trie;
 /// Used upon vector creation to set the sizes of internal and external nodes.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-internal readonly struct TrieParameters
+public readonly struct TrieParameters
 {
     /// <summary>
     /// Constructor.

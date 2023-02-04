@@ -4,14 +4,9 @@ using System.Runtime.CompilerServices;
 namespace Pfm.Collections.TreeSet;
 
 /// <summary>
-/// <para>
 /// Value traits determine how values are handled by the tree.  This interface is separate from
-/// <see cref="ITreeTraits{TValue, TValueTraits}"/> so that it can be reused in various algorithms
+/// <see cref="JoinTree{TSelf, TValue}"/> so that it can be reused in various algorithms
 /// that do not depend on the tree mechanics.
-/// </para>
-/// <para>
-/// Default tag operations are no-op and <see cref="HasMonoidalTag"/> is false.
-/// </para>
 /// </summary>
 /// <typeparam name="TValue">Value type of the tree.</typeparam>
 public interface IValueTraits<TValue>
@@ -41,11 +36,10 @@ public interface IValueTraits<TValue>
     abstract static void CombineValues(in TValue left, ref TValue middle, in TValue right);
 
     /// <summary>
-    /// Must return <c>true</c> if <typeparamref name="TValue"/> includes a monoidal tag, in which case
-    /// the implementing class must also override <see cref="CombineMonoidalTags(TreeNode{TValue}, TreeNode{TValue}, TreeNode{TValue})"/>.
-    /// Defaul implementation returns false.
+    /// Clones the value.  Default implementation is a no-op, i.e., just returns <paramref name="value"/>.
     /// </summary>
-    virtual static bool HasMonoidalTag => false;
+    /// <returns>The cloned value.</returns>
+    virtual static TValue CloneValue(in TValue value) => value;
 
     /// <summary>
     /// Performs monoidal addition of three tags.

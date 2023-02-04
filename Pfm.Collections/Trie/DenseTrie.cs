@@ -1,142 +1,149 @@
 ﻿using System;
+using System.Threading;
 
 namespace Pfm.Collections.Trie;
 
 /// <summary>
-/// The structure and algorithms underlying vectors.
+/// Immutable/transient vector that can act as a dequeue.
 /// </summary>
-internal partial class DenseTrie<T>
+public partial class DenseTrie<T>
 {
+    private static ulong TransientCounter;
+
     public readonly TrieParameters Parameters;
-    internal Node Root;
-    internal Node Tail;
-    internal int Shift; // Levels below the root so that (index >> Shift) & IMask is the correct root slot.
-    internal object Transient;
+    private readonly ulong transient;
+
+    protected internal Node _Root;
+    protected internal Node _Tail;
+    protected internal int _Shift; // Levels below the root so that (index >> Shift) & IMask is the correct root slot.
+
+    public int Count { get; private set; }
+    public T this[int index] {
+        get => Get(index);
+        set => Set(index, value);
+    }
 
     // INVARIANT: The tail is never empty, except when the trie is empty.
 
     public DenseTrie(TrieParameters parameters) {
         Parameters = parameters;
-        Root = CreateLink();
-        Tail = CreateLeaf();
-        Shift = Parameters.EShift;
+        transient = Interlocked.Increment(ref TransientCounter);
+        _Root = CreateLink();
+        _Tail = CreateLeaf();
+        _Shift = Parameters.EShift;
     }
 
-    internal DenseTrie(DenseTrie<T> other, bool isTransient) {
-        this.Parameters = other.Parameters;
-        this.Root = other.Root;
-        this.Tail = other.Tail;
-        this.Shift = other.Shift;
-        this.Count = other.Count;
-        this.Transient = isTransient ? this : null;
+    private DenseTrie(DenseTrie<T> other) {
+        Parameters = other.Parameters;
+        transient = Interlocked.Increment(ref TransientCounter);
+        _Root = other._Root;
+        _Tail = other._Tail;
+        _Shift = other._Shift;
+        Count = other.Count;
     }
+
+    public DenseTrie<T> Fork() => new(this);
 
     private void CheckIndex(int index) {
         if (index < 0 || index >= Count)
             throw new IndexOutOfRangeException($"Index {index} is out of range.  Vector size is {Count}.");
     }
 
-    public int Count { get; private set; }
-
-    public T Get(int index) {
+    private T Get(int index) {
         CheckIndex(index);
 
-        ref Node node = ref Tail;
+        ref Node node = ref _Tail;
         if (index < ((Count - 1) & ~Parameters.EMask)) {
-            node = ref Root;
-            for (var shift = this.Shift; shift >= Parameters.EShift; shift -= Parameters.IShift)
+            node = ref _Root;
+            for (var shift = this._Shift; shift >= Parameters.EShift; shift -= Parameters.IShift)
                 node = ref node.Link[(index >> shift) & Parameters.IMask];
         }
         
         return node.Value[index & Parameters.EMask];
     }
 
-    public DenseTrie<T> Set(int index, T element) {
+    private void Set(int index, T element) {
         CheckIndex(index);
 
-        var ret = Clone();
-        ref Node node = ref ret.Tail;
+        ref Node node = ref _Tail;
         if (index < ((Count - 1) & ~Parameters.EMask)) {
             //ret.Root = ret.Clone(Root);
-            node = ref ret.Root;
-            for (var shift = Shift; shift >= Parameters.EShift; shift -= Parameters.IShift) {
-                node = Clone(node);
+            node = ref _Root;
+            for (var shift = _Shift; shift >= Parameters.EShift; shift -= Parameters.IShift) {
+                node = node.Clone(transient);
                 node = ref node.Link[(index >> shift) & Parameters.IMask];
             }
         }
 
-        node = Clone(node);
+        node = node.Clone(transient);
         node.Value[index & Parameters.EMask] = element;
-        return ret;
     }
 
-    public DenseTrie<T> Push(T element) {
-        var ret = Clone();
+    public void Push(T element) {
         if ((Count & Parameters.EMask) == 0) {
             if (Count > 0)
-                ret.PushTail();
+                PushTail();
         }
         else {
-            ret.Tail = Clone(this.Tail);
+            _Tail = _Tail.Clone(transient);
         }
 
-        ret.Tail.Value[ret.Count & Parameters.EMask] = element;
-        ++ret.Count;
-        return ret;
+        _Tail.Value[Count & Parameters.EMask] = element;
+        ++Count;
     }
 
     private void PushTail() {
-        if (Count > 1 << (Shift + Parameters.IShift)) {
+        if (Count > 1 << (_Shift + Parameters.IShift)) {
             var newroot = CreateLink();
-            newroot.Link[0] = Root;
-            Root = newroot;
-            Shift += Parameters.IShift;
+            newroot.Link[0] = _Root;
+            _Root = newroot;
+            _Shift += Parameters.IShift;
         }
-        DoPush(ref Root, Shift);
-        Tail = CreateLeaf();
+        DoPush(ref _Root, _Shift);
+        _Tail = CreateLeaf();
 
         void DoPush(ref Node node, int shift) {
             if (node.IsNull) node = CreateLink();
-            else node = Clone(node);
+            else node = node.Clone(transient);
 
             var islot = ((Count - 1) >> shift) & Parameters.IMask;
-            if (shift <= Parameters.IShift) node.Link[islot] = Tail;
+            if (shift <= Parameters.IShift) node.Link[islot] = _Tail;
             else DoPush(ref node.Link[islot], shift - Parameters.IShift);
         }
     }
 
-    public DenseTrie<T> Pop(out T element) {
-        if (Count == 0)
-            throw new InvalidOperationException("The trie is empty.");
-
-        var ret = Clone();
-        ret.Tail = Clone(ret.Tail);
-        --ret.Count;
-        element = ret.Tail.Value[ret.Count & Parameters.EMask];
-        ret.Tail.Value[ret.Count & Parameters.EMask] = default;   // Must have for GC to collect previously referenced data.
-        if ((ret.Count & Parameters.EMask) == 0)
-            ret.PopTail();
-        return ret;
+    public bool TryPop(out T element) {
+        if (Count == 0) {
+            element = default;
+            return false;
+        }
+        _Tail = _Tail.Clone(transient);
+        --Count;
+        element = _Tail.Value[Count & Parameters.EMask];
+        _Tail.Value[Count & Parameters.EMask] = default;   // Must have for GC to collect previously referenced data.
+        if ((Count & Parameters.EMask) == 0)
+            PopTail();
+        return true;
     }
 
     private void PopTail() {
-        DoPop(ref Root, Shift);
-        if (Shift > Parameters.EShift) {
-            if (Root.Link[1].IsNull) {
-                Root = Root.Link[0];
-                Shift -= Parameters.IShift;
+        DoPop(ref _Root, _Shift);
+        if (_Shift > Parameters.EShift) {
+            if (_Root.Link[1].IsNull) {
+                _Root = _Root.Link[0];
+                _Shift -= Parameters.IShift;
             }
         }
-        else if (Root.IsNull) {
-            Root = CreateLink();    // TODO: transient.
+        else if (_Root.IsNull) {
+            _Root = CreateLink();    // TODO: transient.
         }
 
         void DoPop(ref Node node, int shift) {
             var islot = ((Count - 1) >> shift) & Parameters.IMask;
-            node = Clone(node);
+            node = node.Clone(transient);
 
             if (shift == Parameters.EShift) {
-                Tail = node.Link[islot];
+                _Tail = node.Link[islot];
                 node.Link[islot] = default;
             }
             else {

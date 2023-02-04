@@ -2,18 +2,20 @@
 
 namespace Pfm.Collections.TreeSet;
 
-public partial interface IJoinTree<TSelf, TValue>
-    where TSelf : struct, IJoinTree<TSelf, TValue>, IValueTraits<TValue>, IPersistenceTraits<TValue>
+public partial class JoinTree<TValue, TTreeTraits>
+    where TTreeTraits : struct, IValueTraits<TValue>, IBalanceTraits<TTreeTraits, TValue>
 {
 
     /// <summary>
     /// Set equality: the sets rooted at <paramref name="a"/> and <paramref name="b"/> must contain "same" elements,
-    /// where element equality is defined by the traits' comparer.
+    /// where element equality is defined by the traits' comparer.  Neither argument is allowed to be null.
     /// </summary>
     /// <returns>
     /// True if both trees contain the same elements, false otherwise.
     /// </returns>
     public static bool SetEquals(TreeNode<TValue> a, TreeNode<TValue> b) {
+        if (a == null || b == null)
+            return (a == null) == (b == null);
         if (a.Size != b.Size)
             return false;
 
@@ -26,7 +28,7 @@ public partial interface IJoinTree<TSelf, TValue>
     loop:
         if (!hasA || !hasB)
             return !hasA && !hasB;
-        if (TSelf.CompareKey(ai.Top.V, bi.Top.V) != 0)
+        if (TTreeTraits.CompareKey(ai.Top.V, bi.Top.V) != 0)
             return false;
         hasA = ai.Succ();
         hasB = bi.Succ();
@@ -35,12 +37,11 @@ public partial interface IJoinTree<TSelf, TValue>
 
     /// <summary>
     /// Union of sets in trees rooted at <paramref name="t1"/> and <paramref name="t2"/>.
-    /// Without persistence, this operation is destructive to BOTH arguments.
     /// </summary>
     /// <returns>
     /// The root of the tree that is the union of <paramref name="t1"/> and <paramref name="t2"/>.
     /// </returns>
-    public static TreeNode<TValue> SetUnion(TreeNode<TValue> t1, TreeNode<TValue> t2) {
+    public TreeNode<TValue> SetUnion(TreeNode<TValue> t1, TreeNode<TValue> t2) {
         if (t1 == null)
             return t2;
         if (t2 == null)
@@ -50,20 +51,22 @@ public partial interface IJoinTree<TSelf, TValue>
         var l = SetUnion(s.L, t2.L);
         var r = SetUnion(s.R, t2.R);
         if (s.M != null) {
-            t2 = TSelf.Clone(t2);
-            TSelf.CombineValues(s.M.V, ref t2.V, t2.V);
+            t1 = s.M.Clone<TTreeTraits>(transient);
+            TTreeTraits.CombineValues(t1.V, ref t1.V, t2.V);
         }
-        return TSelf.Join(l, t2, r);
+        else {
+            t1 = t2;
+        }
+        return TTreeTraits.Join(this, l, t1, r);
     }
 
     /// <summary>
     /// Intersection of sets in trees rooted at <paramref name="t1"/> and <paramref name="t2"/>.
-    /// Without persistence, this operation is destructive to BOTH arguments.
     /// </summary>
     /// <returns>
     /// The root of the tree that is the union of <paramref name="t1"/> and <paramref name="t2"/>.
     /// </returns>
-    public static TreeNode<TValue> SetIntersection(TreeNode<TValue> t1, TreeNode<TValue> t2) {
+    public TreeNode<TValue> SetIntersection(TreeNode<TValue> t1, TreeNode<TValue> t2) {
         if (t1 == null || t2 == null)
             return null;
 
@@ -71,21 +74,20 @@ public partial interface IJoinTree<TSelf, TValue>
         var l = SetIntersection(s.L, t2.L);
         var r = SetIntersection(s.R, t2.R);
         if (s.M != null) {
-            t2 = TSelf.Clone(t2);
-            TSelf.CombineValues(s.M.V, ref t2.V, t2.V);
-            return TSelf.Join(l, t2, r);
+            t1 = s.M.Clone<TTreeTraits>(transient);
+            TTreeTraits.CombineValues(t1.V, ref t1.V, t2.V);
+            return TTreeTraits.Join(this, l, t1, r);
         }
         return Join2(l, r);
     }
 
     /// <summary>
     /// Difference of sets in trees rooted at <paramref name="t1"/> and <paramref name="t2"/>.
-    /// Without persistence, this operation is destructive to BOTH arguments.
     /// </summary>
     /// <returns>
     /// The root of the tree that is the union of <paramref name="t1"/> and <paramref name="t2"/>.
     /// </returns>
-    public static TreeNode<TValue> SetDifference(TreeNode<TValue> t1, TreeNode<TValue> t2) {
+    public TreeNode<TValue> SetDifference(TreeNode<TValue> t1, TreeNode<TValue> t2) {
         if (t1 == null)
             return null;
         if (t2 == null)

@@ -2,17 +2,18 @@
 
 namespace Pfm.Collections.TreeSet;
 
-public partial interface IJoinTree<TSelf, TValue>
-    where TSelf : struct, IJoinTree<TSelf, TValue>, IValueTraits<TValue>, IPersistenceTraits<TValue>
+public partial class JoinTree<TValue, TTreeTraits>
+    where TTreeTraits : struct, IValueTraits<TValue>, IBalanceTraits<TTreeTraits, TValue>
 {
     /// <summary>
-    /// Copies all nodes of the tree rooted at <paramref name="root"/>.  The copying is performed also when
-    /// the tree is persistent, according to persistence traits.
+    /// Copies all nodes of the tree rooted at <paramref name="root"/>.
+    /// Each node is copied if the node's transient tag is different from <c>this</c>.
     /// </summary>
     /// <param name="root">Root of the (sub)tree to copy; must not be null.</param>
+    /// </param>
     /// <returns>The root of the copied tree.</returns>
-    public static TreeNode<TValue> Copy(TreeNode<TValue> root) {
-        root = TSelf.Clone(root);
+    public TreeNode<TValue> Copy(TreeNode<TValue> root) {
+        root = root.Clone<TTreeTraits>(transient);
         if (root.L != null)
             root.L = Copy(root.L);
         if (root.R != null)
@@ -36,7 +37,7 @@ public partial interface IJoinTree<TSelf, TValue>
         var _value = value; // Local copy for optimization.
         int c;
         while (root != null) {
-            if ((c = TSelf.CompareKey(_value, root.V)) == 0) {
+            if ((c = TTreeTraits.CompareKey(_value, root.V)) == 0) {
                 value = root.V;
                 return true;
             }
@@ -82,19 +83,19 @@ public partial interface IJoinTree<TSelf, TValue>
     /// A structure containing the left and right subtrees and a flag indicating whether <paramref name="value"/> was
     /// found in the tree under <paramref name="root"/>.
     /// </returns>
-    public static Splitting Split(TreeNode<TValue> root, in TValue value) {
+    public Splitting Split(TreeNode<TValue> root, in TValue value) {
         if (root == null)
             return default;
-        var c = TSelf.CompareKey(value, root.V);
+        var c = TTreeTraits.CompareKey(value, root.V);
         if (c == 0)
             return new(root.L, root, root.R);
         if (c < 0) {
             var s = Split(root.L, value);
-            var j = TSelf.Join(s.R, root, root.R);
+            var j = TTreeTraits.Join(this, s.R, root, root.R);
             return new(s.L, s.M, j);
         } else {
             var s = Split(root.R, value);
-            var j = TSelf.Join(root.L, root, s.L);
+            var j = TTreeTraits.Join(this, root.L, root, s.L);
             return new(j, s.M, s.R);
         }
     }
@@ -104,19 +105,19 @@ public partial interface IJoinTree<TSelf, TValue>
     /// and <paramref name="right"/>. (Thus, like <see cref="Join(TreeNode{TValue}, TreeNode{TValue}, TreeNode{TValue})"/>, but without
     /// the middle value.)
     /// </summary>
-    public static TreeNode<TValue> Join2(TreeNode<TValue> left, TreeNode<TValue> right) {
+    public TreeNode<TValue> Join2(TreeNode<TValue> left, TreeNode<TValue> right) {
         if (left == null)
             return right;
         var n = SplitLast(left, out var leftlast);
-        return TSelf.Join(n, leftlast, right);
+        return TTreeTraits.Join(this, n, leftlast, right);
 
-        static TreeNode<TValue> SplitLast(TreeNode<TValue> node, out TreeNode<TValue> rightmost) {
+        TreeNode<TValue> SplitLast(TreeNode<TValue> node, out TreeNode<TValue> rightmost) {
             if (node.R == null) {
                 rightmost = node;
                 return node.L;
             }
             var n = SplitLast(node.R, out rightmost);
-            var j = TSelf.Join(node.L, node, n);
+            var j = TTreeTraits.Join(this, node.L, node, n);
             return j;
         }
     }

@@ -19,6 +19,26 @@ public sealed class TreeNode<TValue>
     public const uint RankMask = (1U << RankBits) - 1;
     public const uint SizeMask = ~RankMask;
 
+    public TreeNode(ulong transient) {
+        _T = transient;
+    }
+
+    /// <summary>
+    /// Value stored in the tree.
+    /// </summary>
+    public TValue V;
+
+    /// <summary>
+    /// Contains packed rank (6 bits) and size (26 bits).
+    /// Must not be touched by user code.
+    /// </summary>
+    public uint _RS;
+
+    /// <summary>
+    /// Transient tag used to eschew node cloning.  Must not be touched by user code.
+    /// </summary>
+    public readonly ulong _T;
+
     /// <summary>
     /// Left child, with key less than <see cref="V"/>.
     /// </summary>
@@ -28,13 +48,6 @@ public sealed class TreeNode<TValue>
     /// Right child, with key larger than <see cref="V"/>.
     /// </summary>
     public TreeNode<TValue> R;
-
-    /// <summary>
-    /// Value stored in the tree.
-    /// </summary>
-    public TValue V;
-
-    private uint _RS;   // Rank and size
 
     /// <summary>
     /// Balance metadata is maintained by tree mechanics and must not be touched by user code.
@@ -48,31 +61,13 @@ public sealed class TreeNode<TValue>
     public int Size => (int)(_RS >> RankBits);
 
     /// <summary>
-    /// Simultaneously sets <see cref="Rank"/> and <see cref=" Size"/>; no range checking is performed.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public void SetRankAndSizeUnchecked(int rank, int size) => _RS = (((uint)size) << RankBits) | (uint)rank;
-
-    /// <summary>
-    /// Default constructor: does nothing.
-    /// </summary>
-    public TreeNode() { }
-
-    /// <summary>
-    /// Copy-constructor.
-    /// </summary>
-    public TreeNode(TreeNode<TValue> other) {
-        L = other.L; R = other.R; V = other.V; _RS = other._RS;
-    }
-
-    /// <summary>
     /// Updates <c>this</c> node's balance and monoidal tags.
     /// WARNING: The update is in-place, so the node must have been cloned beforehand.
     /// </summary>
-    /// <typeparam name="TTree">A fully instantiated tree implementation type to use.</typeparam>
+    //[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void Update<TTree>()
-        where TTree : struct, IJoinTree<TTree, TValue>, IValueTraits<TValue>, IPersistenceTraits<TValue>
+        where TTree : struct, IValueTraits<TValue>, IBalanceTraits<TTree, TValue>
     {
         int rank, size;
         if (L != null && R != null) {
@@ -94,5 +89,18 @@ public sealed class TreeNode<TValue>
         }
         SetRankAndSizeUnchecked(rank, size);
     }
+
+    /// <summary>
+    /// Clones <c>this</c> if this' transient tag is different from <paramref name="transient"/>.
+    /// <returns>
+    /// New instance or <c>this</c>, depending on the transience tag.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public TreeNode<TValue> Clone<TValueTraits>(ulong transient) where TValueTraits : struct, IValueTraits<TValue> {
+        return transient == _T ? this : new(transient) { V = TValueTraits.CloneValue(V), L = L, R = R, _RS = _RS };
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private void SetRankAndSizeUnchecked(int rank, int size) => _RS = (((uint)size) << RankBits) | (uint)rank;
 }
 

@@ -1,4 +1,15 @@
-# Pfm
+# Pfm - Persistence for the masses
+
+Immutable collections are "all the rage" these days, for good reasons.  Their story in .NET, however,
+is very fragmented:
+
+- `IReadOnlyCollection`, `ReadOnlyCollection` wrappers (not thread-safe)
+- `System.Collections.Immutable` (thread-safe, but slow and memory-hungry)
+- and, int .NET8, "frozen collections", with clumsy semantics (https://devblogs.microsoft.com/premier-developer/immutable-collections-with-mutable-performance/)
+
+However, there are no mutable collections with _cheap_ "copy on write" semantics.
+
+# Library design
 
 Experiments with abstract statics in interfaces to implement traits-like design as commonly seen in C++.
 The technique is applied to model intrusive binary search trees with reduced overheads.
@@ -11,10 +22,10 @@ The solution consists of three assemblies:
 
 This project has been inspired by "Persistence for the Masses" paper, hence also the name.
 
-
-Tentative comment:
 Converting recursion to iteration, by manually maintaining a stack in an araray, made algorithms
-slower due to frequent calls to `CORINFO_HELP_ASSIGN_REF`.  See https://github.com/dotnet/runtime/issues/59031
+_slower_ due to frequent calls to `CORINFO_HELP_ASSIGN_REF`, which doesn't happen when the reference
+is pushed onto the stack during recursion.  See https://github.com/dotnet/runtime/issues/59031
+This is also the reason for using `ulong` for the node's transient tag instead of `object`.
 
 # Collections
 

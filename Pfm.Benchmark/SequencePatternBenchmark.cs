@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
-using Pfm.Collections.ReferenceTree;
+using Pfm.Collections.TreeSet;
 
 namespace Pfm.Benchmark;
 
@@ -11,13 +11,13 @@ public class SequencePatternBenchmark
 
     [Benchmark]
     public void TreeBenchmark() {
-        var tree = new AvlTree<int>(new Comparison<int>((x, y) => x - y));
+        var tree = new JoinableTreeSet<int, Program.IntAvlTree>();
         var iterator = tree.GetIterator();
 
         for (int i = 0; i < AddPermutation.Data.Length; ++i)
-            tree.Insert(AddPermutation.Data[i], out var _);
+            tree.Add(AddPermutation.Data[i]);
         for (int i = 0; i < RemovePermutation.Data.Length; ++i)
-            tree.Delete(RemovePermutation.Data[i]);
+            tree.Remove(RemovePermutation.Data[i]);
     }
 
     [ParamsSource(nameof(SequenceDescriptors))]

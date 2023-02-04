@@ -2,6 +2,8 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Diagnosers;
 
+using Pfm.Collections.TreeSet;
+
 namespace Pfm.Benchmark;
 
 [HardwareCounters(HardwareCounter.InstructionRetired, HardwareCounter.CacheMisses, HardwareCounter.BranchInstructions)]
@@ -12,9 +14,8 @@ public class FindBenchmark
     private readonly int[] data = new int[Size];
     private readonly System.Collections.Generic.SortedSet<int> sortedSet;
     private System.Collections.Immutable.ImmutableSortedSet<int> immTree;
-
-    private Pfm.Collections.TreeSet.JoinableTreeSet<ImplementationBenchmark.MutableAvlTraits, int> joinMutAvlTree = new();
-    private Pfm.Collections.TreeSet.JoinableTreeSet<ImplementationBenchmark.ImmutableAvlTraits, int> joinImmAvlTree = new();
+    private JoinableTreeSet<int, Program.IntAvlTree> avlTreeSet = new();
+    private JoinableTreeSet<int, Program.IntWBTree> wbTreeSet = new();
 
 #if false
     private Pfm.Collections.JoinTree.JoinTree<int, ImplementationBenchmark.MutableTraits,
@@ -36,12 +37,8 @@ public class FindBenchmark
         for (int i = 0; i < data.Length; ++i) {
             sortedSet.Add(data[i]);
             immTree = immTree.Add(data[i]);
-            joinMutAvlTree.Add(data[i]);
-            joinImmAvlTree.Add(data[i]);
-#if false
-            joinMutWBTree.Insert(data[i], out var _);
-            joinImmWBTree.Insert(data[i], out var _);
-#endif
+            avlTreeSet.Add(data[i]);
+            wbTreeSet.Add(data[i]);
         }
     }
 
@@ -49,30 +46,16 @@ public class FindBenchmark
     public int C = 0;
 
     [Benchmark]
-    public void MutableJoinAvlTree() {
+    public void AvlTreeSet() {
         for (int i = 0; i < data.Length; ++i)
-            C += joinMutAvlTree.Contains(i) ? 1 : 0;
+            C += avlTreeSet.Contains(i) ? 1 : 0;
     }
 
     [Benchmark]
-    public void ImmutableJoinAvlTree() {
+    public void WBTreeSet() {
         for (int i = 0; i < data.Length; ++i)
-            C += joinImmAvlTree.Contains(i) ? 1 : 0;
+            C += wbTreeSet.Contains(i) ? 1 : 0;
     }
-
-#if false
-    [Benchmark]
-    public void MutableJoinWBTree() {
-        for (int i = 0; i < data.Length; ++i)
-            C += joinMutWBTree.Find(i, out var _) ? 1 : 0;
-    }
-
-    [Benchmark]
-    public void ImmutableJoinWBTree() {
-        for (int i = 0; i < data.Length; ++i)
-            C += joinImmWBTree.Find(i, out var _) ? 1 : 0;
-    }
-#endif
 
     [Benchmark]
     public void SortedSet() {
@@ -85,29 +68,4 @@ public class FindBenchmark
         for (int i = 0; i < data.Length; ++i)
             C += immTree.Contains(i) ? 1 : 0;
     }
-
-#if false
-    private readonly Pfm.Collections.IntrusiveTree.AvlTree<
-        Pfm.Collections.IntrusiveTree.DefaultMutableNode<int, Pfm.Collections.IntrusiveTree.AvlTreeTag>,
-        int,
-        Pfm.Collections.IntrusiveTree.AvlTreeTag> intrTree;
-
-    [Benchmark]
-    public void IntrusiveTree() {
-        for (int i = 0; i < data.Length; ++i)
-            C += intrTree.Find(i, out var _);
-    }
-
-    [Benchmark]
-    public void DelegateIntrusiveTree() {
-        var d = new Pfm.Collections.IntrusiveTree.DelegateFinder<
-            Pfm.Collections.IntrusiveTree.DefaultMutableNode<int, Pfm.Collections.IntrusiveTree.AvlTreeTag>,
-            int,
-            Pfm.Collections.IntrusiveTree.AvlTreeTag>(
-            Pfm.Collections.IntrusiveTree.DefaultMutableNode<int, Pfm.Collections.IntrusiveTree.AvlTreeTag>.GetTraits(),
-            intrTree.Root);
-        for (int i = 0; i < data.Length; ++i)
-            C += d.Find(i, out var _);
-    }
-#endif
 }

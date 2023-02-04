@@ -3,6 +3,8 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Diagnostics.Windows;
 
+using Pfm.Collections.TreeSet;
+
 namespace Pfm.Benchmark;
 
 [HardwareCounters(HardwareCounter.InstructionRetired, HardwareCounter.CacheMisses, HardwareCounter.BranchInstructions)]
@@ -20,8 +22,8 @@ public class ImplementationBenchmark
     }
 
     [Benchmark]
-    public void MutableJoinAvlTree() {
-        Pfm.Collections.TreeSet.JoinableTreeSet<MutableAvlTraits, int> tree = new();
+    public void AvlTreeSet() {
+        JoinableTreeSet<int, Program.IntAvlTree> tree = new();
         for (int i = 0; i < data.Length; ++i)
             tree.Add(data[i]);
         for (int i = data.Length - 1; i >= 0; --i)
@@ -29,33 +31,13 @@ public class ImplementationBenchmark
     }
 
     [Benchmark]
-    public void ImmutableJoinAvlTree() {
-        Pfm.Collections.TreeSet.JoinableTreeSet<ImmutableAvlTraits, int> tree = new();
+    public void WBTreeSet() {
+        JoinableTreeSet<int, Program.IntWBTree> tree = new();
         for (int i = 0; i < data.Length; ++i)
             tree.Add(data[i]);
         for (int i = data.Length - 1; i >= 0; --i)
             tree.Remove(data[i]);
     }
-
-#if false
-    [Benchmark]
-    public void MutableJoinWBTree() {
-        Pfm.Collections.JoinTree.JoinTree<int, MutableTraits, Pfm.Collections.JoinTree.WBTree<int, MutableTraits>> tree = default;
-        for (int i = 0; i < data.Length; ++i)
-            tree.Insert(data[i], out var _);
-        for (int i = data.Length - 1; i >= 0; --i)
-            tree.Delete(data[i], out var _);
-    }
-
-    [Benchmark]
-    public void ImmutableJoinWBTree() {
-        Pfm.Collections.JoinTree.JoinTree<int, ImmutableTraits, Pfm.Collections.JoinTree.WBTree<int, ImmutableTraits>> tree = default;
-        for (int i = 0; i < data.Length; ++i)
-            tree.Insert(data[i], out var _);
-        for (int i = data.Length - 1; i >= 0; --i)
-            tree.Delete(data[i], out var _);
-    }
-#endif
 
     [Benchmark]
     public void SortedSet() {
@@ -73,25 +55,5 @@ public class ImplementationBenchmark
             s = s.Add(data[i]);
         for (int i = data.Length - 1; i >= 0; --i)
             s = s.Remove(data[i]);
-    }
-
-    internal interface IIntValueTraits : Pfm.Collections.TreeSet.IValueTraits<int>
-    {
-        static void Pfm.Collections.TreeSet.IValueTraits<int>.CombineValues(in int left, ref int middle, in int right) => middle = left;
-        static int Pfm.Collections.TreeSet.IValueTraits<int>.CompareKey(in int left, in int right) => left - right;
-    }
-
-    internal struct MutableAvlTraits :
-        IIntValueTraits,
-        Pfm.Collections.TreeSet.IPersistenceTraits<int>.IMutable,
-        Pfm.Collections.TreeSet.IAvlTree<MutableAvlTraits, int>
-    {
-    }
-
-    internal struct ImmutableAvlTraits :
-        IIntValueTraits,
-        Pfm.Collections.TreeSet.IPersistenceTraits<int>.IShallowImmutable,
-        Pfm.Collections.TreeSet.IAvlTree<ImmutableAvlTraits, int>
-    {
     }
 }

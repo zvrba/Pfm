@@ -1,7 +1,6 @@
-﻿using Pfm.Collections.Trie;
-
-using System;
+﻿using System;
 using System.Linq;
+using Pfm.Collections.Trie;
 
 namespace Pfm.Test;
 
@@ -10,14 +9,14 @@ namespace Pfm.Test;
 /// </summary>
 internal class Vector_BasicTest
 {
-    private ImmutableVector<int> v;
+    private readonly DenseTrie<int> v;
     private readonly int l1Size;
     private readonly int l2Size;
 
     private Vector_BasicTest(int ishift, int eshift) {
-        v = ImmutableVector<int>.Create(ishift, eshift);
-        l1Size = 1 << (v.InternalBits + v.ExternalBits);
-        l2Size = 1 << (2 * v.InternalBits + v.ExternalBits);
+        v = new(new (ishift, eshift));
+        l1Size = 1 << (v.Parameters.IShift + v.Parameters.EShift);
+        l2Size = 1 << (2 * v.Parameters.IShift + v.Parameters.EShift);
     }
 
     public static void Run(int ishift, int eshift) {
@@ -33,7 +32,7 @@ internal class Vector_BasicTest
     }
 
     void A_FillLevel1() {
-        Assert.True(v.Trie.Root.Link.All(x => x.IsNull));
+        Assert.True(v._Root.Link.All(x => x.IsNull));
 
         for (int i = 0; i < l1Size; ++i) {
             v.Push(i);
@@ -41,7 +40,7 @@ internal class Vector_BasicTest
             Assert.True(v[i] == i);
         }
         Assert.True(v.Count == l1Size);
-        Assert.True(v.Trie.Shift == v.ExternalBits);
+        Assert.True(v._Shift == v.Parameters.EShift);
     }
 
     void B_GrowRoot() {
@@ -51,7 +50,7 @@ internal class Vector_BasicTest
             Assert.True(v[i] == i);
         }
         Assert.True(v.Count == l2Size);
-        Assert.True(v.Trie.Shift == v.InternalBits + v.ExternalBits);
+        Assert.True(v._Shift == v.Parameters.IShift + v.Parameters.EShift);
     }
 
     void C_Increment() {
@@ -64,13 +63,13 @@ internal class Vector_BasicTest
         for (int i = v.Count; i > 0; --i) {
             for (int j = 0; j < v.Count; ++j)
                 Assert.True(v[j] == j + 1);
-            var e = v.Pop();
-            Assert.True(e == v.Count + 1);
+            var b = v.TryPop(out var e);
+            Assert.True(b && e == v.Count + 1);
         }
 
         Assert.True(v.Count == 0);
-        Assert.True(v.Trie.Shift == v.ExternalBits);
-        Assert.True(v.Trie.Root.Link.All(x => x.IsNull));
-        Assert.Throws<InvalidOperationException>(() => v.Pop());
+        Assert.True(v._Shift == v.Parameters.EShift);
+        Assert.True(v._Root.Link.All(x => x.IsNull));
+        Assert.True(!v.TryPop(out var _));
     }
 }

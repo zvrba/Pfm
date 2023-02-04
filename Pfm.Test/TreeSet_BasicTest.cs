@@ -4,12 +4,12 @@ using Pfm.Collections.TreeSet;
 
 namespace Pfm.Test;
 
-internal class JoinableTreeSet1<TTree> where TTree : struct, IJoinTree<TTree, int>, IValueTraits<int>, IPersistenceTraits<int>
+internal class TreeSet_BasicTest<TTree> where TTree : struct, IValueTraits<int>, IBalanceTraits<TTree, int>
 {
     public static void Run(IList<int[]> sequences) {
         for (int i = 0; i < sequences.Count; ++i) {
             for (int j = 0; j < sequences.Count; ++j) {
-                var test = new JoinableTreeSet1<TTree>(sequences[i], sequences[j]);
+                var test = new TreeSet_BasicTest<TTree>(sequences[i], sequences[j]);
                 test.Run();
             }
         }
@@ -18,9 +18,9 @@ internal class JoinableTreeSet1<TTree> where TTree : struct, IJoinTree<TTree, in
     private readonly int[] insert;
     private readonly int[] remove;
     private readonly SortedSet<int> contents;
-    private readonly JoinableTreeSet<TTree, int> tree;
+    private readonly JoinableTreeSet<int, TTree> tree;
 
-    private JoinableTreeSet1(int[] insert, int[] remove) {
+    private TreeSet_BasicTest(int[] insert, int[] remove) {
         this.tree = new();
         this.insert = insert;
         this.remove = remove;
@@ -42,8 +42,7 @@ internal class JoinableTreeSet1<TTree> where TTree : struct, IJoinTree<TTree, in
         Assert.True(!iterator.First(null) && !iterator.Last(null));
 
         CheckDeleteRoot();
-        if (TTree.IsPersistent)
-            CheckPersistence();
+        CheckPersistence();
     }
 
     private void CheckInsert() {
@@ -91,23 +90,19 @@ internal class JoinableTreeSet1<TTree> where TTree : struct, IJoinTree<TTree, in
     }
 
     private void CheckPersistence() {
-        var trees = new JoinableTreeSet<TTree, int>[insert.Length];
-        
-        int i = 0;
-        trees[0] = new();
-        trees[0].TryAdd(ref i);
-        
-        for (i = 1; i < trees.Length; ++i) {
-            trees[i] = trees[i - 1].Copy();
-            Assert.True(trees[i].TryAdd(ref i));
+        var original = new JoinableTreeSet<int, TTree>();
+        for (int i = 0; i < insert.Length; ++i)
+            original.Add(insert[i]);
+        Assert.True(original.Count == insert.Length);
+
+        var copy = original.Fork();
+        for (int i = 0; i < remove.Length; ++i) {
+            original.Remove(remove[i]);
+            Assert.True(copy.Count == insert.Length);
+            for (int j = 0; j < insert.Length; ++j)
+                Assert.True(copy.Contains(insert[j]));
         }
-        for (i = 0; i < trees.Length; ++i) {
-            Assert.True(trees[i].Count == i + 1);
-            for (int j = 0; j <= i; ++j)
-                Assert.True(trees[i].Contains(j));
-            for (int j = i + 1; j < trees.Length; ++j)
-                Assert.True(!trees[i].Contains(j));
-        }
+        Assert.True(original.Count == 0);
     }
 
     private bool Insert(int v) {

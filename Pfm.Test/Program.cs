@@ -6,7 +6,7 @@ namespace Pfm.Test;
 
 public static class Program
 {
-    const int SequenceSize = 211;
+    const int SequenceSize = 384;
 
     public static void Main() {
         // NB! Running time grows at least quadratically with element count.
@@ -16,22 +16,11 @@ public static class Program
         Vector_MutationTest.Run(3, 2);
         //Vector_BasicTest.Run(5, 5); // NB! Slow-ish.
 
-        JoinableTreeSet1<MutableAvlTree>.Run(sequences);
-        JoinableTreeSet1<ImmutableAvlTree>.Run(sequences);
-    }
-
-    internal interface IIntValueTraits : IValueTraits<int>
-    {
-        static void IValueTraits<int>.CombineValues(in int left, ref int middle, in int right) => middle = left;
-        static int IValueTraits<int>.CompareKey(in int left, in int right) => left - right;
-    }
-
-    internal struct MutableAvlTree : IIntValueTraits, IAvlTree<MutableAvlTree, int>, IPersistenceTraits<int>.IMutable
-    {
-    }
-
-    internal struct ImmutableAvlTree : IIntValueTraits, IAvlTree<ImmutableAvlTree, int>, IPersistenceTraits<int>.IShallowImmutable
-    {
+        TreeSet_BasicTest<IntAvlTree>.Run(sequences);
+        TreeSet_SetTest<IntAvlTree>.Run(SequenceSize);
+        
+        TreeSet_BasicTest<IntWBTree>.Run(sequences);
+        TreeSet_SetTest<IntWBTree>.Run(SequenceSize);
     }
 
     private static List<int[]> GetSequences(int max) {
@@ -42,5 +31,19 @@ public static class Program
             ret.Add(a);
         }
         return ret;
+    }
+
+    internal interface IIntValueTraits : IValueTraits<int>
+    {
+        static void IValueTraits<int>.CombineValues(in int left, ref int middle, in int right) => middle = left;
+        static int IValueTraits<int>.CompareKey(in int left, in int right) => left - right;
+    }
+
+    internal struct IntAvlTree : IIntValueTraits, IAvlTree<IntAvlTree, int>
+    {
+    }
+
+    internal struct IntWBTree : IIntValueTraits, IWBTree<IntWBTree, int>
+    {
     }
 }

@@ -1,33 +1,38 @@
 ﻿using System;
-using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86;
 
 namespace Pfm.Collections.Trie;
 
-internal partial class DenseTrie<T>
+public partial class DenseTrie<T>
 {
-    // A node is valid transient only when node.Transient == root.Transient == reference to the trie.
-    internal struct Node
+    /// <summary>
+    /// Trie node.  Two nodes are equal iff their <see cref="Data"/> members are equal (and, consequently, their
+    /// <see cref="Transient"/> fields, because of cloning rules).
+    /// </summary>
+    public readonly struct Node : IEquatable<Node>
     {
-        internal object Data;
-        internal object Transient;
+        public readonly ICloneable Data;
+        public readonly ulong Transient;
 
-        internal Node[] Link => (Node[])Data;
-        internal T[] Value => (T[])Data;
-        internal bool IsNull => Data == null;
+        // TODO: Could use Unsafe.As for casting.
+        public Node[] Link => (Node[])Data;
+        public T[] Value => (T[])Data;
+        public bool IsNull => Data == null;
 
-        internal Node(object data, object transient) {
-            Data = data;
+        public Node(object data, ulong transient) {
+            Data = (ICloneable)data;
             Transient = transient;
         }
 
-        internal Node Clone(object transient) => transient != null && Transient == transient  ?
-            this : new(((ICloneable)Data).Clone(), null);
+        public Node Clone(ulong transient) => transient == Transient ? this : new(Data.Clone(), transient);
+
+        public bool Equals(Node other) => Data == other.Data;
+        public static bool operator ==(Node n1, Node n2) => n1.Equals(n2);
+        public static bool operator !=(Node n1, Node n2) => !n1.Equals(n2);
+
+        public override bool Equals(object obj) => obj is Node other && Equals(other);
+        public override int GetHashCode() => Data.GetHashCode();    // Transient is not usable as it's sequential.
     }
 
-    private DenseTrie<T> Clone() => Transient == this ? this : new DenseTrie<T>(this, false);
-    private Node Clone(Node node) => node.Clone(Root.Transient);
-
-    private Node CreateLink() => new(new Node[Parameters.ISize], Transient);
-    private Node CreateLeaf() => new(new T[Parameters.ESize], Transient);
+    private Node CreateLink() => new(new Node[Parameters.ISize], transient);
+    private Node CreateLeaf() => new(new T[Parameters.ESize], transient);
 }
