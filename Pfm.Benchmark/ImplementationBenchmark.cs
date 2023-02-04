@@ -40,6 +40,40 @@ public class ImplementationBenchmark
     }
 
     [Benchmark]
+    public void AvlCOWSet() {
+        JoinableTreeSet<int, Program.IntAvlTree> tree = new();
+        for (int i = 0; i < data.Length; ++i)
+            if ((data[i] & 1) == 1)
+                tree.Add(data[i]);
+
+        tree = tree.Fork();
+        for (int i = 0; i < data.Length; ++i)
+            if ((data[i] & 1) == 0)
+                tree.Add(data[i]);
+
+        tree = tree.Fork();
+        for (int i = data.Length - 1; i >= 0; --i)
+            tree.Remove(data[i]);
+    }
+
+    [Benchmark]
+    public void WBCOWSet() {
+        JoinableTreeSet<int, Program.IntWBTree> tree = new();
+        for (int i = 0; i < data.Length; ++i)
+            if ((data[i] & 1) == 1)
+                tree.Add(data[i]);
+
+        tree = tree.Fork();
+        for (int i = 0; i < data.Length; ++i)
+            if ((data[i] & 1) == 0)
+                tree.Add(data[i]);
+
+        tree = tree.Fork();
+        for (int i = data.Length - 1; i >= 0; --i)
+            tree.Remove(data[i]);
+    }
+
+    [Benchmark]
     public void SortedSet() {
         var s = new System.Collections.Generic.SortedSet<int>();
         for (int i = 0; i < data.Length; ++i)
