@@ -6,7 +6,7 @@ using Pfm.Collections.TreeSet;
 
 namespace Pfm.Benchmark;
 
-[HardwareCounters(HardwareCounter.InstructionRetired, HardwareCounter.CacheMisses, HardwareCounter.BranchInstructions)]
+//[HardwareCounters(HardwareCounter.InstructionRetired, HardwareCounter.CacheMisses, HardwareCounter.BranchInstructions)]
 public class TreeFindBenchmark
 {
     public const int Size = 8197;

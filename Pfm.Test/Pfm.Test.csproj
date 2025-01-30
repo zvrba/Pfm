@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <!-- TODO: Remove when retargeted to net7.0 -->
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
