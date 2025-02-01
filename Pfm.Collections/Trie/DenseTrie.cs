@@ -10,7 +10,7 @@ public partial class DenseTrie<T>
 {
     private static ulong TransientCounter;
 
-    public readonly TrieParameters Parameters;
+    public readonly DenseTrieParameters Parameters;
     private readonly ulong transient;
 
     protected internal Node _Root;
@@ -25,7 +25,7 @@ public partial class DenseTrie<T>
 
     // INVARIANT: The tail is never empty, except when the trie is empty.
 
-    public DenseTrie(TrieParameters parameters) {
+    public DenseTrie(DenseTrieParameters parameters) {
         Parameters = parameters;
         transient = Interlocked.Increment(ref TransientCounter);
         _Root = CreateLink();
