@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pfm.Collections.TreeSet;
+namespace Podaga.PersistentCollections.TreeSet;
 
 /// <summary>
 /// Functional operations over sets: non-destructive to either argument.

@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Pfm.Collections.TreeSet;
+namespace Podaga.PersistentCollections.TreeSet;
 
 // This file implements ICollection / IReadOnlyList interfaces.
 

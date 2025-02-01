@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace Pfm.Collections.TreeSet;
+namespace Podaga.PersistentCollections.TreeSet;
 
 /// <summary>
 /// Tree traits are core operations related to tree mechanics.  This interface also provides a number of

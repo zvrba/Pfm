@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Pfm.Collections.TreeSet;
+namespace Podaga.PersistentCollections.TreeSet;
 
 /// <summary>
 /// <para>
@@ -13,7 +13,7 @@ namespace Pfm.Collections.TreeSet;
 /// WARNING: This is a mutable struct.  For performance reasons, the provided methods and properties perform
 /// no error checking on their own and rely on the runtime throwing <see cref="NullReferenceException"/> or
 /// <see cref="IndexOutOfRangeException"/>.  Copying of an iterator is shallow: the "original" and its "copy"
-/// will share the same underlying stack array.  For deep copying, use <see cref="Pred(ref Pfm.Collections.TreeSet.TreeIterator{TValue})"/>.
+/// will share the same underlying stack array.  For deep copying, use <see cref="Pred(ref Podaga.Collections.TreeSet.TreeIterator{TValue})"/>.
 /// </para>
 /// <para>
 /// WARNING: Iterating over a non-persistent tree that is being modified yields unspecified results.  The modification

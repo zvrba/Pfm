@@ -1,2 +1,2 @@
 ﻿using System.Runtime.CompilerServices;
-[assembly:InternalsVisibleTo("Pfm.Test")]
+[assembly:InternalsVisibleTo("Podaga.PersistentCollections.Test")]

@@ -3,9 +3,9 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Diagnostics.Windows;
 
-using Pfm.Collections.TreeSet;
+using Podaga.PersistentCollections.TreeSet;
 
-namespace Pfm.Benchmark;
+namespace Podaga.PersistentCollections.Benchmark;
 
 //[HardwareCounters(HardwareCounter.InstructionRetired, HardwareCounter.CacheMisses, HardwareCounter.BranchInstructions)]
 [MemoryDiagnoser]
@@ -18,7 +18,7 @@ public class TreeModifyBenchmark
     public TreeModifyBenchmark() {
         for (int i = 0; i < data.Length; ++i)
             data[i] = i;
-        Pfm.Collections.PermutationGenerators.Random(data);
+        Podaga.Collections.PermutationGenerators.Random(data);
     }
 
     [Benchmark]

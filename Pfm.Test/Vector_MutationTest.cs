@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Pfm.Collections.Trie;
+using Podaga.Collections.Trie;
 
-namespace Pfm.Test;
+namespace Podaga.PersistentCollections.Test;
 
 using VI = DenseTrie<int>;
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace Pfm.Collections.Trie;
+namespace Podaga.Collections.Trie;
 
 /// <summary>
 /// Immutable/transient vector that can act as a dequeue.

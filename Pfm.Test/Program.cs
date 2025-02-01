@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Pfm.Collections.TreeSet;
+using Podaga.PersistentCollections.TreeSet;
 
-namespace Pfm.Test;
+namespace Podaga.PersistentCollections.Test;
 
 public static class Program
 {

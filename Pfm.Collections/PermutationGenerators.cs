@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pfm.Collections;
+namespace Podaga.Collections;
 
 /// <summary>
 /// Data generators for tree tests.

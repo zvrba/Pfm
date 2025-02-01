@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Pfm.Collections.TreeSet;
+using Podaga.PersistentCollections.TreeSet;
 
-namespace Pfm.Test;
+namespace Podaga.PersistentCollections.Test;
 
 // Tests set operations.  Must be used only with immutable nodes!
 internal class TreeSet_SetTest<TTree> where TTree : struct, IValueTraits<int>, IBalanceTraits<TTree, int>

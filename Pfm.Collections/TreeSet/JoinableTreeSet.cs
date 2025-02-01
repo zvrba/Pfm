@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Pfm.Collections.TreeSet;
+namespace Podaga.PersistentCollections.TreeSet;
 
 /// <summary>
 /// Basic collection adapter for joinable trees.  This class behaves as a mutable set; however

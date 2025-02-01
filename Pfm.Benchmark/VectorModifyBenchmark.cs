@@ -4,9 +4,9 @@ using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Diagnosers;
 
-using Pfm.Collections.Trie;
+using Podaga.Collections.Trie;
 
-namespace Pfm.Benchmark;
+namespace Podaga.PersistentCollections.Benchmark;
 
 [HardwareCounters(HardwareCounter.InstructionRetired, HardwareCounter.CacheMisses, HardwareCounter.BranchInstructions)]
 public class VectorModifyBenchmark

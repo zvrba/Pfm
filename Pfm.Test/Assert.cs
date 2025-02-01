@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pfm.Test;
+namespace Podaga.PersistentCollections.Test;
 
 internal static class Assert
 {

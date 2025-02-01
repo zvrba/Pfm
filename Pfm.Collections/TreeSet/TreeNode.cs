@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace Pfm.Collections.TreeSet;
+namespace Podaga.PersistentCollections.TreeSet;
 
 /// <summary>
 /// Node of a binary search tree.  The implementation uses single int for rank and size: 6 bits for rank and 26

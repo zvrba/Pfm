@@ -2,9 +2,9 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Diagnosers;
 
-using Pfm.Collections.TreeSet;
+using Podaga.PersistentCollections.TreeSet;
 
-namespace Pfm.Benchmark;
+namespace Podaga.PersistentCollections.Benchmark;
 
 //[HardwareCounters(HardwareCounter.InstructionRetired, HardwareCounter.CacheMisses, HardwareCounter.BranchInstructions)]
 public class TreeFindBenchmark
@@ -28,7 +28,7 @@ public class TreeFindBenchmark
     public TreeFindBenchmark() {
         for (int i = 0; i < data.Length; ++i)
             data[i] = i;
-        Pfm.Collections.PermutationGenerators.Random(data);
+        Podaga.Collections.PermutationGenerators.Random(data);
 
         sortedSet = new();
         immTree = System.Collections.Immutable.ImmutableSortedSet<int>.Empty;

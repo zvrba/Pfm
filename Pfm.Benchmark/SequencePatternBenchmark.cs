@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
-using Pfm.Collections.TreeSet;
+using Podaga.PersistentCollections.TreeSet;
 
-namespace Pfm.Benchmark;
+namespace Podaga.PersistentCollections.Benchmark;
 
 public class SequencePatternBenchmark
 {

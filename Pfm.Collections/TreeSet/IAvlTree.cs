@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace Pfm.Collections.TreeSet;
+namespace Podaga.PersistentCollections.TreeSet;
 
 public interface IAvlTree<TSelf, TValue> : IBalanceTraits<TSelf, TValue>
     where TSelf : struct, IValueTraits<TValue>, IAvlTree<TSelf, TValue>

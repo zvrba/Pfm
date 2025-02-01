@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pfm.Collections.TreeSet;
+namespace Podaga.PersistentCollections.TreeSet;
 
 public interface IBalanceTraits<TSelf, TValue>
     where TSelf : struct, IBalanceTraits<TSelf, TValue>, IValueTraits<TValue>

@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Pfm.Collections.Trie;
+namespace Podaga.Collections.Trie;
 
 /// <summary>
 /// Used upon vector creation to set the sizes of internal and external nodes.

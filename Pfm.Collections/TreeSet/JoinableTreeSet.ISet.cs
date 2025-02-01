@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Pfm.Collections.TreeSet;
+namespace Podaga.PersistentCollections.TreeSet;
 
 public partial class JoinableTreeSet<TValue, TTreeTraits> :
     ICollection<TValue>,

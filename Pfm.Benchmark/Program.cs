@@ -9,7 +9,7 @@ using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 
-namespace Pfm.Benchmark;
+namespace Podaga.PersistentCollections.Benchmark;
 
 // NOTE: Tree code gets heavy gains from PGO: set DOTNET_TieredPGO=1
 public static class Program
@@ -20,17 +20,17 @@ public static class Program
         Console.WriteLine("Done.");
     }
 
-    internal interface IIntValueTraits : Pfm.Collections.TreeSet.IValueTraits<int>
+    internal interface IIntValueTraits : Podaga.PersistentCollections.TreeSet.IValueTraits<int>
     {
-        static void Pfm.Collections.TreeSet.IValueTraits<int>.CombineValues(in int left, ref int middle, in int right) => middle = left;
-        static int Pfm.Collections.TreeSet.IValueTraits<int>.CompareKey(in int left, in int right) => left - right;
+        static void Podaga.PersistentCollections.TreeSet.IValueTraits<int>.CombineValues(in int left, ref int middle, in int right) => middle = left;
+        static int Podaga.PersistentCollections.TreeSet.IValueTraits<int>.CompareKey(in int left, in int right) => left - right;
     }
 
-    internal struct IntAvlTree : IIntValueTraits, Pfm.Collections.TreeSet.IAvlTree<IntAvlTree, int>
+    internal struct IntAvlTree : IIntValueTraits, Podaga.PersistentCollections.TreeSet.IAvlTree<IntAvlTree, int>
     {
     }
 
-    internal struct IntWBTree : IIntValueTraits, Pfm.Collections.TreeSet.IWBTree<IntWBTree, int>
+    internal struct IntWBTree : IIntValueTraits, Podaga.PersistentCollections.TreeSet.IWBTree<IntWBTree, int>
     {
     }
 

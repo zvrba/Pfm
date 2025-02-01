@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Pfm.Benchmark;
+namespace Podaga.PersistentCollections.Benchmark;
 
 public class SequenceProvider
 {
@@ -12,13 +12,13 @@ public class SequenceProvider
 
     public SequenceProvider() {
         sequences = new List<Descriptor>() {
-            new("Ascending", SequenceSize, Pfm.Collections.PermutationGenerators.Ascending),
-            new("Descending", SequenceSize, Pfm.Collections.PermutationGenerators.Descending),
-            new("Balanced", SequenceSize, Pfm.Collections.PermutationGenerators.Balanced),
-            new("ZigZag", SequenceSize, Pfm.Collections.PermutationGenerators.ZigZag),
-            new("Shifted", SequenceSize, Pfm.Collections.PermutationGenerators.Shifted),
-            new("Bitonic", SequenceSize, Pfm.Collections.PermutationGenerators.Bitonic),
-            new("Random", SequenceSize, Pfm.Collections.PermutationGenerators.Random),
+            new("Ascending", SequenceSize, Podaga.Collections.PermutationGenerators.Ascending),
+            new("Descending", SequenceSize, Podaga.Collections.PermutationGenerators.Descending),
+            new("Balanced", SequenceSize, Podaga.Collections.PermutationGenerators.Balanced),
+            new("ZigZag", SequenceSize, Podaga.Collections.PermutationGenerators.ZigZag),
+            new("Shifted", SequenceSize, Podaga.Collections.PermutationGenerators.Shifted),
+            new("Bitonic", SequenceSize, Podaga.Collections.PermutationGenerators.Bitonic),
+            new("Random", SequenceSize, Podaga.Collections.PermutationGenerators.Random),
         };
     }
 

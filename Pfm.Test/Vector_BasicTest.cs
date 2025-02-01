@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using Pfm.Collections.Trie;
+using Podaga.Collections.Trie;
 
-namespace Pfm.Test;
+namespace Podaga.PersistentCollections.Test;
 
 /// <summary>
 /// Uses small tree widths for manual testing in debugger.
