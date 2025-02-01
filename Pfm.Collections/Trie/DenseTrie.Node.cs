@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Podaga.Collections.Trie;
+namespace Podaga.PersistentCollections.Trie;
 
 public partial class DenseTrie<T>
 {

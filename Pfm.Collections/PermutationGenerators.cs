@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Podaga.Collections;
+namespace Podaga.PersistentCollections;
 
 /// <summary>
 /// Data generators for tree tests.
