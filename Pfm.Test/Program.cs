@@ -25,7 +25,7 @@ public static class Program
 
     private static List<int[]> GetSequences(int max) {
         var ret = new List<int[]>();
-        foreach (var g in Collections.PermutationGenerators.Generators) {
+        foreach (var g in PermutationGenerators.Generators) {
             var a = new int[max];
             g(a);
             ret.Add(a);

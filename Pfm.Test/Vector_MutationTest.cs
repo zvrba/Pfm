@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Podaga.Collections.Trie;
+using Podaga.PersistentCollections.Trie;
 
 namespace Podaga.PersistentCollections.Test;
 

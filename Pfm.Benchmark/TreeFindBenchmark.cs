@@ -28,7 +28,7 @@ public class TreeFindBenchmark
     public TreeFindBenchmark() {
         for (int i = 0; i < data.Length; ++i)
             data[i] = i;
-        Podaga.Collections.PermutationGenerators.Random(data);
+        PermutationGenerators.Random(data);
 
         sortedSet = new();
         immTree = System.Collections.Immutable.ImmutableSortedSet<int>.Empty;

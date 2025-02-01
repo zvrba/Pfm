@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Diagnosers;
 
-using Podaga.Collections.Trie;
+using Podaga.PersistentCollections.Trie;
 
 namespace Podaga.PersistentCollections.Benchmark;
 

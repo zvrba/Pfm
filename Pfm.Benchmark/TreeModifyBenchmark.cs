@@ -18,7 +18,7 @@ public class TreeModifyBenchmark
     public TreeModifyBenchmark() {
         for (int i = 0; i < data.Length; ++i)
             data[i] = i;
-        Podaga.Collections.PermutationGenerators.Random(data);
+        PermutationGenerators.Random(data);
     }
 
     [Benchmark]

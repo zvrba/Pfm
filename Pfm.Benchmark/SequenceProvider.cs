@@ -12,13 +12,13 @@ public class SequenceProvider
 
     public SequenceProvider() {
         sequences = new List<Descriptor>() {
-            new("Ascending", SequenceSize, Podaga.Collections.PermutationGenerators.Ascending),
-            new("Descending", SequenceSize, Podaga.Collections.PermutationGenerators.Descending),
-            new("Balanced", SequenceSize, Podaga.Collections.PermutationGenerators.Balanced),
-            new("ZigZag", SequenceSize, Podaga.Collections.PermutationGenerators.ZigZag),
-            new("Shifted", SequenceSize, Podaga.Collections.PermutationGenerators.Shifted),
-            new("Bitonic", SequenceSize, Podaga.Collections.PermutationGenerators.Bitonic),
-            new("Random", SequenceSize, Podaga.Collections.PermutationGenerators.Random),
+            new("Ascending", SequenceSize, PermutationGenerators.Ascending),
+            new("Descending", SequenceSize, PermutationGenerators.Descending),
+            new("Balanced", SequenceSize, PermutationGenerators.Balanced),
+            new("ZigZag", SequenceSize, PermutationGenerators.ZigZag),
+            new("Shifted", SequenceSize, PermutationGenerators.Shifted),
+            new("Bitonic", SequenceSize, PermutationGenerators.Bitonic),
+            new("Random", SequenceSize, PermutationGenerators.Random),
         };
     }
 
