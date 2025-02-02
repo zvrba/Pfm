@@ -10,7 +10,6 @@ public partial class JoinTree<TValue, TTreeTraits>
     /// Each node is copied if the node's transient tag is different from <c>this</c>.
     /// </summary>
     /// <param name="root">Root of the (sub)tree to copy; must not be null.</param>
-    /// </param>
     /// <returns>The root of the copied tree.</returns>
     public TreeNode<TValue> Copy(TreeNode<TValue> root) {
         root = root.Clone<TTreeTraits>(transient);
