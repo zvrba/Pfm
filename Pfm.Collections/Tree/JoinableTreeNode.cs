@@ -7,7 +7,7 @@ namespace Podaga.PersistentCollections.Tree;
 /// <summary>
 /// Node of a binary search tree.  
 /// </summary>
-/// <typeparam name="TTag">Type of tags stored in the tree.  Use <see cref="TreeBalanceTag"/> when no custom tag is needed.</typeparam>
+/// <typeparam name="TTag">Type of tags stored in the tree.</typeparam>
 /// <typeparam name="TValue">Type of values stored in the tree.</typeparam>
 [DebuggerDisplay("V={V} (S={Size}, R={Rank})")]
 public sealed class JoinableTreeNode<TTag, TValue> where TTag : struct, ITagTraits<TTag>
@@ -16,8 +16,10 @@ public sealed class JoinableTreeNode<TTag, TValue> where TTag : struct, ITagTrai
     /// Constructor.
     /// </summary>
     /// <param name="transient">Transient value for this node.</param>
-    public JoinableTreeNode(ulong transient) {
+    /// <param name="value">Value stored in the node.</param>
+    public JoinableTreeNode(ulong transient, TValue value) {
         Transient = transient;
+        V = value;
     }
 
     /// <summary>
@@ -26,9 +28,9 @@ public sealed class JoinableTreeNode<TTag, TValue> where TTag : struct, ITagTrai
     public readonly ulong Transient;
 
     /// <summary>
-    /// Value contained in the node.
+    /// Value contained in the node.  Immutable because it determines the node's position in the tree.
     /// </summary>
-    public TValue V;
+    public readonly TValue V;
 
     /// <summary>
     /// Tag contained in the node.
@@ -54,7 +56,7 @@ public sealed class JoinableTreeNode<TTag, TValue> where TTag : struct, ITagTrai
     public JoinableTreeNode<TTag, TValue> Clone<TValueTraits>(ulong transient) where TValueTraits : IValueTraits<TValue>
         => transient == Transient 
         ? this 
-        : new(transient) { V = TValueTraits.Clone(V), T = T, L = L, R = R, };
+        : new(transient, TValueTraits.Clone(V)) { T = T, L = L, R = R, };
 
     /// <summary>
     /// Updates <c>this</c> node's balance and monoidal tags.

@@ -18,16 +18,6 @@ public interface ITagTraits<TTag> where TTag : struct
     abstract static TTag Nil { get; }
 
     /// <summary>
-    /// The node's rank.  MUST NOT be touched by user code.
-    /// </summary>
-    int Rank { get; set; }
-
-    /// <summary>
-    /// Size is the count of nodes under and including this node.  MUST NOT be touched by user code.
-    /// </summary>
-    int Size { get; set; }
-
-    /// <summary>
     /// Computes <c>result = left + result + right</c>.  The computation of <see cref="Rank"/> and <see cref="Size"/>
     /// must be delegated to the tree's concrete balance tag.
     /// </summary>
@@ -68,7 +58,7 @@ public interface IValueTraits<TValue>
 /// </summary>
 /// <typeparam name="TTag">Tag type.</typeparam>
 /// <typeparam name="TValue">Type of values stored in the tree.</typeparam>
-public interface IJoinableTree<TTag, TValue>
+public interface ITreeTraits<TTag, TValue> : ITagTraits<TTag>, IValueTraits<TValue>
     where TTag : struct, ITagTraits<TTag>
 {
     /// <summary>
