@@ -1,19 +1,19 @@
 ﻿#nullable enable
+
 using System;
 
 namespace Podaga.PersistentCollections.Tree;
 
 /// <summary>
-/// This struct combines multiple traits into a complete joinable tree data structure.
-/// All algorithms are defined as extension methods on this struct, which is used as the context for cloning and keeping
-/// track of the root node.
+/// This abstract class presents the fundamental interface of joinable trees.
+/// All other algorithms are defined as extension methods.
 /// </summary>
 /// <typeparam name="TTag">Tag type used for balancing.</typeparam>
 /// <typeparam name="TValue">Value type.</typeparam>
-/// <typeparam name="TSelf">Implementation of <see cref="ITreeTraits{TTag, TValue}"/>.</typeparam>
-public struct JoinableTree<TTag, TValue, TSelf>
+/// <typeparam name="TValueTraits">Value traits.</typeparam>
+public abstract class JoinableTree<TTag, TValue, TValueTraits>
     where TTag : struct, ITagTraits<TTag>
-    where TSelf : ITreeTraits<TTag, TValue>
+    where TValueTraits : struct, IValueTraits<TValue>
 {
     /// <summary>
     /// Constructor.
@@ -32,6 +32,28 @@ public struct JoinableTree<TTag, TValue, TSelf>
     /// Root node of the tree; <c>null</c> for an empty tree.  Modified in-place by various algorithms.
     /// </summary>
     public JoinableTreeNode<TTag, TValue>? Root;
+
+    /// <summary>
+    /// 3-way join is the core tree algorithm on which all other operations are based.
+    /// When the tree is not persistent, this operation is destructive to all inputs.
+    /// </summary>
+    /// <param name="left">Left tree to join.</param>
+    /// <param name="middle">The join pivot to insert in the result.</param>
+    /// <param name="right">Right tree to join.</param>
+    /// <returns>
+    /// Tree that has same entries and inorder traversal as the node <c>(left, middle, right)</c>.
+    /// </returns>
+    public abstract JoinableTreeNode<TTag, TValue> Join(
+        JoinableTreeNode<TTag, TValue> left,
+        JoinableTreeNode<TTag, TValue> middle,
+        JoinableTreeNode<TTag, TValue> right);
+
+    /// <summary>
+    /// This method must validate the tree's structure invariant.
+    /// Mainly for use in stress-tests.
+    /// </summary>
+    /// <exception cref="NotImplementedException">Thrown when a violation of the structure invariant is detected.</exception>
+    public abstract void ValidateStructure(JoinableTreeNode<TTag, TValue> root);
 
 
     /// <summary>

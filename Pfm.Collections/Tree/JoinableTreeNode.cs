@@ -15,7 +15,7 @@ public sealed class JoinableTreeNode<TTag, TValue> where TTag : struct, ITagTrai
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="transient">Transient value for this node.</param>
+    /// <param name="transient">Transient tag.</param>
     /// <param name="value">Value stored in the node.</param>
     public JoinableTreeNode(ulong transient, TValue value) {
         Transient = transient;
@@ -23,7 +23,7 @@ public sealed class JoinableTreeNode<TTag, TValue> where TTag : struct, ITagTrai
     }
 
     /// <summary>
-    /// Transient tag.
+    /// The transient tag.
     /// </summary>
     public readonly ulong Transient;
 
@@ -63,11 +63,11 @@ public sealed class JoinableTreeNode<TTag, TValue> where TTag : struct, ITagTrai
     /// WARNING: The update is in-place, so the node must have been cloned beforehand.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining /*| MethodImplOptions.AggressiveOptimization*/)]
-    public void Update<TTagTraits>() where TTagTraits : struct, ITagTraits<TTag>
+    public void Update()
     {
         var ltag = L?.T ?? TTag.Nil;
         var rtag = R?.T ?? TTag.Nil;
-        TTagTraits.Combine(ltag, ref T, rtag);
+        TTag.Combine(ltag, ref T, rtag);
     }
 }
 

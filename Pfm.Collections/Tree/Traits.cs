@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 
 namespace Podaga.PersistentCollections.Tree;
 
@@ -61,39 +60,4 @@ public interface IValueTraits<TValue>
     /// </summary>
     /// <returns>The cloned value.</returns>
     virtual static TValue Clone(TValue value) => value;
-}
-
-/// <summary>
-/// Every joinable tree must implement this interface.  The join algorithm itself is independent of value traits.
-/// </summary>
-/// <typeparam name="TTag">Tag type.</typeparam>
-/// <typeparam name="TValue">Type of values stored in the tree.</typeparam>
-public interface ITreeTraits<TTag, TValue> : ITagTraits<TTag>, IValueTraits<TValue>
-    where TTag : struct, ITagTraits<TTag>
-{
-    /// <summary>
-    /// 3-way join is the core tree algorithm on which all other operations are based.
-    /// </summary>
-    /// <param name="transient">Transient tag used for lazy cloning during tree modifications.</param>
-    /// <param name="left">Left tree to join.</param>
-    /// <param name="middle">The join pivot to insert in the result.</param>
-    /// <param name="right">Right tree to join.</param>
-    /// <returns>
-    /// Tree that has same entries and inorder traversal as the node <c>(left, middle, right)</c>.
-    /// </returns>
-    /// <remarks>
-    /// When the tree is not persistent, this operation is destructive to all inputs.
-    /// </remarks>
-    abstract static JoinableTreeNode<TTag, TValue> Join(
-        ulong transient,
-        JoinableTreeNode<TTag, TValue> left,
-        JoinableTreeNode<TTag, TValue> middle,
-        JoinableTreeNode<TTag, TValue> right);
-
-    /// <summary>
-    /// This method must validate the tree's structure invariant.
-    /// Mainly for use in stress-tests.
-    /// </summary>
-    /// <exception cref="NotImplementedException">Thrown when a violation of the structure invariant is detected.</exception>
-    abstract static void ValidateStructure(JoinableTreeNode<TTag, TValue> root);
 }

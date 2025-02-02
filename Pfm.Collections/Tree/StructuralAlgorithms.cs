@@ -1,10 +1,12 @@
 ﻿#nullable enable
+using Podaga.PersistentCollections.TreeSet;
+
 using System;
 
 namespace Podaga.PersistentCollections.Tree;
 
 /// <summary>
-/// Structural algorithm extension methods on <see cref="JoinableTree{TTag, TValue, TSelf}"/>.  These algorithms do not
+/// Structural algorithm extension methods on <see cref="JoinableTree{TTag, TValue, TValueTraits}"/>.  These algorithms do not
 /// depend on value traits, except for cloning.  The implicit <c>this</c> parameter is used as the transient context for
 /// cloning during mutations.
 /// </summary>
@@ -16,15 +18,15 @@ public static class StructuralAlgorithms
     /// </summary>
     /// <param name="this">The tree instance to copy into.</param>
     /// <param name="other">Root of the (sub)tree to copy; must not be null.</param>
-    public static void CopyFrom<TTag, TValue, TSelf>
+    public static void CopyFrom<TTag, TValue, TValueTraits>
         (
-        this JoinableTree<TTag, TValue, TSelf> @this,
-        JoinableTree<TTag, TValue, TSelf> other
+        this JoinableTree<TTag, TValue, TValueTraits> @this,
+        JoinableTree<TTag, TValue, TValueTraits> other
         )
         where TTag : struct, ITagTraits<TTag>
-        where TSelf : struct, ITreeTraits<TTag, TValue>
+        where TValueTraits : struct, IValueTraits<TValue>
     {
-        @this.Root = other.Root is null ? null : Copy<TTag, TValue, TSelf>(@this.Transient, other.Root);
+        @this.Root = other.Root is null ? null : Copy<TTag, TValue, TValueTraits>(@this.Transient, other.Root);
     }
 
     private static JoinableTreeNode<TTag, TValue> Copy<TTag, TValue, TValueTraits>(ulong transient, JoinableTreeNode<TTag, TValue> root)
@@ -48,13 +50,13 @@ public static class StructuralAlgorithms
     /// <exception cref="IndexOutOfRangeException">
     /// Index is outside of range <c>[0, Size-1)</c>, size being the size of the subtree.
     /// </exception>
-    public static TValue Nth<TTag, TValue, TSelf>
+    public static TValue Nth<TTag, TValue, TValueTraits>
         (
-        this JoinableTree<TTag, TValue, TSelf> @this,
+        this JoinableTree<TTag, TValue, TValueTraits> @this,
         int index
         )
         where TTag : struct, ITagTraits<TTag>
-        where TSelf : struct, ITreeTraits<TTag, TValue>
+        where TValueTraits : struct, IValueTraits<TValue>
     {
         var root = @this.Root;
         if (root is null || index < 0 || index >= root.T.Size)
@@ -81,19 +83,19 @@ public static class StructuralAlgorithms
     /// <param name="this">Tree instance; used for transient context.</param>
     /// <param name="left">Left side of the join.</param>
     /// <param name="right">Right side of the join.</param>
-    public static JoinableTreeNode<TTag, TValue>? Join2<TTag, TValue, TSelf>
+    public static JoinableTreeNode<TTag, TValue>? Join2<TTag, TValue, TValueTraits>
         (
-        this JoinableTree<TTag, TValue, TSelf> @this,
+        this JoinableTree<TTag, TValue, TValueTraits> @this,
         JoinableTreeNode<TTag, TValue>? left,
         JoinableTreeNode<TTag, TValue>? right
         )
         where TTag : struct, ITagTraits<TTag>
-        where TSelf : struct, ITreeTraits<TTag, TValue>
+        where TValueTraits : struct, IValueTraits<TValue>
     {
         if (left is null)
             return right;
         var n = SplitLast(left, out var leftlast);
-        return TTreeTraits.Join(this, n, leftlast, right);
+        return @this.Join(n, leftlast, right);
 
         JoinableTreeNode<TTag, TValue> SplitLast(JoinableTreeNode<TTag, TValue> node, out JoinableTreeNode<TTag, TValue> rightmost) {
             if (node.R == null) {
@@ -101,9 +103,7 @@ public static class StructuralAlgorithms
                 return node.L;
             }
             var n = SplitLast(node.R, out rightmost);
-            return TSelf.Join()
-            var j = TTreeTraits.Join(this, node.L, node, n);
-            return j;
+            return @this.Join(node.L, node, n);
         }
     }
 
@@ -114,19 +114,19 @@ public static class StructuralAlgorithms
     /// <returns>
     /// The updated (possibly cloned) node that was <paramref name="m"/>.
     /// </returns>
-    public static JoinableTreeNode<TTag, TValue> JoinBalanced<TTag, TValue, TSelf>
+    public static JoinableTreeNode<TTag, TValue> JoinBalanced<TTag, TValue, TValueTraits>
         (
-        this JoinableTree<TTag, TValue, TSelf> @this,
+        this JoinableTree<TTag, TValue, TValueTraits> @this,
         JoinableTreeNode<TTag, TValue> l,
         JoinableTreeNode<TTag, TValue> m,
         JoinableTreeNode<TTag, TValue> r
         )
         where TTag : struct, ITagTraits<TTag>
-        where TSelf : struct, ITreeTraits<TTag, TValue>
+        where TValueTraits : struct, IValueTraits<TValue>
     {
-        m = m.Clone<TSelf>(@this.Transient);
+        m = m.Clone<TValueTraits>(@this.Transient);
         m.L = l; m.R = r;
-        m.Update<TSelf>();
+        m.Update();
         return m;
     }
 
@@ -134,20 +134,20 @@ public static class StructuralAlgorithms
     /// Single left rotation using <paramref name="n"/> as pivot node.
     /// </summary>
     /// <returns>New subtree root such that <paramref name="n"/> is its left child.</returns>
-    public static JoinableTreeNode<TTag, TValue> RotL<TTag, TValue, TSelf>
+    public static JoinableTreeNode<TTag, TValue> RotL<TTag, TValue, TValueTraits>
         (
-        this JoinableTree<TTag, TValue, TSelf> @this,
+        this JoinableTree<TTag, TValue, TValueTraits> @this,
         JoinableTreeNode<TTag, TValue> n
         )
         where TTag : struct, ITagTraits<TTag>
-        where TSelf : struct, ITreeTraits<TTag, TValue>
+        where TValueTraits : struct, IValueTraits<TValue>
     {
-        n = n.Clone<TSelf>(@this.Transient);
-        var y = n.R.Clone<TSelf>(@this.Transient);
+        n = n.Clone<TValueTraits>(@this.Transient);
+        var y = n.R.Clone<TValueTraits>(@this.Transient);
         n.R = y.L;
         y.L = n;
-        n.Update<TSelf>();
-        y.Update<TSelf>();
+        n.Update();
+        y.Update();
         return y;
     }
 
@@ -155,24 +155,24 @@ public static class StructuralAlgorithms
     /// Double left rotation using <paramref name="n"/> as pivot node.
     /// </summary>
     /// <returns>New subtree root such that <paramref name="n"/> is its left child.</returns>
-    public static JoinableTreeNode<TTag, TValue> RotLL<TTag, TValue, TSelf>
-        (
-        this JoinableTree<TTag, TValue, TSelf> @this,
+    public static JoinableTreeNode<TTag, TValue> RotLL<TTag, TValue, TValueTraits>
+    (
+        this JoinableTree<TTag, TValue, TValueTraits> @this,
         JoinableTreeNode<TTag, TValue> n
         )
         where TTag : struct, ITagTraits<TTag>
-        where TSelf : struct, ITreeTraits<TTag, TValue> 
+        where TValueTraits : struct, IValueTraits<TValue>
     {
-        n = n.Clone<TSelf>(@this.Transient);
-        var x = n.R.Clone<TSelf>(@this.Transient);
-        var y = x.L.Clone<TSelf>(@this.Transient);
+        n = n.Clone<TValueTraits>(@this.Transient);
+        var x = n.R.Clone<TValueTraits>(@this.Transient);
+        var y = x.L.Clone<TValueTraits>(@this.Transient);
         n.R = y.L;
         x.L = y.R;
         y.L = n;
         y.R = x;
-        n.Update<TSelf>();
-        x.Update<TSelf>();
-        y.Update<TSelf>();
+        n.Update();
+        x.Update();
+        y.Update();
         return y;
     }
 
@@ -180,20 +180,20 @@ public static class StructuralAlgorithms
     /// Single right rotation using <paramref name="n"/> as pivot node.
     /// </summary>
     /// <returns>New subtree root such that <paramref name="n"/> is its right child.</returns>
-    public static JoinableTreeNode<TTag, TValue> RotR<TTag, TValue, TSelf>
+    public static JoinableTreeNode<TTag, TValue> RotR<TTag, TValue, TValueTraits>
         (
-        this JoinableTree<TTag, TValue, TSelf> @this,
+        this JoinableTree<TTag, TValue, TValueTraits> @this,
         JoinableTreeNode<TTag, TValue> n
         )
         where TTag : struct, ITagTraits<TTag>
-        where TSelf : struct, ITreeTraits<TTag, TValue>
+        where TValueTraits : struct, IValueTraits<TValue>
     {
-        n = n.Clone<TSelf>(@this.Transient);
-        var x = n.L.Clone<TSelf>(@this.Transient);
+        n = n.Clone<TValueTraits>(@this.Transient);
+        var x = n.L.Clone<TValueTraits>(@this.Transient);
         n.L = x.R;
         x.R = n;
-        n.Update<TSelf>();
-        x.Update<TSelf>();
+        n.Update();
+        x.Update();
         return x;
     }
 
@@ -201,24 +201,24 @@ public static class StructuralAlgorithms
     /// Double right rotation using <paramref name="n"/> as pivot node.
     /// </summary>
     /// <returns>New subtree root such that <paramref name="n"/> is its right child.</returns>
-    public static JoinableTreeNode<TTag, TValue> RotRR<TTag, TValue, TSelf>
+    public static JoinableTreeNode<TTag, TValue> RotRR<TTag, TValue, TValueTraits>
         (
-        this JoinableTree<TTag, TValue, TSelf> @this,
+        this JoinableTree<TTag, TValue, TValueTraits> @this,
         JoinableTreeNode<TTag, TValue> n
         )
         where TTag : struct, ITagTraits<TTag>
-        where TSelf : struct, ITreeTraits<TTag, TValue>
+        where TValueTraits : struct, IValueTraits<TValue>
     {
-        n = n.Clone<TSelf>(@this.Transient);
-        var x = n.L.Clone<TSelf>(@this.Transient);
-        var y = x.R.Clone<TSelf>(@this.Transient);
+        n = n.Clone<TValueTraits>(@this.Transient);
+        var x = n.L.Clone<TValueTraits>(@this.Transient);
+        var y = x.R.Clone<TValueTraits>(@this.Transient);
         x.R = y.L;
         n.L = y.R;
         y.L = x;
         y.R = n;
-        x.Update<TSelf>();
-        n.Update<TSelf>();
-        y.Update<TSelf>();
+        x.Update();
+        n.Update();
+        y.Update();
         return y;
     }
 }
