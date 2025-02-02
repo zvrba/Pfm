@@ -17,13 +17,13 @@ public sealed class JoinableTreeNode<TTag, TValue> where TTag : struct, ITagTrai
     /// </summary>
     /// <param name="transient">Transient value for this node.</param>
     public JoinableTreeNode(ulong transient) {
-        X = transient;
+        Transient = transient;
     }
 
     /// <summary>
     /// Transient tag.
     /// </summary>
-    public readonly ulong X;
+    public readonly ulong Transient;
 
     /// <summary>
     /// Value contained in the node.
@@ -52,7 +52,7 @@ public sealed class JoinableTreeNode<TTag, TValue> where TTag : struct, ITagTrai
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining /*| MethodImplOptions.AggressiveOptimization*/)]
     public JoinableTreeNode<TTag, TValue> Clone<TValueTraits>(ulong transient) where TValueTraits : IValueTraits<TValue>
-        => transient == X 
+        => transient == Transient 
         ? this 
         : new(transient) { V = TValueTraits.Clone(V), T = T, L = L, R = R, };
 

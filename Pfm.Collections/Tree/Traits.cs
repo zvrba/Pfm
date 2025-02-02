@@ -68,23 +68,9 @@ public interface IValueTraits<TValue>
 /// </summary>
 /// <typeparam name="TTag">Tag type.</typeparam>
 /// <typeparam name="TValue">Type of values stored in the tree.</typeparam>
-public interface ITreeTraits<TTag, TValue>
+public interface IJoinableTree<TTag, TValue>
     where TTag : struct, ITagTraits<TTag>
 {
-    /// <summary>
-    /// Value provided to <see cref="CombineRanks(int, int)(int, int)"/> when node is missing a left or right child.
-    /// Default implementation returns 0, which should almost always be OK because, according to the paper, ranks
-    /// are monotonic wrt tree height.
-    /// </summary>
-    virtual static int NilRank => 0;
-
-    /// <summary>
-    /// Combines ranks from child nodes.  When either child is missing, the method will be invoked with <see cref="NilRank"/>.
-    /// </summary>
-    /// <param name="left">Rank of the left child.</param>
-    /// <param name="right">Rank of the right child.</param>
-    abstract static int CombineRanks(int left, int right);
-
     /// <summary>
     /// 3-way join is the core tree algorithm on which all other operations are based.
     /// </summary>
