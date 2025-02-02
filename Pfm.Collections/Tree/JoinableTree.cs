@@ -55,6 +55,31 @@ public abstract class JoinableTree<TTag, TValue, TValueTraits>
     /// <exception cref="NotImplementedException">Thrown when a violation of the structure invariant is detected.</exception>
     public abstract void ValidateStructure(JoinableTreeNode<TTag, TValue> root);
 
+    /// <summary>
+    /// Splits tree rooted at <paramref name="root"/> into left and right subtrees holding respectively
+    /// values less than and greater than <paramref name="value"/>.
+    /// </summary>
+    /// <returns>
+    /// A structure containing the left and right subtrees and a flag indicating whether <paramref name="value"/> was
+    /// found in the tree.
+    /// </returns>
+    public Splitting Split(JoinableTreeNode<TTag, TValue> root, TValue value) {
+        if (root == null)
+            return default;
+        var c = TValueTraits.Compare(value, root.V);
+        if (c == 0)
+            return new(root.L, root, root.R);
+        if (c < 0) {
+            var s = Split(root.L, value);
+            var j = Join(s.R, root, root.R);
+            return new(s.L, s.M, j);
+        } else {
+            var s = Split(root.R, value);
+            var j = Join(root.L, root, s.L);
+            return new(j, s.M, s.R);
+        }
+    }
+
 
     /// <summary>
     /// Describes the result of splitting a joinable tree at a given value.
