@@ -1,6 +1,5 @@
 ﻿#nullable enable
 using System;
-using System.Runtime.CompilerServices;
 
 namespace Podaga.PersistentCollections.Tree;
 
@@ -11,6 +10,35 @@ namespace Podaga.PersistentCollections.Tree;
 /// </summary>
 public static class StructuralAlgorithms
 {
+    /// <summary>
+    /// Copies all nodes from <paramref name="other"/> into <c>this</c>, replacing the root.
+    /// Each node is copied if the node's transient tag is different from <c>this</c>.
+    /// </summary>
+    /// <param name="this">The tree instance to copy into.</param>
+    /// <param name="other">Root of the (sub)tree to copy; must not be null.</param>
+    public static void CopyFrom<TTag, TValue, TSelf>
+        (
+        this JoinableTree<TTag, TValue, TSelf> @this,
+        JoinableTree<TTag, TValue, TSelf> other
+        )
+        where TTag : struct, ITagTraits<TTag>
+        where TSelf : struct, ITreeTraits<TTag, TValue>
+    {
+        @this.Root = other.Root is null ? null : Copy<TTag, TValue, TSelf>(@this.Transient, other.Root);
+    }
+
+    private static JoinableTreeNode<TTag, TValue> Copy<TTag, TValue, TValueTraits>(ulong transient, JoinableTreeNode<TTag, TValue> root)
+        where TTag : struct, ITagTraits<TTag>
+        where TValueTraits : struct, IValueTraits<TValue>
+    {
+        root = root.Clone<TValueTraits>(transient);
+        if (root.L != null)
+            root.L = Copy<TTag, TValue, TValueTraits>(transient, root.L);
+        if (root.R != null)
+            root.R = Copy<TTag, TValue, TValueTraits>(transient, root.R);
+        return root;
+    }
+
     /// <summary>
     /// Attaches <paramref name="l"/> and <paramref name="r"/> as left and right children of <paramref name="m"/>.
     /// </summary>

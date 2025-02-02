@@ -19,7 +19,7 @@ public struct JoinableTree<TTag, TValue, TSelf>
     /// Constructor.
     /// </summary>
     /// <param name="transient">
-    /// Transient tag; must be a unique value for every new instance..
+    /// Transient tag.  Use <see cref="TransientTag.New"/> to generate a fresh unique value.
     /// </param>
     public JoinableTree(ulong transient) => Transient = transient;
 
