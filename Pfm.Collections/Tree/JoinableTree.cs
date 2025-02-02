@@ -32,4 +32,31 @@ public struct JoinableTree<TTag, TValue, TSelf>
     /// Root node of the tree; <c>null</c> for an empty tree.  Modified in-place by various algorithms.
     /// </summary>
     public JoinableTreeNode<TTag, TValue>? Root;
+
+
+    /// <summary>
+    /// Describes the result of splitting a joinable tree at a given value.
+    /// This is a nested struct tied to the outer generic parameters.
+    /// </summary>
+    public readonly struct Splitting
+    {
+        /// <summary>
+        /// Left part of the split.
+        /// </summary>
+        public readonly JoinableTreeNode<TTag, TValue> L;
+
+        /// <summary>
+        /// Not null if the node with the splitting value was found in the tree.
+        /// </summary>
+        public readonly JoinableTreeNode<TTag, TValue> M;
+
+        /// <summary>
+        /// Right part of the split.
+        /// </summary>
+        public readonly JoinableTreeNode<TTag, TValue> R;
+
+        internal Splitting(JoinableTreeNode<TTag, TValue> l, JoinableTreeNode<TTag, TValue> m, JoinableTreeNode<TTag, TValue> r) {
+            L = l; M = m; R = r;
+        }
+    }
 }

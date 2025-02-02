@@ -25,6 +25,16 @@ public interface ITagTraits<TTag> where TTag : struct
     /// <param name="result">Tag value corresponding to the current node.</param>
     /// <param name="right">Tag value corresponding to the right branch.  <see cref="Nil"/> if there is no right branch.</param>
     abstract static void Combine(TTag left, ref TTag result, TTag right);
+
+    /// <summary>
+    /// Rank used for internal balancing operations.  Can be modified only by the tree implementation.
+    /// </summary>
+    int Rank { get; set; }
+
+    /// <summary>
+    /// Count of nodes under and including this node.  Can be modified only by the tree implementation.
+    /// </summary>
+    int Size { get; set; }
 }
 
 /// <summary>

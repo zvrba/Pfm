@@ -40,6 +40,75 @@ public static class StructuralAlgorithms
     }
 
     /// <summary>
+    /// Returns the n'th element in sorted order in the tree.  Using this method is more efficient than the equivalent iterator methods.
+    /// </summary>
+    /// <param name="this">The tree instance.</param>
+    /// <param name="index">Order of the element to retrieve.</param>
+    /// <returns>The found element.</returns>
+    /// <exception cref="IndexOutOfRangeException">
+    /// Index is outside of range <c>[0, Size-1)</c>, size being the size of the subtree.
+    /// </exception>
+    public static TValue Nth<TTag, TValue, TSelf>
+        (
+        this JoinableTree<TTag, TValue, TSelf> @this,
+        int index
+        )
+        where TTag : struct, ITagTraits<TTag>
+        where TSelf : struct, ITreeTraits<TTag, TValue>
+    {
+        var root = @this.Root;
+        if (root is null || index < 0 || index >= root.T.Size)
+            throw new IndexOutOfRangeException("Invalid tree element index.");
+
+        ++index;    // Makes calculations easier.
+    loop:
+        var l = root!.L is null ? 0 : root.L.T.Size;
+        if (index == l + 1)
+            return root.V;
+        if (index <= l) {
+            root = root.L;
+        } else {
+            root = root.R;
+            index -= l + 1;
+        }
+        goto loop;
+    }
+
+    /// <summary>
+    /// Returns a tree for which the in-order values are concatenation of in-order values of <paramref name="left"/>
+    /// and <paramref name="right"/>.
+    /// </summary>
+    /// <param name="this">Tree instance; used for transient context.</param>
+    /// <param name="left">Left side of the join.</param>
+    /// <param name="right">Right side of the join.</param>
+    public static JoinableTreeNode<TTag, TValue>? Join2<TTag, TValue, TSelf>
+        (
+        this JoinableTree<TTag, TValue, TSelf> @this,
+        JoinableTreeNode<TTag, TValue>? left,
+        JoinableTreeNode<TTag, TValue>? right
+        )
+        where TTag : struct, ITagTraits<TTag>
+        where TSelf : struct, ITreeTraits<TTag, TValue>
+    {
+        if (left is null)
+            return right;
+        var n = SplitLast(left, out var leftlast);
+        return TTreeTraits.Join(this, n, leftlast, right);
+
+        JoinableTreeNode<TTag, TValue> SplitLast(JoinableTreeNode<TTag, TValue> node, out JoinableTreeNode<TTag, TValue> rightmost) {
+            if (node.R == null) {
+                rightmost = node;
+                return node.L;
+            }
+            var n = SplitLast(node.R, out rightmost);
+            return TSelf.Join()
+            var j = TTreeTraits.Join(this, node.L, node, n);
+            return j;
+        }
+    }
+
+
+    /// <summary>
     /// Attaches <paramref name="l"/> and <paramref name="r"/> as left and right children of <paramref name="m"/>.
     /// </summary>
     /// <returns>
