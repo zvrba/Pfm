@@ -53,7 +53,18 @@ public abstract class JoinableTree<TTag, TValue, TValueTraits>
     /// Mainly for use in stress-tests.
     /// </summary>
     /// <exception cref="NotImplementedException">Thrown when a violation of the structure invariant is detected.</exception>
-    public abstract void ValidateStructure(JoinableTreeNode<TTag, TValue> root);
+    public abstract void ValidateStructure();
+
+    /// <summary>
+    /// Describes the result of <see cref="Split(JoinableTreeNode{TTag, TValue}, TValue)"/>.
+    /// </summary>
+    /// <param name="L">Left part of the split.</param>
+    /// <param name="M">Not null if the node with the splitting value was found in the tree.</param>
+    /// <param name="R">Right part of the split.</param>
+    public record struct SplitResult(
+        JoinableTreeNode<TTag, TValue> L,
+        JoinableTreeNode<TTag, TValue> M,
+        JoinableTreeNode<TTag, TValue> R);
 
     /// <summary>
     /// Splits tree rooted at <paramref name="root"/> into left and right subtrees holding respectively
@@ -63,7 +74,7 @@ public abstract class JoinableTree<TTag, TValue, TValueTraits>
     /// A structure containing the left and right subtrees and a flag indicating whether <paramref name="value"/> was
     /// found in the tree.
     /// </returns>
-    public Splitting Split(JoinableTreeNode<TTag, TValue> root, TValue value) {
+    public SplitResult Split(JoinableTreeNode<TTag, TValue> root, TValue value) {
         if (root == null)
             return default;
         var c = TValueTraits.Compare(value, root.V);
@@ -77,33 +88,6 @@ public abstract class JoinableTree<TTag, TValue, TValueTraits>
             var s = Split(root.R, value);
             var j = Join(root.L, root, s.L);
             return new(j, s.M, s.R);
-        }
-    }
-
-
-    /// <summary>
-    /// Describes the result of splitting a joinable tree at a given value.
-    /// This is a nested struct tied to the outer generic parameters.
-    /// </summary>
-    public readonly struct Splitting
-    {
-        /// <summary>
-        /// Left part of the split.
-        /// </summary>
-        public readonly JoinableTreeNode<TTag, TValue> L;
-
-        /// <summary>
-        /// Not null if the node with the splitting value was found in the tree.
-        /// </summary>
-        public readonly JoinableTreeNode<TTag, TValue> M;
-
-        /// <summary>
-        /// Right part of the split.
-        /// </summary>
-        public readonly JoinableTreeNode<TTag, TValue> R;
-
-        internal Splitting(JoinableTreeNode<TTag, TValue> l, JoinableTreeNode<TTag, TValue> m, JoinableTreeNode<TTag, TValue> r) {
-            L = l; M = m; R = r;
         }
     }
 }

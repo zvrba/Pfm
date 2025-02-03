@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace Podaga.PersistentCollections.Tree;
 
@@ -9,7 +7,6 @@ namespace Podaga.PersistentCollections.Tree;
 /// </summary>
 /// <typeparam name="TTag">Type of tags stored in the tree.</typeparam>
 /// <typeparam name="TValue">Type of values stored in the tree.</typeparam>
-[DebuggerDisplay("V={V} (S={Size}, R={Rank})")]
 public sealed class JoinableTreeNode<TTag, TValue> where TTag : struct, ITagTraits<TTag>
 {
     /// <summary>
@@ -17,8 +14,9 @@ public sealed class JoinableTreeNode<TTag, TValue> where TTag : struct, ITagTrai
     /// </summary>
     /// <param name="transient">Transient tag.</param>
     /// <param name="value">Value stored in the node.</param>
-    public JoinableTreeNode(ulong transient, TValue value) {
+    public JoinableTreeNode(ulong transient, TTag tag, TValue value) {
         Transient = transient;
+        T = tag;
         V = value;
     }
 
@@ -28,14 +26,14 @@ public sealed class JoinableTreeNode<TTag, TValue> where TTag : struct, ITagTrai
     public readonly ulong Transient;
 
     /// <summary>
-    /// Value contained in the node.  Immutable because it determines the node's position in the tree.
-    /// </summary>
-    public readonly TValue V;
-
-    /// <summary>
     /// Tag contained in the node.
     /// </summary>
     public TTag T;
+
+    /// <summary>
+    /// Value contained in the node.  Immutable because it determines the node's position in the tree.
+    /// </summary>
+    public readonly TValue V;
 
     /// <summary>
     /// Left child, with key less than <see cref="V"/>.
@@ -56,7 +54,7 @@ public sealed class JoinableTreeNode<TTag, TValue> where TTag : struct, ITagTrai
     public JoinableTreeNode<TTag, TValue> Clone<TValueTraits>(ulong transient) where TValueTraits : IValueTraits<TValue>
         => transient == Transient 
         ? this 
-        : new(transient, TValueTraits.Clone(V)) { T = T, L = L, R = R, };
+        : new(transient, T, TValueTraits.Clone(V)) { L = L, R = R, };
 
     /// <summary>
     /// Updates <c>this</c> node's balance and monoidal tags.

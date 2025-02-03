@@ -6,7 +6,7 @@ public partial class JoinTree<TValue, TTreeTraits>
     where TTreeTraits : struct, IValueTraits<TValue>, IBalanceTraits<TTreeTraits, TValue>
 {
     /// <summary>
-    /// State threaded by reference through recursive calls to insert and delete.
+    /// SearchState threaded by reference through recursive calls to insert and delete.
     /// </summary>
     public struct ModificationState {
         /// <summary>
