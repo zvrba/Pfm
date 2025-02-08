@@ -95,7 +95,7 @@ public static class ValueAlgorithms
 
 
     /// <summary>
-    /// Tries to insert <paramref name="value"/> into the tree.
+    /// Tries to insert a value into the tree.
     /// </summary>
     /// <param name="this">The tree within which to search.</param>
     /// <param name="state">
@@ -127,7 +127,7 @@ public static class ValueAlgorithms
 
 
     /// <summary>
-    /// Tries to remove <paramref name="value"/> from the tree.
+    /// Tries to remove a value from the tree.
     /// </summary>
     /// <param name="this">The tree within which to search.</param>
     /// <param name="state">
