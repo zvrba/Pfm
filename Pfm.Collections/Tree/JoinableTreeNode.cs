@@ -57,7 +57,8 @@ public sealed class JoinableTreeNode<TTag, TValue> where TTag : struct, ITagTrai
         : new(transient, T, TValueTraits.Clone(V)) { L = L, R = R, };
 
     /// <summary>
-    /// Updates <c>this</c> node's balance and monoidal tags.
+    /// Updates <c>this</c> node's balance, size and monoidal tags by invoking <see cref="ITagTraits{TTag}.Combine(TTag, ref TTag, TTag)"/>
+    /// with appropriate arguments.
     /// WARNING: The update is in-place, so the node must have been cloned beforehand.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining /*| MethodImplOptions.AggressiveOptimization*/)]

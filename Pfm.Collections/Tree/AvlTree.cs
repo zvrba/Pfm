@@ -4,14 +4,35 @@ using System.Runtime.CompilerServices;
 namespace Podaga.PersistentCollections.Tree;
 
 /// <summary>
+/// Provides default implementations of static methods in <see cref="ITagTraits{TTag}"/> that are suitable for AVL tree.
+/// </summary>
+/// <typeparam name="TTag">Concrete tag type.</typeparam>
+public interface IAvlTagTraits<TTag> : ITagTraits<TTag>
+    where TTag : struct, ITagTraits<TTag>
+{
+    static TTag ITagTraits<TTag>.Nil => default;
+
+    static void ITagTraits<TTag>.Combine(TTag left, ref TTag result, TTag right) {
+        result.Rank = 1 + (left.Rank > right.Rank ? left.Rank : right.Rank);
+        result.Size = 1 + left.Size + right.Size;
+    }
+}
+
+
+/// <summary>
 /// Specialization of <see cref="JoinableTree{TTag, TValue, TValueTraits}"/> to AVL trees.
 /// </summary>
 public sealed class AvlTree<TTag, TValue, TValueTraits> : JoinableTree<TTag, TValue, TValueTraits>
-    where TTag : struct, ITagTraits<TTag>
+    where TTag : struct, IAvlTagTraits<TTag>
     where TValueTraits : struct, IValueTraits<TValue>
 {
     /// <inheritdoc/>
     public AvlTree(ulong transient) : base(transient) { }
+
+    // UTILITIES
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int H(JoinableTreeNode<TTag, TValue> n) => n is null ? 0 : n.T.Rank;
 
     private struct JoinData
     {
@@ -36,9 +57,6 @@ public sealed class AvlTree<TTag, TValue, TValueTraits> : JoinableTree<TTag, TVa
         }
         return this.JoinBalanced(left, middle, right);
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int H(JoinableTreeNode<TTag, TValue> n) => n is null ? 0 : n.T.Rank;
 
     // Search along the right spine of tl ...
     private JoinableTreeNode<TTag, TValue> JoinR(JoinableTreeNode<TTag, TValue> tl, ref JoinData jd)
