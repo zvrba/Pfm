@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System;
+using System.Threading;
 
 namespace Podaga.PersistentCollections.Tree;
 
@@ -15,13 +16,14 @@ public abstract class JoinableTree<TTag, TValue, TValueTraits>
     where TTag : struct, ITagTraits<TTag>
     where TValueTraits : struct, IValueTraits<TValue>
 {
+    private static ulong NextTransient = 0;
+
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="transient">
-    /// Transient tag.  Use <see cref="TransientTag.New"/> to generate a fresh unique value.
-    /// </param>
-    public JoinableTree(ulong transient) => Transient = transient;
+    /// <param name="transient">Transient tag.  If 0 (default), a new one is automatically generated.</param>
+    public JoinableTree(ulong transient = 0) =>
+        Transient = transient != 0 ? transient : Interlocked.Increment(ref NextTransient);
 
     /// <summary>
     /// Transiens tag used for lazy cloning during modifications.

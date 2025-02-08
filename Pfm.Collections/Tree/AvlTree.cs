@@ -27,7 +27,7 @@ public sealed class AvlTree<TTag, TValue, TValueTraits> : JoinableTree<TTag, TVa
     where TValueTraits : struct, IValueTraits<TValue>
 {
     /// <inheritdoc/>
-    public AvlTree(ulong transient) : base(transient) { }
+    public AvlTree(ulong transient = 0) : base(transient) { }
 
     // UTILITIES
 

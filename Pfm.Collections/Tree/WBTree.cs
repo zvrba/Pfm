@@ -30,7 +30,7 @@ public sealed class WBTree<TTag, TValue, TValueTraits> : JoinableTree<TTag, TVal
     private const float AlphaC = 1 - Alpha;
 
     /// <inheritdoc/>
-    public WBTree(ulong transient) : base(transient) { }
+    public WBTree(ulong transient = 0) : base(transient) { }
 
     // UTILITIES.  TODO! FIX! The calculations below can overflow when sizes exceed > 2^26 elements.
 
