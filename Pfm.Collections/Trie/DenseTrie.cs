@@ -4,7 +4,7 @@ using System.Threading;
 namespace Podaga.PersistentCollections.Trie;
 
 /// <summary>
-/// Immutable/transient vector that can act as a dequeue.
+/// Immutable/transient vector that can also act as a stack.
 /// </summary>
 public partial class DenseTrie<T>
 {
