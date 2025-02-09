@@ -3,7 +3,8 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Diagnostics.Windows;
 
-using Podaga.PersistentCollections.TreeSet;
+using Podaga.PersistentCollections.Tree;
+using IntTree;
 
 namespace Podaga.PersistentCollections.Benchmark;
 
@@ -23,7 +24,7 @@ public class TreeModifyBenchmark
 
     [Benchmark]
     public void AvlTreeSet() {
-        JoinableTreeSet<int, Program.IntAvlTree> tree = new();
+        var tree = new CollectionTreeAdapter<AvlTag, int, IntTraits>(IntTraits.CreateAvlTree());
         for (int i = 0; i < data.Length; ++i)
             tree.Add(data[i]);
         for (int i = data.Length - 1; i >= 0; --i)
@@ -32,7 +33,7 @@ public class TreeModifyBenchmark
 
     [Benchmark]
     public void WBTreeSet() {
-        JoinableTreeSet<int, Program.IntWBTree> tree = new();
+        var tree = new CollectionTreeAdapter<WBTag, int, IntTraits>(IntTraits.CreateWBTree());
         for (int i = 0; i < data.Length; ++i)
             tree.Add(data[i]);
         for (int i = data.Length - 1; i >= 0; --i)
@@ -41,7 +42,7 @@ public class TreeModifyBenchmark
 
     [Benchmark]
     public void AvlCOWSet() {
-        JoinableTreeSet<int, Program.IntAvlTree> tree = new();
+        var tree = new CollectionTreeAdapter<AvlTag, int, IntTraits>(IntTraits.CreateAvlTree());
         for (int i = 0; i < data.Length; ++i)
             if ((data[i] & 1) == 1)
                 tree.Add(data[i]);
@@ -58,7 +59,7 @@ public class TreeModifyBenchmark
 
     [Benchmark]
     public void WBCOWSet() {
-        JoinableTreeSet<int, Program.IntWBTree> tree = new();
+        var tree = new CollectionTreeAdapter<WBTag, int, IntTraits>(IntTraits.CreateWBTree());
         for (int i = 0; i < data.Length; ++i)
             if ((data[i] & 1) == 1)
                 tree.Add(data[i]);

@@ -2,7 +2,8 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Diagnosers;
 
-using Podaga.PersistentCollections.TreeSet;
+using Podaga.PersistentCollections.Tree;
+using IntTree;
 
 namespace Podaga.PersistentCollections.Benchmark;
 
@@ -12,10 +13,10 @@ public class TreeFindBenchmark
     public const int Size = 8197;
 
     private readonly int[] data = new int[Size];
-    private readonly System.Collections.Generic.SortedSet<int> sortedSet;
+    private System.Collections.Generic.SortedSet<int> sortedSet;
     private System.Collections.Immutable.ImmutableSortedSet<int> immTree;
-    private JoinableTreeSet<int, Program.IntAvlTree> avlTreeSet = new();
-    private JoinableTreeSet<int, Program.IntWBTree> wbTreeSet = new();
+    private CollectionTreeAdapter<AvlTag, int, IntTraits> avlTreeSet = new(IntTraits.CreateAvlTree());
+    private CollectionTreeAdapter<WBTag, int, IntTraits> wbTreeSet = new(IntTraits.CreateWBTree());
 
 #if false
     private Pfm.Collections.JoinTree.JoinTree<int, ImplementationBenchmark.MutableTraits,

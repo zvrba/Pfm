@@ -19,21 +19,6 @@ public static class Program
         var summaries = BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run();
         Console.WriteLine("Done.");
     }
-
-    internal interface IIntValueTraits : Podaga.PersistentCollections.TreeSet.IValueTraits<int>
-    {
-        static void Podaga.PersistentCollections.TreeSet.IValueTraits<int>.CombineValues(in int left, ref int middle, in int right) => middle = left;
-        static int Podaga.PersistentCollections.TreeSet.IValueTraits<int>.CompareKey(in int left, in int right) => left - right;
-    }
-
-    internal struct IntAvlTree : IIntValueTraits, Podaga.PersistentCollections.TreeSet.IAvlTree<IntAvlTree, int>
-    {
-    }
-
-    internal struct IntWBTree : IIntValueTraits, Podaga.PersistentCollections.TreeSet.IWBTree<IntWBTree, int>
-    {
-    }
-
 }
 
 #if false

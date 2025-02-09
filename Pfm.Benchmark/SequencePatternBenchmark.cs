@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
-using Podaga.PersistentCollections.TreeSet;
+using Podaga.PersistentCollections.Tree;
+using IntTree;
 
 namespace Podaga.PersistentCollections.Benchmark;
 
@@ -11,13 +11,11 @@ public class SequencePatternBenchmark
 
     [Benchmark]
     public void TreeBenchmark() {
-        var tree = new JoinableTreeSet<int, Program.IntAvlTree>();
-        var iterator = tree.GetIterator();
-
+        var coll = new CollectionTreeAdapter<AvlTag, int, IntTraits>(IntTraits.CreateAvlTree());
         for (int i = 0; i < AddPermutation.Data.Length; ++i)
-            tree.Add(AddPermutation.Data[i]);
+            coll.Add(AddPermutation.Data[i]);
         for (int i = 0; i < RemovePermutation.Data.Length; ++i)
-            tree.Remove(RemovePermutation.Data[i]);
+            coll.Remove(RemovePermutation.Data[i]);
     }
 
     [ParamsSource(nameof(SequenceDescriptors))]
