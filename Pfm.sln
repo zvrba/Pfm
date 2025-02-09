@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Podaga.PersistentCollection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Podaga.PersistentCollections.Test", "Pfm.Test\Podaga.PersistentCollections.Test.csproj", "{42435E95-47B3-4D37-ACAD-562EBCA8AFCB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Podaga.PersistentCollections..Benchmark", "Pfm.Benchmark\Podaga.PersistentCollections..Benchmark.csproj", "{6D3EB6BB-1EE6-4A27-B7D9-6F3926A3F735}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Podaga.PersistentCollections.Benchmark", "Pfm.Benchmark\Podaga.PersistentCollections.Benchmark.csproj", "{6D3EB6BB-1EE6-4A27-B7D9-6F3926A3F735}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2DA3FE0C-E4A3-43F2-9C14-A8294AF3DD91}"
 	ProjectSection(SolutionItems) = preProject
