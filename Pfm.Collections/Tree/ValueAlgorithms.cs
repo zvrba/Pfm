@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System.Reflection.Emit;
+﻿using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 
 namespace Podaga.PersistentCollections.Tree;
@@ -33,7 +31,7 @@ public static class ValueAlgorithms
         /// <summary>
         /// The "result" of the operation.  The value is meaningful also when <see cref="Success"/> is false.
         /// </summary>
-        public JoinableTreeNode<TTag, TValue>? Result;
+        public JoinableTreeNode<TTag, TValue> Result;
 
         /// <summary>
         /// Value to find / insert / delete.
@@ -72,7 +70,7 @@ public static class ValueAlgorithms
         where TValueTraits : struct, IValueTraits<TValue>
     {
         var root = @this.Root;
-        JoinableTreeNode<TTag, TValue>? prev = null;
+        JoinableTreeNode<TTag, TValue> prev = null;
 
         state.Tree = @this;
         
@@ -158,7 +156,7 @@ public static class ValueAlgorithms
 
     private static JoinableTreeNode<TTag, TValue> Insert<TTag, TValue, TValueTraits>
         (
-        JoinableTreeNode<TTag, TValue>? root,
+        JoinableTreeNode<TTag, TValue> root,
         ref SearchState<TTag, TValue, TValueTraits> state
         )
         where TTag : struct, ITagTraits<TTag>
@@ -189,9 +187,9 @@ public static class ValueAlgorithms
         }
     }
 
-    private static JoinableTreeNode<TTag, TValue>? Delete<TTag, TValue, TValueTraits>
+    private static JoinableTreeNode<TTag, TValue> Delete<TTag, TValue, TValueTraits>
         (
-        JoinableTreeNode<TTag, TValue>? root,
+        JoinableTreeNode<TTag, TValue> root,
         ref SearchState<TTag, TValue, TValueTraits> state
         )
         where TTag : struct, ITagTraits<TTag>

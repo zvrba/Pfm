@@ -1,6 +1,4 @@
-﻿#nullable enable
-using System;
-
+﻿using System;
 
 namespace Podaga.PersistentCollections.Tree;
 
@@ -82,11 +80,11 @@ public static class StructuralAlgorithms
     /// <param name="this">Tree instance; used for transient context.</param>
     /// <param name="left">Left side of the join.</param>
     /// <param name="right">Right side of the join.</param>
-    public static JoinableTreeNode<TTag, TValue>? Join2<TTag, TValue, TValueTraits>
+    public static JoinableTreeNode<TTag, TValue> Join2<TTag, TValue, TValueTraits>
         (
         this JoinableTree<TTag, TValue, TValueTraits> @this,
-        JoinableTreeNode<TTag, TValue>? left,
-        JoinableTreeNode<TTag, TValue>? right
+        JoinableTreeNode<TTag, TValue> left,
+        JoinableTreeNode<TTag, TValue> right
         )
         where TTag : struct, ITagTraits<TTag>
         where TValueTraits : struct, IValueTraits<TValue>

@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using System.Threading;
 
 namespace Podaga.PersistentCollections.Tree;
@@ -50,7 +48,7 @@ public abstract class JoinableTree<TTag, TValue, TValueTraits>
     /// <summary>
     /// Root node of the tree; <c>null</c> for an empty tree.  Modified in-place by various algorithms.
     /// </summary>
-    public JoinableTreeNode<TTag, TValue>? Root;
+    public JoinableTreeNode<TTag, TValue> Root;
 
     /// <summary>
     /// Number of elements in the tree.
