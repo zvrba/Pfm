@@ -23,17 +23,54 @@ public abstract class JoinableTree<TTag, TValue, TValueTraits>
     /// </summary>
     /// <param name="transient">Transient tag.  If 0 (default), a new one is automatically generated.</param>
     public JoinableTree(ulong transient = 0) =>
-        Transient = transient != 0 ? transient : Interlocked.Increment(ref NextTransient);
+        _Transient = transient != 0 ? transient : NewTransient();
 
     /// <summary>
     /// Transiens tag used for lazy cloning during modifications.
     /// </summary>
-    public readonly ulong Transient;
+    public ulong Transient => _Transient;
+
+    /// <summary>
+    /// The tree's current transient tag.
+    /// </summary>
+    protected ulong _Transient;
+
+    /// <summary>
+    /// Gets the next available transient value.
+    /// </summary>
+    /// <returns>New value guaranteed to not be used by any existing node or tree.</returns>
+    /// <exception cref="OverflowException">The transient counter has overflowed.</exception>
+    protected ulong NewTransient() {
+        var ret = Interlocked.Increment(ref NextTransient);
+        if (ret == 0)
+            throw new OverflowException("Transient counter overflow.");
+        return ret;
+    }
 
     /// <summary>
     /// Root node of the tree; <c>null</c> for an empty tree.  Modified in-place by various algorithms.
     /// </summary>
     public JoinableTreeNode<TTag, TValue>? Root;
+
+    /// <summary>
+    /// Number of elements in the tree.
+    /// </summary>
+    public int Count => Root?.T.Size ?? 0;
+
+    /// <summary>
+    /// Create a "fork" of <c>this</c> such that modifications to either <c>this</c> or the new fork are not visible to the other.
+    /// The fork is lazy: nodes are copied only on subsequent modifications.  To eagerly copy data into the new fork, use
+    /// <see cref="StructuralAlgorithms.CopyFrom{TTag, TValue, TValueTraits}(JoinableTree{TTag, TValue, TValueTraits}, JoinableTree{TTag, TValue, TValueTraits})"/>.
+    /// </summary>
+    /// <remarks>
+    /// Any implementation must change <see cref="_Transient"/> tag in order to ensure that the transient tags of both trees are
+    /// different from transient tags on the existing nodes.
+    /// </remarks>
+    /// <returns>
+    /// The new fork.
+    /// </returns>
+    /// <seealso cref="NewTransient"/>
+    public abstract JoinableTree<TTag, TValue, TValueTraits> Fork();
 
     /// <summary>
     /// 3-way join is the core tree algorithm on which all other operations are based.

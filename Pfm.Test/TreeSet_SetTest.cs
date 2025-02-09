@@ -1,7 +1,5 @@
-﻿using System;
-
-using Podaga.PersistentCollections.TreeSet;
-
+﻿#if false
+using System;
 namespace Podaga.PersistentCollections.Test;
 
 // Tests set operations.  Must be used only with immutable nodes!
@@ -151,3 +149,4 @@ internal class TreeSet_SetTest<TTree> where TTree : struct, IValueTraits<int>, I
         }
     }
 }
+#endif

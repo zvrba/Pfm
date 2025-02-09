@@ -21,7 +21,7 @@ public interface IWBTagTraits<TTag> : ITagTraits<TTag>
 /// Specialization of <see cref="JoinableTree{TTag, TValue, TValueTraits}"/> to weight-balanced trees.
 /// The balance factor is hard-coded to 1/4.
 /// </summary>
-public sealed class WBTree<TTag, TValue, TValueTraits> : JoinableTree<TTag, TValue, TValueTraits>
+public sealed class JoinableWBTree<TTag, TValue, TValueTraits> : JoinableTree<TTag, TValue, TValueTraits>
     where TTag : struct, IWBTagTraits<TTag>
     where TValueTraits : struct, IValueTraits<TValue>
 
@@ -30,7 +30,7 @@ public sealed class WBTree<TTag, TValue, TValueTraits> : JoinableTree<TTag, TVal
     private const float AlphaC = 1 - Alpha;
 
     /// <inheritdoc/>
-    public WBTree(ulong transient = 0) : base(transient) { }
+    public JoinableWBTree(ulong transient = 0) : base(transient) { }
 
     // UTILITIES.  TODO! FIX! The calculations below can overflow when sizes exceed > 2^26 elements.
 
@@ -61,6 +61,12 @@ public sealed class WBTree<TTag, TValue, TValueTraits> : JoinableTree<TTag, TVal
     {
         public JoinableTreeNode<TTag, TValue> Middle;
         public JoinableTreeNode<TTag, TValue> Other;
+    }
+
+    /// <inheritdoc/>
+    public override JoinableTree<TTag, TValue, TValueTraits> Fork() {
+        _Transient = NewTransient();
+        return new JoinableWBTree<TTag, TValue, TValueTraits> { Root = Root };
     }
 
     /// <inheritdoc/>

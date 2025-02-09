@@ -166,7 +166,7 @@ public static class ValueAlgorithms
     {
         if (root is null) {
             var node = new JoinableTreeNode<TTag, TValue>(state.Tree.Transient, state.Tag, state.Value);
-            //node.Update(); Not needed since no children.
+            node.Update();
             state.Result = node;
             state.Success = true;
             return node;

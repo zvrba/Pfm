@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using Podaga.PersistentCollections.TreeSet;
+
+using Podaga.PersistentCollections.Tree;
 
 namespace Podaga.PersistentCollections.Test;
 
-internal class TreeSet_BasicTest<TTree> where TTree : struct, IValueTraits<int>, IBalanceTraits<TTree, int>
+internal class TreeSet_BasicTest<TTag, TValueTraits>
+    where TTag : struct, ITagTraits<TTag>
+    where TValueTraits : struct, IValueTraits<int>
 {
-    public static void Run(IList<int[]> sequences) {
+    public static void Run(Func<JoinableTree<TTag, int, TValueTraits>> factory, IList<int[]> sequences) {
         for (int i = 0; i < sequences.Count; ++i) {
             for (int j = 0; j < sequences.Count; ++j) {
-                var test = new TreeSet_BasicTest<TTree>(sequences[i], sequences[j]);
+                var test = new TreeSet_BasicTest<TTag, TValueTraits>(factory, sequences[i], sequences[j]);
                 test.Run();
             }
         }
@@ -18,10 +21,12 @@ internal class TreeSet_BasicTest<TTree> where TTree : struct, IValueTraits<int>,
     private readonly int[] insert;
     private readonly int[] remove;
     private readonly SortedSet<int> contents;
-    private readonly JoinableTreeSet<int, TTree> tree;
+    private readonly Func<JoinableTree<TTag, int, TValueTraits>> factory;
+    private readonly JoinableTree<TTag, int, TValueTraits> tree;
 
-    private TreeSet_BasicTest(int[] insert, int[] remove) {
-        this.tree = new();
+    private TreeSet_BasicTest(Func<JoinableTree<TTag, int, TValueTraits>> factory, int[] insert, int[] remove) {
+        this.factory = factory;
+        this.tree = factory();
         this.insert = insert;
         this.remove = remove;
         this.contents = new();
@@ -29,7 +34,7 @@ internal class TreeSet_BasicTest<TTree> where TTree : struct, IValueTraits<int>,
 
     public void Run() {
         var iterator = tree.GetIterator();
-        Assert.True(tree.Count == 0);
+        Assert.True(tree.Root is null);
         Assert.True(!iterator.First(null) && !iterator.Last(null));
 
         // TODO: Traversal during modifications.  Also Fork().
@@ -38,7 +43,7 @@ internal class TreeSet_BasicTest<TTree> where TTree : struct, IValueTraits<int>,
         CheckDelete();
 
         iterator = tree.GetIterator();
-        Assert.True(tree.Count == 0);
+        Assert.True(tree.Root is null);
         Assert.True(!iterator.First(null) && !iterator.Last(null));
 
         CheckDeleteRoot();
@@ -53,13 +58,13 @@ internal class TreeSet_BasicTest<TTree> where TTree : struct, IValueTraits<int>,
             Verify();
         }
         int v = insert.Length / 2;
-        b = tree.TryAdd(ref v);
+        b = TryAdd(ref v);
         Assert.True(!b && v == insert.Length / 2);
     }
 
     private void CheckIndexAccess() {
         for (int i = 0; i < insert.Length; ++i) {
-            var j = tree[i];
+            var j = tree.Nth(i);
             Assert.True(i == j);
         }
     }
@@ -82,7 +87,7 @@ internal class TreeSet_BasicTest<TTree> where TTree : struct, IValueTraits<int>,
 
 
         while (tree.Count > 0) {
-            var b = Remove(tree._Root.V);
+            var b = Remove(tree.Root.V);
             Assert.True(b);
             Verify();
         }
@@ -90,7 +95,7 @@ internal class TreeSet_BasicTest<TTree> where TTree : struct, IValueTraits<int>,
     }
 
     private void CheckPersistence() {
-        var original = new JoinableTreeSet<int, TTree>();
+        var original = new CollectionTreeAdapter<TTag, int, TValueTraits>(factory());
         for (int i = 0; i < insert.Length; ++i)
             original.Add(insert[i]);
         Assert.True(original.Count == insert.Length);
@@ -105,9 +110,16 @@ internal class TreeSet_BasicTest<TTree> where TTree : struct, IValueTraits<int>,
         Assert.True(original.Count == 0);
     }
 
+    private bool TryAdd(ref int v) {
+        var state = new ValueAlgorithms.SearchState<TTag, int, TValueTraits> { Value = v };
+        var success = tree.Insert(ref state);
+        v = state.Result.V;
+        return success;
+    }
+
     private bool Insert(int v) {
         var original = v;
-        if (tree.TryAdd(ref v)) {
+        if (TryAdd(ref v)) {
             Assert.True(v == original);
             contents.Add(v);
             return true;
@@ -115,9 +127,17 @@ internal class TreeSet_BasicTest<TTree> where TTree : struct, IValueTraits<int>,
         return false;
     }
 
+    private bool TryRemove(ref int v) {
+        var state = new ValueAlgorithms.SearchState<TTag, int, TValueTraits> { Value = v };
+        if (!tree.Delete(ref state))
+            return false;
+        v = state.Result.V;
+        return true;
+    }
+
     private bool Remove(int v) {
         var removed = v;
-        if (!tree.TryRemove(ref removed))
+        if (!TryRemove(ref removed))
             return false;
         Assert.True(removed == v);
         contents.Remove(v);
@@ -127,15 +147,15 @@ internal class TreeSet_BasicTest<TTree> where TTree : struct, IValueTraits<int>,
     private void Verify() {
         Assert.True(tree.Count == contents.Count);
 
-        TTree.ValidateStructure(tree._Root);
+        tree.ValidateStructure();
 
-        VerifyOrder(tree._Root, out var traverseCount, contents.Min, contents.Max);
+        VerifyOrder(tree.Root, out var traverseCount, contents.Min, contents.Max);
         Assert.True(traverseCount == tree.Count);
 
         foreach (var i in contents) {
-            int found = i;
-            var b = tree.Find(ref found);
-            Assert.True(b && found == i);
+            var state = new ValueAlgorithms.SearchState<TTag, int, TValueTraits> { Value = i };
+            var b = tree.Find(ref state);
+            Assert.True(b && state.Result.V == i);
         }
 
         var iterator = tree.GetIterator();
@@ -143,11 +163,11 @@ internal class TreeSet_BasicTest<TTree> where TTree : struct, IValueTraits<int>,
         iterator.First(null);
         VerifyIteration(iterator, false, contents);
 
-        iterator.Last(tree._Root);
+        iterator.Last(tree.Root);
         VerifyIteration(iterator, true, contents.Reverse());
     }
 
-    private void VerifyOrder(TreeNode<int> node, out int count, int min, int max) {
+    private void VerifyOrder(JoinableTreeNode<TTag, int> node, out int count, int min, int max) {
         if (node == null) {
             count = 0;
             return;
@@ -165,7 +185,7 @@ internal class TreeSet_BasicTest<TTree> where TTree : struct, IValueTraits<int>,
     //private delegate TNode Advance(ref Iterator<int, TNode> iterator);
 
     private static void VerifyIteration(
-        TreeIterator<int> iterator,
+        TreeIterator<TTag, int> iterator,
         bool backwards,
         IEnumerable<int> reference)
     {

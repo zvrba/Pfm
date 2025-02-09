@@ -10,6 +10,24 @@ namespace Podaga.PersistentCollections.Tree;
 /// </summary>
 public static class IteratorAlgorithms
 {
+    /// <summary>
+    /// Creates an iterator for the tree and pushes the root node (if the tree is not empty) on top of the stack.
+    /// This makes other iterator algorithms operate over the complete tree.
+    /// </summary>
+    /// <param name="this">The tree for which to create the iterator.</param>
+    /// <returns>An iterator instance.</returns>
+    public static TreeIterator<TTag, TValue> GetIterator<TTag, TValue, TValueTraits>
+        (
+        this JoinableTree<TTag, TValue, TValueTraits> @this
+        )
+        where TTag : struct, ITagTraits<TTag>
+        where TValueTraits : struct, IValueTraits<TValue>
+    {
+        var it = TreeIterator<TTag, TValue>.New();
+        if (@this.Root is not null)
+            it.Push(@this.Root);
+        return it;
+    }
 
     /// <summary>
     /// Finds a value equivalent to <paramref name="value"/>.

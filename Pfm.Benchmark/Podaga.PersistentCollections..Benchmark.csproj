@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -15,5 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Pfm.Collections\Podaga.PersistentCollections.csproj" />
   </ItemGroup>
+
+  <Import Project="..\IntTree\IntTree.projitems" Label="Shared" />
 
 </Project>

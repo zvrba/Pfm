@@ -12,22 +12,33 @@ public class CollectionTreeAdapter<TTag, TValue, TValueTraits> : ICollection<TVa
     where TTag : struct, ITagTraits<TTag>
     where TValueTraits : struct, IValueTraits<TValue>
 {
-    private readonly JoinableTree<TTag, TValue, TValueTraits> tree;
+    /// <summary>
+    /// Tree instance wrapped by <c>this</c>.
+    /// </summary>
+    public readonly JoinableTree<TTag, TValue, TValueTraits> Tree;
 
     /// <summary>
     /// Constructor.
     /// </summary>
     /// <param name="tree">Tree instance to adapt.</param>
-    public CollectionTreeAdapter(JoinableTree<TTag, TValue, TValueTraits> tree) => this.tree = tree;
+    public CollectionTreeAdapter(JoinableTree<TTag, TValue, TValueTraits> tree) => this.Tree = tree;
+
+    /// <summary>
+    /// Forks the underlying tree.
+    /// </summary>
+    /// <returns>
+    /// A new adapter instance containing the forked tree.
+    /// </returns>
+    public CollectionTreeAdapter<TTag, TValue, TValueTraits> Fork() => new(Tree.Fork());
 
     /// <inheritdoc/>
     public bool IsReadOnly => false;
 
     /// <inheritdoc/>
-    public int Count => tree.Root?.T.Size ?? 0;
+    public int Count => Tree.Count;
 
     /// <inheritdoc/>
-    public TValue this[int index] => tree.Nth(index);
+    public TValue this[int index] => Tree.Nth(index);
 
     /// <inheritdoc/>
     void ICollection<TValue>.Add(TValue item) => Add(item);
@@ -41,22 +52,22 @@ public class CollectionTreeAdapter<TTag, TValue, TValueTraits> : ICollection<TVa
     /// </returns>
     public bool Add(TValue item) {
         var state = new ValueAlgorithms.SearchState<TTag, TValue, TValueTraits> { Value = item };
-        return tree.Insert(ref state);
+        return Tree.Insert(ref state);
     }
 
     /// <inheritdoc/>
-    public void Clear() => tree.Root = null;
+    public void Clear() => Tree.Root = null;
 
     /// <inheritdoc/>
     public bool Contains(TValue item) {
         var state = new ValueAlgorithms.SearchState<TTag, TValue, TValueTraits> { Value = item };
-        return tree.Find(ref state);
+        return Tree.Find(ref state);
     }
 
     /// <inheritdoc/>
     public bool Remove(TValue item) {
         var state = new ValueAlgorithms.SearchState<TTag, TValue, TValueTraits> { Value = item };
-        return tree.Delete(ref state);
+        return Tree.Delete(ref state);
     }
 
     /// <inheritdoc/>
@@ -70,9 +81,9 @@ public class CollectionTreeAdapter<TTag, TValue, TValueTraits> : ICollection<TVa
     /// <inheritdoc/>
     public IEnumerator<TValue> GetEnumerator() {
         var it = TreeIterator<TTag, TValue>.New();
-        if (tree.Root is null)
+        if (Tree.Root is null)
             yield break;
-        if (it.First(tree.Root)) {
+        if (it.First(Tree.Root)) {
             do {
                 yield return it.Top.V;
             } while (it.Succ());

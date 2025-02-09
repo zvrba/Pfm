@@ -13,6 +13,7 @@ public sealed class JoinableTreeNode<TTag, TValue> where TTag : struct, ITagTrai
     /// Constructor.
     /// </summary>
     /// <param name="transient">Transient tag.</param>
+    /// <param name="tag">Tag stored in the node.</param>
     /// <param name="value">Value stored in the node.</param>
     public JoinableTreeNode(ulong transient, TTag tag, TValue value) {
         Transient = transient;

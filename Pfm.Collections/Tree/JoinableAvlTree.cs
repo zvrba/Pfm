@@ -22,12 +22,12 @@ public interface IAvlTagTraits<TTag> : ITagTraits<TTag>
 /// <summary>
 /// Specialization of <see cref="JoinableTree{TTag, TValue, TValueTraits}"/> to AVL trees.
 /// </summary>
-public sealed class AvlTree<TTag, TValue, TValueTraits> : JoinableTree<TTag, TValue, TValueTraits>
+public sealed class JoinableAvlTree<TTag, TValue, TValueTraits> : JoinableTree<TTag, TValue, TValueTraits>
     where TTag : struct, IAvlTagTraits<TTag>
     where TValueTraits : struct, IValueTraits<TValue>
 {
     /// <inheritdoc/>
-    public AvlTree(ulong transient = 0) : base(transient) { }
+    public JoinableAvlTree(ulong transient = 0) : base(transient) { }
 
     // UTILITIES
 
@@ -37,6 +37,12 @@ public sealed class AvlTree<TTag, TValue, TValueTraits> : JoinableTree<TTag, TVa
     private struct JoinData
     {
         public JoinableTreeNode<TTag, TValue> Middle, Other;
+    }
+
+    /// <inheritdoc/>
+    public override JoinableTree<TTag, TValue, TValueTraits> Fork() {
+        _Transient = NewTransient();
+        return new JoinableAvlTree<TTag, TValue, TValueTraits>() { Root = Root };
     }
 
     /// <inheritdoc/>
