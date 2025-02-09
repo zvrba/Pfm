@@ -47,13 +47,13 @@ public class TreeFindBenchmark
     public int C = 0;
 
     [Benchmark]
-    public void AvlTreeSet() {
+    public void AvlTree() {
         for (int i = 0; i < data.Length; ++i)
             C += avlTreeSet.Contains(i) ? 1 : 0;
     }
 
     [Benchmark]
-    public void WBTreeSet() {
+    public void WBTree() {
         for (int i = 0; i < data.Length; ++i)
             C += wbTreeSet.Contains(i) ? 1 : 0;
     }
