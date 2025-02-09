@@ -8,7 +8,7 @@ using Podaga.PersistentCollections.Trie;
 
 namespace Podaga.PersistentCollections.Benchmark;
 
-[HardwareCounters(HardwareCounter.InstructionRetired, HardwareCounter.CacheMisses, HardwareCounter.BranchInstructions)]
+//[HardwareCounters(HardwareCounter.InstructionRetired, HardwareCounter.CacheMisses, HardwareCounter.BranchInstructions)]
 public class VectorModifyBenchmark
 {
     public const int Size = 16384;
