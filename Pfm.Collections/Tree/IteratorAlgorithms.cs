@@ -4,8 +4,7 @@ using System.Runtime.CompilerServices;
 namespace Podaga.PersistentCollections.Tree;
 
 /// <summary>
-/// Traversal methods on <see cref="TreeIterator{TTag, TValue}"/>.  Note that methods take a <see cref="JoinableTreeNode{TTag, TValue}"/>
-/// instead of <see cref="JoinableTree{TTag, TValue, TValueTraits}"/> because they may be used to operate on subtrees.  Every method in
+/// Traversal methods on <see cref="TreeIterator{TValue}"/>. Every method in
 /// this class leaves a "trail" on the iterator which may be used to continue iteration.
 /// </summary>
 public static class IteratorAlgorithms
@@ -16,16 +15,15 @@ public static class IteratorAlgorithms
     /// </summary>
     /// <param name="this">The tree for which to create the iterator.</param>
     /// <returns>An iterator instance.</returns>
-    public static TreeIterator<TTag, TValue> GetIterator<TTag, TValue, TValueTraits>
+    public static TreeIterator<TValue> GetIterator<TValue>
         (
-        this JoinableTree<TTag, TValue, TValueTraits> @this
+        this JoinableTreeNode<TValue> @this
         )
-        where TTag : struct, ITagTraits<TTag>
-        where TValueTraits : struct, IValueTraits<TValue>
+        where TValue : ITaggedValue<TValue>
     {
-        var it = TreeIterator<TTag, TValue>.New();
-        if (@this.Root is not null)
-            it.Push(@this.Root);
+        var it = TreeIterator<TValue>.New();
+        if (@this != null)
+            it.Push(@this);
         return it;
     }
 
@@ -43,14 +41,13 @@ public static class IteratorAlgorithms
     /// Zero means that an equivalent value was found and is on top of the stack.
     /// If <paramref name="node"/> was <c>null</c>, -1 is returned (arbitrarily).
     /// </returns>
-    public static int Find<TTag, TValue, TValueTraits>
+    public static int Find<TValue>
         (
-        this ref TreeIterator<TTag, TValue> @this,
-        JoinableTreeNode<TTag, TValue> node,
+        this ref TreeIterator<TValue> @this,
+        JoinableTreeNode<TValue> node,
         TValue value
         )
-        where TTag : struct, ITagTraits<TTag>
-        where TValueTraits : struct, IValueTraits<TValue>
+        where TValue : struct, ITaggedValue<TValue>
     {
         if (node != null) @this.Clear();
         else node = @this.TryPop();
@@ -58,9 +55,9 @@ public static class IteratorAlgorithms
         int c = -1;
         while (node != null) {
             @this.Push(node);
-            if ((c = TValueTraits.Compare(value, node.V)) == 0)
+            if ((c = TValue.Compare(value, node.Value)) == 0)
                 break;
-            node = c < 0 ? node.L : node.R;
+            node = c < 0 ? node.Left : node.Right;
         }
         return c;
     }
@@ -77,17 +74,17 @@ public static class IteratorAlgorithms
     /// True if a node was found.  False is returned only when both <paramref name="node"/> is <c>null</c> and
     /// <c>this</c> is empty.
     /// </returns>
-    public static bool First<TTag, TValue>
+    public static bool First<TValue>
         (
-        this ref TreeIterator<TTag, TValue> @this,
-        JoinableTreeNode<TTag, TValue> node
+        this ref TreeIterator<TValue> @this,
+        JoinableTreeNode<TValue> node
         )
-        where TTag : struct, ITagTraits<TTag>
+        where TValue : struct, ITaggedValue<TValue>
     {
         if (node != null) @this.Clear();
         else node = @this.TryPop();
 
-        for (; node != null; node = node.L)
+        for (; node != null; node = node.Left)
             @this.Push(node);
         return !@this.IsEmpty;
     }
@@ -104,17 +101,17 @@ public static class IteratorAlgorithms
     /// True if a node was found.  False is returned only when both <paramref name="node"/> is <c>null</c> and
     /// <c>this</c> is empty.
     /// </returns>
-    public static bool Last<TTag, TValue>
+    public static bool Last<TValue>
         (
-        this ref TreeIterator<TTag, TValue> @this,
-        JoinableTreeNode<TTag, TValue> node
+        this ref TreeIterator<TValue> @this,
+        JoinableTreeNode<TValue> node
         )
-        where TTag : struct, ITagTraits<TTag>
+        where TValue : struct, ITaggedValue<TValue>
     {
         if (node != null) @this.Clear();
         else node = @this.TryPop();
 
-        for (; node != null; node = node.R)
+        for (; node != null; node = node.Right)
             @this.Push(node);
         return !@this.IsEmpty;
     }
@@ -124,24 +121,24 @@ public static class IteratorAlgorithms
     /// </summary>
     /// <param name="this">Iterator instance.</param>
     /// <returns>True if the next element exists, false otherwise.</returns>
-    public static bool Succ<TTag, TValue>(this ref TreeIterator<TTag, TValue> @this)
-        where TTag : struct, ITagTraits<TTag>
+    public static bool Succ<TValue>(this ref TreeIterator<TValue> @this)
+       where TValue : struct, ITaggedValue<TValue>
     {
         var current = @this.TryPop();
         if (current == null)
             return false;
 
-        if (current.R != null) {
+        if (current.Right != null) {
             @this.Push(current);
-            for (current = current.R; current != null; current = current.L)
+            for (current = current.Right; current != null; current = current.Left)
                 @this.Push(current);
         } else {
-            JoinableTreeNode<TTag, TValue> y;
+            JoinableTreeNode<TValue> y;
             do {
                 y = current;
                 if ((current = @this.TryPop()) == null)
                     return false;
-            } while (y == current.R);
+            } while (y == current.Right);
             @this.Push(current);
         }
         return true;
@@ -152,24 +149,24 @@ public static class IteratorAlgorithms
     /// </summary>
     /// <param name="this">Iterator instance.</param>
     /// <returns>True if the next element exists, false otherwise.</returns>
-    public static bool Pred<TTag, TValue>(this ref TreeIterator<TTag, TValue> @this)
-        where TTag : struct, ITagTraits<TTag>
+    public static bool Pred<TValue>(this ref TreeIterator<TValue> @this)
+       where TValue : struct, ITaggedValue<TValue> 
     {
         var current = @this.TryPop();
         if (current == null)
             return false;
 
-        if (current.L != null) {
+        if (current.Left != null) {
             @this.Push(current);
-            for (current = current.L; current != null; current = current.R)
+            for (current = current.Left; current != null; current = current.Right)
                 @this.Push(current);
         } else {
-            JoinableTreeNode<TTag, TValue> y;
+            JoinableTreeNode<TValue> y;
             do {
                 y = current;
                 if ((current = @this.TryPop()) == null)
                     return false;
-            } while (y == current.L);
+            } while (y == current.Left);
             @this.Push(current);
         }
         return true;
@@ -187,30 +184,30 @@ public static class IteratorAlgorithms
     /// <exception cref="IndexOutOfRangeException">
     /// Index is outside of range <c>[0, Size-1)</c>, size being the size of the subtree.
     /// </exception>
-    public static void Nth<TTag, TValue>
+    public static void Nth<TValue>
         (
-        this ref TreeIterator<TTag, TValue> @this,
-        JoinableTreeNode<TTag, TValue> node,
+        this ref TreeIterator<TValue> @this,
+        JoinableTreeNode<TValue> node,
         int index
         )
-        where TTag : struct, ITagTraits<TTag>
+       where TValue : struct, ITaggedValue<TValue>
     {
         if (node != null) @this.Clear();
         else if (!@this.IsEmpty) node = @this.Top;
 
-        if (node == null || index < 0 || index >= node.T.Size)
+        if (node == null || index < 0 || index >= node.Size)
             throw new IndexOutOfRangeException("Invalid tree element index.");
         ++index;    // Makes calculations easier.
 
     loop:
         @this.Push(node);
-        var l = node.L?.T.Size ?? 0;
+        var l = node.Left?.Size ?? 0;
         if (index == l + 1)
             return;
         if (index <= l) {
-            node = node.L;
+            node = node.Left;
         } else {
-            node = node.R;
+            node = node.Right;
             index -= l + 1;
         }
         goto loop;

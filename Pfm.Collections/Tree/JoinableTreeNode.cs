@@ -3,22 +3,19 @@
 namespace Podaga.PersistentCollections.Tree;
 
 /// <summary>
-/// Node of a binary search tree.  
+/// Node of a binary search tree.  Stores a tagged value.
 /// </summary>
-/// <typeparam name="TTag">Type of tags stored in the tree.</typeparam>
-/// <typeparam name="TValue">Type of values stored in the tree.</typeparam>
-public sealed class JoinableTreeNode<TTag, TValue> where TTag : struct, ITagTraits<TTag>
+/// <typeparam name="TValue">Type of values stored in the node.</typeparam>
+public sealed class JoinableTreeNode<TValue> where TValue : ITaggedValue<TValue>
 {
     /// <summary>
     /// Constructor.
     /// </summary>
     /// <param name="transient">Transient tag.</param>
-    /// <param name="tag">Tag stored in the node.</param>
     /// <param name="value">Value stored in the node.</param>
-    public JoinableTreeNode(ulong transient, TTag tag, TValue value) {
+    public JoinableTreeNode(ulong transient, TValue value) {
         Transient = transient;
-        T = tag;
-        V = value;
+        Value = value;
     }
 
     /// <summary>
@@ -27,47 +24,69 @@ public sealed class JoinableTreeNode<TTag, TValue> where TTag : struct, ITagTrai
     public readonly ulong Transient;
 
     /// <summary>
-    /// Tag contained in the node.
+    /// Tagged value contained in the node.
     /// </summary>
-    public TTag T;
+    public TValue Value;
 
     /// <summary>
-    /// Value contained in the node.  Immutable because it determines the node's position in the tree.
+    /// Left child, with key less than <see cref="Value"/>.
     /// </summary>
-    public readonly TValue V;
+    public JoinableTreeNode<TValue> Left;
 
     /// <summary>
-    /// Left child, with key less than <see cref="V"/>.
+    /// Right child, with key larger than <see cref="Value"/>.
     /// </summary>
-    public JoinableTreeNode<TTag, TValue> L;
+    public JoinableTreeNode<TValue> Right;
 
     /// <summary>
-    /// Right child, with key larger than <see cref="V"/>.
+    /// Count of the nodes under, and including, this node.
     /// </summary>
-    public JoinableTreeNode<TTag, TValue> R;
+    public int Size;
+
+    /// <summary>
+    /// Rank; needed by some tree implementations.
+    /// </summary>
+    public int Rank;
 
     /// <summary>
     /// Clones <c>this</c> if this' transient tag is different from <paramref name="transient"/>.
+    /// </summary>
     /// <returns>
     /// New instance or <c>this</c>, depending on the transient tag.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining /*| MethodImplOptions.AggressiveOptimization*/)]
-    public JoinableTreeNode<TTag, TValue> Clone<TValueTraits>(ulong transient) where TValueTraits : IValueTraits<TValue>
+    public JoinableTreeNode<TValue> Clone(ulong transient)
         => transient == Transient 
         ? this 
-        : new(transient, T, TValueTraits.Clone(V)) { L = L, R = R, };
+        : new(transient, TValue.Clone(Value)) { Left = Left, Right = Right, };
 
     /// <summary>
-    /// Updates <c>this</c> node's balance, size and monoidal tags by invoking <see cref="ITagTraits{TTag}.Combine(TTag, ref TTag, TTag)"/>
+    /// Updates <c>this</c> node's tag by invoking <see cref="ITaggedValue{TValue}.Combine(in TValue, ref TValue, in TValue)"/>
     /// with appropriate arguments.
     /// WARNING: The update is in-place, so the node must have been cloned beforehand.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining /*| MethodImplOptions.AggressiveOptimization*/)]
-    public void Update()
+    //[MethodImpl(MethodImplOptions.AggressiveInlining /*| MethodImplOptions.AggressiveOptimization*/)]
+    public void Update<TJoin>() where TJoin : ITreeJoin<TValue>
     {
-        var ltag = L?.T ?? TTag.Nil;
-        var rtag = R?.T ?? TTag.Nil;
-        TTag.Combine(ltag, ref T, rtag);
+        if (Left != null && Right != null) {
+            Size = 1 + Left.Size + Right.Size;
+            Rank = TJoin.Combine(Left.Rank, Rank, Right.Rank);
+            TValue.Combine(Left.Value, ref Value, Right.Value);
+        }
+        else if (Left != null) {
+            Size = 1 + Left.Size;
+            Rank = TJoin.Combine(Left.Rank, Rank, TJoin.Nil);
+            TValue.Combine(Left.Value, ref Value, TValue.Nil);
+        }
+        else if (Right != null) {
+            Size = 1 + Right.Size;
+            Rank = TJoin.Combine(TJoin.Nil, Rank, Right.Rank);
+            TValue.Combine(TValue.Nil, ref Value, Right.Value);
+        }
+        else {
+            Size = 1;
+            Rank = TJoin.Combine(TJoin.Nil, TJoin.Nil, TJoin.Nil);
+            TValue.Combine(TValue.Nil, ref Value, TValue.Nil);
+        }
     }
 }
-

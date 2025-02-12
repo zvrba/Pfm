@@ -1,44 +1,58 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Podaga.PersistentCollections.Tree;
 
-/// <summary>
-/// Adapts an instance of <see cref="JoinableTree{TTag, TValue, TValueTraits}"/> to <see cref="ICollection{T}"/> and
-/// <see cref="IReadOnlyList{T}"/> interfaces.
-/// </summary>
-public class CollectionTreeAdapter<TTag, TValue, TValueTraits> : ICollection<TValue>, IReadOnlyList<TValue>
-    where TTag : struct, ITagTraits<TTag>
-    where TValueTraits : struct, IValueTraits<TValue>
+public interface ICollectionValueHolder<TSelf, TValue> : ITaggedValue<TSelf>
+    where TSelf : struct, ICollectionValueHolder<TSelf, TValue>
 {
-    /// <summary>
-    /// Tree instance wrapped by <c>this</c>.
-    /// </summary>
-    public readonly JoinableTree<TTag, TValue, TValueTraits> Tree;
+    abstract static TSelf Create(TValue value);
+    TValue Value { get; set; }
+}
+
+/// <summary>
+/// Adapts a joinable tree to <see cref="ICollection{T}"/> and <see cref="IReadOnlyList{T}"/> interfaces.
+/// </summary>
+public class CollectionTreeAdapter<TValue, TJoin, THolder> : ICollection<TValue>, IReadOnlyList<TValue>
+    where TJoin : struct, ITreeJoin<THolder>
+    where THolder : struct, ICollectionValueHolder<THolder, TValue>
+{
+    private static ulong NextTransient = 0;
 
     /// <summary>
-    /// Constructor.
+    /// Initializes an empty collection.
     /// </summary>
-    /// <param name="tree">Tree instance to adapt.</param>
-    public CollectionTreeAdapter(JoinableTree<TTag, TValue, TValueTraits> tree) => this.Tree = tree;
+    public CollectionTreeAdapter() => this.Transient = Interlocked.Increment(ref NextTransient);
 
     /// <summary>
-    /// Forks the underlying tree.
+    /// Forks the collection.
     /// </summary>
     /// <returns>
-    /// A new adapter instance containing the forked tree.
+    /// A forked instance that contains the same elements as <c>this</c>.
     /// </returns>
-    public CollectionTreeAdapter<TTag, TValue, TValueTraits> Fork() => new(Tree.Fork());
+    public CollectionTreeAdapter<TValue, TJoin, THolder> Fork() => new() { Root = Root };
+
+    /// <summary>
+    /// Transient value for this collection.
+    /// </summary>
+    public ulong Transient { get; }
+
+    /// <summary>
+    /// Root of the tree that represents this collection.
+    /// </summary>
+    public JoinableTreeNode<THolder>? Root { get; private set; }
 
     /// <inheritdoc/>
     public bool IsReadOnly => false;
 
     /// <inheritdoc/>
-    public int Count => Tree.Count;
+    public int Count => Root?.Size ?? 0;
 
     /// <inheritdoc/>
-    public TValue this[int index] => Tree.Nth(index);
+    public TValue this[int index] => Root.Nth(index).Value;
 
     /// <inheritdoc/>
     void ICollection<TValue>.Add(TValue item) => Add(item);
@@ -51,23 +65,25 @@ public class CollectionTreeAdapter<TTag, TValue, TValueTraits> : ICollection<TVa
     /// True if the item was added, false if it already exists in this collection.
     /// </returns>
     public bool Add(TValue item) {
-        var state = new ValueAlgorithms.SearchState<TTag, TValue, TValueTraits> { Value = item };
-        return Tree.Insert(ref state);
+        var state = new ModifyState<THolder> { Value = THolder.Create(item), Transient = Transient };
+        Root = Root.Insert<THolder, TJoin>(ref state);
+        return state.Found == null;
     }
 
     /// <inheritdoc/>
-    public void Clear() => Tree.Root = null;
+    public void Clear() => Root = null;
 
     /// <inheritdoc/>
-    public bool Contains(TValue item) {
-        var state = new ValueAlgorithms.SearchState<TTag, TValue, TValueTraits> { Value = item };
-        return Tree.Find(ref state);
-    }
+    public bool Contains(TValue item) => Root.Find(THolder.Create(item), out var found) != null && found == 0;
 
     /// <inheritdoc/>
     public bool Remove(TValue item) {
-        var state = new ValueAlgorithms.SearchState<TTag, TValue, TValueTraits> { Value = item };
-        return Tree.Delete(ref state);
+        var state = new ModifyState<THolder> { Value = THolder.Create(item), Transient = Transient };
+        var root = Root.Delete<THolder, TJoin>(ref state);
+        if (state.Found == null)
+            return false;
+        Root = root;
+        return true;
     }
 
     /// <inheritdoc/>
@@ -80,12 +96,12 @@ public class CollectionTreeAdapter<TTag, TValue, TValueTraits> : ICollection<TVa
 
     /// <inheritdoc/>
     public IEnumerator<TValue> GetEnumerator() {
-        var it = TreeIterator<TTag, TValue>.New();
-        if (Tree.Root is null)
+        var it = TreeIterator<THolder>.New();
+        if (Root is null)
             yield break;
-        if (it.First(Tree.Root)) {
+        if (it.First(Root)) {
             do {
-                yield return it.Top.V;
+                yield return it.Top.Value.Value;
             } while (it.Succ());
         }
     }

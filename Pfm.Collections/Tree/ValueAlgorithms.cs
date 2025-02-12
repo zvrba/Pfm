@@ -1,6 +1,4 @@
-﻿using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
-
+﻿#if false
 namespace Podaga.PersistentCollections.Tree;
 
 
@@ -43,54 +41,6 @@ public static class ValueAlgorithms
         /// </summary>
         public TTag Tag;
     }
-
-    /// <summary>
-    /// Finds a value equivalent to the one given in <paramref name="state"/>.  This method is more efficient than using
-    /// the equivalent iterator method.
-    /// </summary>
-    /// <param name="this">
-    /// The tree within which to search.
-    /// </param>
-    /// <param name="state">
-    /// <para>
-    /// On input, <see cref="SearchState{TTag, TValue, TValueTraits}.Value"/> must be provided.  This is the value to look for.
-    /// </para>
-    /// On output, <see cref="SearchState{TTag, TValue, TValueTraits}.Result"/> is set to the last visited node during the search.
-    /// If <see cref="SearchState{TTag, TValue, TValueTraits}.Success"/> is true, the equivalent value has been found.
-    /// </param>
-    /// <returns>
-    /// True if an equivalent node has been found.
-    /// </returns>
-    public static bool Find<TTag, TValue, TValueTraits>
-        (
-        this JoinableTree<TTag, TValue, TValueTraits> @this,
-        ref SearchState<TTag, TValue, TValueTraits> state
-        )
-        where TTag : struct, ITagTraits<TTag>
-        where TValueTraits : struct, IValueTraits<TValue>
-    {
-        var root = @this.Root;
-        JoinableTreeNode<TTag, TValue> prev = null;
-
-        state.Tree = @this;
-        
-        var value = state.Value;    // Optimization
-        int c;
-        while (root != null) {
-            if ((c = TValueTraits.Compare(value, root.V)) == 0) {
-                state.Result = root;
-                state.Success = true;
-                return true;
-            }
-            prev = root;
-            root = c < 0 ? root.L : root.R;
-        }
-
-        state.Result = prev;
-        state.Success = false;
-        return false;
-    }
-
 
     /// <summary>
     /// Tries to insert a value into the tree.
@@ -218,3 +168,4 @@ public static class ValueAlgorithms
         }
     }
 }
+#endif

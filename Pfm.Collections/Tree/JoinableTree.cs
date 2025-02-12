@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if false
+using System;
 using System.Threading;
 
 namespace Podaga.PersistentCollections.Tree;
@@ -128,3 +129,4 @@ public abstract class JoinableTree<TTag, TValue, TValueTraits>
         }
     }
 }
+#endif

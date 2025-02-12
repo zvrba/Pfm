@@ -24,10 +24,9 @@ namespace Podaga.PersistentCollections.Tree;
 /// will also lead to unspecified results.
 /// </para>
 /// </summary>
-/// <typeparam name="TTag">Tag type held by tree nodes.</typeparam>
 /// <typeparam name="TValue">Value type held by tree nodes.</typeparam>
-public struct TreeIterator<TTag, TValue>
-    where TTag : struct, ITagTraits<TTag>
+public struct TreeIterator<TValue>
+    where TValue : ITaggedValue<TValue>
 {
     /// <summary>
     /// Default capacity allocated by the stack.  This should be sufficient for any balanced tree of up to 4G elements.
@@ -37,14 +36,14 @@ public struct TreeIterator<TTag, TValue>
     /// <summary>
     /// Utility method to create a new allocated instance with default capacity.
     /// </summary>
-    public static TreeIterator<TTag, TValue> New() => new(DefaultCapacity);
+    public static TreeIterator<TValue> New() => new(DefaultCapacity);
 
     /// <summary>
     /// Constructor.  Allocates space for <paramref name="capacity"/> nodes.
     /// </summary>
     /// <param name="capacity">Maximum capacity supported by this stack.</param>
     public TreeIterator(int capacity) {
-        Path = new JoinableTreeNode<TTag, TValue>[capacity];
+        Path = new JoinableTreeNode<TValue>[capacity];
         Depth = 0;
     }
 
@@ -55,9 +54,9 @@ public struct TreeIterator<TTag, TValue>
     /// <param name="other">
     /// An existing instance from which to initialize <c>this</c>.
     /// </param>
-    public TreeIterator(TreeIterator<TTag, TValue> other) {
+    public TreeIterator(TreeIterator<TValue> other) {
         Depth = other.Depth;
-        Path = new JoinableTreeNode<TTag, TValue>[other.Path.Length];
+        Path = new JoinableTreeNode<TValue>[other.Path.Length];
         Array.Copy(other.Path, Path, Depth);
     }
 
@@ -66,7 +65,7 @@ public struct TreeIterator<TTag, TValue>
     /// </summary>
     /// <seealso cref="Top"/>
     /// <seealso cref="Depth"/>
-    public readonly JoinableTreeNode<TTag, TValue>[] Path;
+    public readonly JoinableTreeNode<TValue>[] Path;
 
     /// <summary>
     /// Number of elements on the stack.
@@ -86,7 +85,7 @@ public struct TreeIterator<TTag, TValue>
     /// <summary>
     /// A reference to the top node on the stack which is at index <c>Count - 1</c>.
     /// </summary>
-    public readonly ref JoinableTreeNode<TTag, TValue> Top => ref Path[Depth - 1];
+    public readonly ref JoinableTreeNode<TValue> Top => ref Path[Depth - 1];
 
     /// <summary>
     /// Removes all elements from the stack.
@@ -98,7 +97,7 @@ public struct TreeIterator<TTag, TValue>
     /// Pushes a node onto the stack.  <paramref name="node"/> must not be null (checked only in debug builds).
     /// </summary>
     /// <param name="node"></param>
-    public void Push(JoinableTreeNode<TTag, TValue> node) {
+    public void Push(JoinableTreeNode<TValue> node) {
         Debug.Assert(node != null);
         Path[Depth++] = node;
     }
@@ -109,5 +108,5 @@ public struct TreeIterator<TTag, TValue>
     /// <returns>
     /// The popped node or <c>null</c> if the stack was empty.
     /// </returns>
-    public JoinableTreeNode<TTag, TValue> TryPop() => Depth > 0 ? Path[--Depth] : null;
+    public JoinableTreeNode<TValue> TryPop() => Depth > 0 ? Path[--Depth] : null;
 }
