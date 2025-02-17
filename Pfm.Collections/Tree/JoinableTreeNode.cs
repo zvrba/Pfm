@@ -58,7 +58,7 @@ public sealed class JoinableTreeNode<TValue> where TValue : ITaggedValue<TValue>
     public JoinableTreeNode<TValue> Clone(ulong transient)
         => transient == Transient 
         ? this 
-        : new(transient, TValue.Clone(Value)) { Left = Left, Right = Right, };
+        : new(transient, TValue.Clone(Value)) { Left = Left, Right = Right, Size = Size, Rank = Rank };
 
     /// <summary>
     /// Updates <c>this</c> node's tag by invoking <see cref="ITaggedValue{TValue}.Combine(in TValue, ref TValue, in TValue)"/>
