@@ -22,7 +22,7 @@ public struct AvlJoin<TValue> : ITreeJoin<TValue>
     public static int Combine(int left, int middle, int right) => 1 + (left > right ? left : right);
 
     /// <inheritdoc/>
-    public static JoinableTreeNode<TValue> Join(in TreeJoin<TValue> jd)
+    public static JoinableTreeNode<TValue> Join(TreeSection<TValue> jd)
     {
         if (H(jd.Left) > H(jd.Right) + 1)
             return JoinR(jd);
@@ -32,7 +32,7 @@ public struct AvlJoin<TValue> : ITreeJoin<TValue>
     }
 
     // Search along the right spine of tl ...
-    private static JoinableTreeNode<TValue> JoinR(TreeJoin<TValue> jd)
+    private static JoinableTreeNode<TValue> JoinR(TreeSection<TValue> jd)
     {
         var tl = jd.Left;
         var (l, c) = (tl.Left, tl.Right);
@@ -57,7 +57,7 @@ public struct AvlJoin<TValue> : ITreeJoin<TValue>
     }
 
     // Search along the left spine of tr...
-    private static JoinableTreeNode<TValue> JoinL(TreeJoin<TValue> jd)
+    private static JoinableTreeNode<TValue> JoinL(TreeSection<TValue> jd)
     {
         var tr = jd.Right;
         var (c, r) = (tr.Left, tr.Right);

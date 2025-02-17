@@ -57,7 +57,7 @@ public static partial class TreeAlgorithms
             if (state.Found != null)
                 return @this;
 
-            var jd = new TreeJoin<TValue> { Transient = state.Transient, Left = n, Middle = @this, Right = @this.Right };
+            var jd = new TreeSection<TValue> { Transient = state.Transient, Left = n, Middle = @this, Right = @this.Right };
             return TJoin.Join(jd);
         } else {
             var n = Insert<TValue, TJoin>(@this.Right, ref state);
@@ -65,7 +65,7 @@ public static partial class TreeAlgorithms
                 return @this;
 
 
-            var jd = new TreeJoin<TValue> { Transient = state.Transient, Left = @this.Left, Middle = @this, Right = n };
+            var jd = new TreeSection<TValue> { Transient = state.Transient, Left = @this.Left, Middle = @this, Right = n };
             return TJoin.Join(jd);
         }
     }
@@ -86,7 +86,7 @@ public static partial class TreeAlgorithms
         var c = TValue.Compare(state.Value, @this.Value);
         if (c == 0) {
             state.Found = @this;
-            var jd = new TreeJoin<TValue> { Transient = state.Transient, Left = @this.Left, Right = @this.Right };
+            var jd = new TreeSection<TValue> { Transient = state.Transient, Left = @this.Left, Right = @this.Right };
             return jd.Join2<TJoin>();
         }
 
@@ -95,14 +95,14 @@ public static partial class TreeAlgorithms
             if (state.Found == null)
                 return @this;
 
-            var jd = new TreeJoin<TValue> { Transient = state.Transient, Left = n, Middle = @this, Right = @this.Right };
+            var jd = new TreeSection<TValue> { Transient = state.Transient, Left = n, Middle = @this, Right = @this.Right };
             return TJoin.Join(jd);
         }else {
             var n = Delete<TValue, TJoin>(@this.Right, ref state);
             if (state.Found == null)
                 return @this;
 
-            var jd = new TreeJoin<TValue> { Transient = state.Transient, Left = @this.Left, Middle = @this, Right = n };
+            var jd = new TreeSection<TValue> { Transient = state.Transient, Left = @this.Left, Middle = @this, Right = n };
             return TJoin.Join(jd);
         }
     }

@@ -47,7 +47,7 @@ public struct WBJoin<TValue> : ITreeJoin<TValue>
     public static int Combine(int left, int middle, int right) => Nil;
 
     /// <inheritdoc/>
-    public static JoinableTreeNode<TValue> Join(in TreeJoin<TValue> jd)
+    public static JoinableTreeNode<TValue> Join(TreeSection<TValue> jd)
     {
         if (LeftHeavy(S(jd.Left), S(jd.Right)))
             return JoinR(jd);
@@ -56,7 +56,7 @@ public struct WBJoin<TValue> : ITreeJoin<TValue>
         return jd.JoinBalanced<WBJoin<TValue>>();
     }
 
-    private static JoinableTreeNode<TValue> JoinR(TreeJoin<TValue> jd) {
+    private static JoinableTreeNode<TValue> JoinR(TreeSection<TValue> jd) {
         if (Like(S(jd.Left), S(jd.Right)))             // Base case
             return jd.JoinBalanced<WBJoin<TValue>>();
 
@@ -75,7 +75,7 @@ public struct WBJoin<TValue> : ITreeJoin<TValue>
     }
 
     // Follow left branch of tr until a TreeNode c is reached with a weight like to tl.
-    private static JoinableTreeNode<TValue> JoinL(TreeJoin<TValue> jd) {
+    private static JoinableTreeNode<TValue> JoinL(TreeSection<TValue> jd) {
         if (Like(S(jd.Left), S(jd.Right)))
             return jd.JoinBalanced<WBJoin<TValue>>();
 

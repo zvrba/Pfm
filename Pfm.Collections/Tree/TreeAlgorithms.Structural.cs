@@ -3,17 +3,6 @@
 namespace Podaga.PersistentCollections.Tree;
 
 /// <summary>
-/// Describes the result of splitting a tree at a node.
-/// </summary>
-/// <seealso cref="TreeAlgorithms.Split{TValue}(Podaga.PersistentCollections.Tree.JoinableTreeNode{TValue}, TValue)"/>.
-public struct TreeSplit<TValue> where TValue : ITaggedValue<TValue>
-{
-    public JoinableTreeNode<TValue> Left;
-    public JoinableTreeNode<TValue> Middle;
-    public JoinableTreeNode<TValue> Right;
-}
-
-/// <summary>
 /// Extension methods on <see cref="JoinableTreeNode{TValue}"/>.  These methods allow to treat any tree node as a
 /// tree root for further operations.
 /// </summary>
@@ -61,7 +50,7 @@ public static partial class TreeAlgorithms
             throw new IndexOutOfRangeException("Invalid tree element index.");
 
         ++index;    // Makes calculations easier.
-        loop:
+    loop:
         var l = root!.Left is null ? 0 : root.Left.Size;
         if (index == l + 1)
             return root.Value;
@@ -72,41 +61,6 @@ public static partial class TreeAlgorithms
             index -= l + 1;
         }
         goto loop;
-    }
-
-    /// <summary>
-    /// Splits a tree rooted at <paramref name="this"/> into left and right subtrees 
-    /// holding respectively values less than and greater than <paramref name="value"/>.
-    /// </summary>
-    /// <returns>
-    /// A structure containing the left and right subtrees and a flag indicating whether <paramref name="value"/> was
-    /// found in the tree under <paramref name="this"/>.
-    /// </returns>
-    public static TreeSplit<TValue> Split<TValue, TJoin>
-        (
-        this JoinableTreeNode<TValue> @this,
-        TValue value
-        )
-        where TValue : ITaggedValue<TValue>
-        where TJoin : struct, ITreeJoin<TValue>
-    {
-        if (@this == null)
-            return default;
-        var c = TValue.Compare(value, @this.Value);
-        if (c == 0)
-            return new() { Left = @this.Left, Middle = @this, Right = @this.Right };
-        
-        if (c < 0) {
-            var s = Split<TValue, TJoin>(@this.Left, value);
-            var jd = new TreeJoin<TValue> { Left = s.Right, Middle = @this, Right = @this.Right };  // XXX: Transient?!
-            var j = TJoin.Join(jd);
-            return new() { Left = s.Left, Middle = s.Middle, Right = j };
-        } else {
-            var s = Split<TValue, TJoin>(@this.Right, value);
-            var jd = new TreeJoin<TValue> { Left = @this.Left, Middle = @this, Right = s.Left }; // XXX: Transient?!
-            var j = TJoin.Join(jd);
-            return new() { Left = j, Middle = s.Middle, Right = s.Right };
-        }
     }
 
     /// <summary>

@@ -22,7 +22,7 @@ public interface ITreeJoin<TValue> where TValue : ITaggedValue<TValue>
     /// <returns>
     /// Tree that has same entries and inorder traversal as the node <c>(left, middle, right)</c>.
     /// </returns>
-    abstract static JoinableTreeNode<TValue> Join(in TreeJoin<TValue> jd);
+    abstract static JoinableTreeNode<TValue> Join(TreeSection<TValue> jd);
 
     /// <summary>
     /// This method must validate the tree's structure invariant starting from <see cref="node"/>.
