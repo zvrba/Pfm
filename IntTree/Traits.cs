@@ -4,6 +4,17 @@ using Podaga.PersistentCollections.Tree;
 
 namespace IntTree;
 
+public struct IntValue : ITaggedValue<int>
+{
+    public static int Nil => default;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Combine(int left, ref int result, int right) { }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int Compare(int left, int right) => left.CompareTo(right);
+}
+
 public struct IntValueHolder : ICollectionValueHolder<IntValueHolder, int>
 {
     public static IntValueHolder Nil => default;
