@@ -24,7 +24,7 @@ public class TreeModifyBenchmark
 
     [Benchmark]
     public void AvlTree() {
-        var tree = new CollectionTreeAdapter<AvlTag, int, IntTraits>(IntTraits.CreateAvlTree());
+        var tree = new CollectionTreeAdapter<int, AvlJoin<IntValueHolder>, IntValueHolder>();
         for (int i = 0; i < data.Length; ++i)
             tree.Add(data[i]);
         for (int i = data.Length - 1; i >= 0; --i)
@@ -33,7 +33,7 @@ public class TreeModifyBenchmark
 
     [Benchmark]
     public void WBTree() {
-        var tree = new CollectionTreeAdapter<WBTag, int, IntTraits>(IntTraits.CreateWBTree());
+        var tree = new CollectionTreeAdapter<int, WBJoin<IntValueHolder>, IntValueHolder>();
         for (int i = 0; i < data.Length; ++i)
             tree.Add(data[i]);
         for (int i = data.Length - 1; i >= 0; --i)
@@ -42,7 +42,7 @@ public class TreeModifyBenchmark
 
     [Benchmark]
     public void AvlTreeCOW() {
-        var tree = new CollectionTreeAdapter<AvlTag, int, IntTraits>(IntTraits.CreateAvlTree());
+        var tree = new CollectionTreeAdapter<int, AvlJoin<IntValueHolder>, IntValueHolder>();
         for (int i = 0; i < data.Length; ++i)
             if ((data[i] & 1) == 1)
                 tree.Add(data[i]);
@@ -59,7 +59,7 @@ public class TreeModifyBenchmark
 
     [Benchmark]
     public void WBTreeCOW() {
-        var tree = new CollectionTreeAdapter<WBTag, int, IntTraits>(IntTraits.CreateWBTree());
+        var tree = new CollectionTreeAdapter<int, WBJoin<IntValueHolder>, IntValueHolder>();
         for (int i = 0; i < data.Length; ++i)
             if ((data[i] & 1) == 1)
                 tree.Add(data[i]);

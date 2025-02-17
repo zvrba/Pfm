@@ -11,7 +11,7 @@ public class SequencePatternBenchmark
 
     [Benchmark]
     public void TreeBenchmark() {
-        var coll = new CollectionTreeAdapter<AvlTag, int, IntTraits>(IntTraits.CreateAvlTree());
+        var coll = new CollectionTreeAdapter<int, AvlJoin<IntValueHolder>, IntValueHolder>();
         for (int i = 0; i < AddPermutation.Data.Length; ++i)
             coll.Add(AddPermutation.Data[i]);
         for (int i = 0; i < RemovePermutation.Data.Length; ++i)
