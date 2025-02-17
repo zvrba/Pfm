@@ -25,20 +25,24 @@ public class CollectionTreeAdapter<TValue, TJoin, THolder> : ICollection<TValue>
     /// <summary>
     /// Initializes an empty collection.
     /// </summary>
-    public CollectionTreeAdapter() => this.Transient = Interlocked.Increment(ref NextTransient);
+    public CollectionTreeAdapter() => this._Transient = Interlocked.Increment(ref NextTransient);
 
     /// <summary>
-    /// Forks the collection.
+    /// Forks the collection.  Ensures that modifications to <c>this</c> and the forked version are invisible to each other.
     /// </summary>
     /// <returns>
     /// A forked instance that contains the same elements as <c>this</c>.
     /// </returns>
-    public CollectionTreeAdapter<TValue, TJoin, THolder> Fork() => new() { Root = Root };
+    public CollectionTreeAdapter<TValue, TJoin, THolder> Fork() {
+        _Transient = Interlocked.Increment(ref NextTransient);
+        return new() { Root = Root };
+    }
 
     /// <summary>
     /// Transient value for this collection.
     /// </summary>
-    public ulong Transient { get; }
+    public ulong Transient => _Transient;
+    private ulong _Transient;
 
     /// <summary>
     /// Root of the tree that represents this collection.
