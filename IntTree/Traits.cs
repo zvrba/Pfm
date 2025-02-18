@@ -15,7 +15,7 @@ public struct IntValue : ITaggedValue<int>
     public static int Compare(int left, int right) => left.CompareTo(right);
 }
 
-public struct IntValueHolder : ICollectionValueHolder<IntValueHolder, int>
+public struct IntValueHolder : ITaggedValueHolder<IntValueHolder, int>
 {
     public static IntValueHolder Nil => default;
 

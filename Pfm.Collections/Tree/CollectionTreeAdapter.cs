@@ -6,26 +6,30 @@ using System.Threading;
 
 namespace Podaga.PersistentCollections.Tree;
 
-public interface ICollectionValueHolder<TSelf, TValue> : ITaggedValue<TSelf>
-    where TSelf : struct, ICollectionValueHolder<TSelf, TValue>
-{
-    abstract static TSelf Create(TValue value);
-    TValue Value { get; set; }
-}
-
 /// <summary>
 /// Adapts a joinable tree to <see cref="ICollection{T}"/> and <see cref="IReadOnlyList{T}"/> interfaces.
 /// </summary>
-public class CollectionTreeAdapter<TValue, TJoin, THolder> : ICollection<TValue>, IReadOnlyList<TValue>
+public class CollectionTreeAdapter<TValue, TJoin, THolder> :
+    IAdaptedTree<TValue, TJoin, THolder>,
+    ICollection<TValue>,
+    IReadOnlyList<TValue>
     where TJoin : struct, ITreeJoin<THolder>
-    where THolder : struct, ICollectionValueHolder<THolder, TValue>
+    where THolder : struct, ITaggedValueHolder<THolder, TValue>
 {
     private static ulong NextTransient = 0;
 
     /// <summary>
-    /// Initializes an empty collection.
+    /// Initializes an collection.
     /// </summary>
-    public CollectionTreeAdapter() => this._Transient = Interlocked.Increment(ref NextTransient);
+    /// <param name="root">Tree root from an existing tree, or <c>null</c> to initialize an empty collection.</param>
+    /// <param name="transient">Transient tag to reuse, or 0 to create a new one.</param>
+    public CollectionTreeAdapter(JoinableTreeNode<THolder>? root = null, ulong transient = 0) {
+        Root = root;
+
+        if (transient == 0)
+            transient = Interlocked.Increment(ref NextTransient);
+        _Transient = transient;
+    }
 
     /// <summary>
     /// Forks the collection.  Ensures that modifications to <c>this</c> and the forked version are invisible to each other.
