@@ -47,7 +47,7 @@ public static class IteratorAlgorithms
         JoinableTreeNode<TValue> node,
         TValue value
         )
-        where TValue : struct, ITaggedValue<TValue>
+        where TValue : ITaggedValue<TValue>
     {
         if (node != null) @this.Clear();
         else node = @this.TryPop();
@@ -79,7 +79,7 @@ public static class IteratorAlgorithms
         this ref TreeIterator<TValue> @this,
         JoinableTreeNode<TValue> node
         )
-        where TValue : struct, ITaggedValue<TValue>
+        where TValue : ITaggedValue<TValue>
     {
         if (node != null) @this.Clear();
         else node = @this.TryPop();
@@ -106,7 +106,7 @@ public static class IteratorAlgorithms
         this ref TreeIterator<TValue> @this,
         JoinableTreeNode<TValue> node
         )
-        where TValue : struct, ITaggedValue<TValue>
+        where TValue : ITaggedValue<TValue>
     {
         if (node != null) @this.Clear();
         else node = @this.TryPop();
@@ -122,7 +122,7 @@ public static class IteratorAlgorithms
     /// <param name="this">Iterator instance.</param>
     /// <returns>True if the next element exists, false otherwise.</returns>
     public static bool Succ<TValue>(this ref TreeIterator<TValue> @this)
-       where TValue : struct, ITaggedValue<TValue>
+       where TValue : ITaggedValue<TValue>
     {
         var current = @this.TryPop();
         if (current == null)
@@ -150,7 +150,7 @@ public static class IteratorAlgorithms
     /// <param name="this">Iterator instance.</param>
     /// <returns>True if the next element exists, false otherwise.</returns>
     public static bool Pred<TValue>(this ref TreeIterator<TValue> @this)
-       where TValue : struct, ITaggedValue<TValue> 
+       where TValue : ITaggedValue<TValue> 
     {
         var current = @this.TryPop();
         if (current == null)
@@ -190,7 +190,7 @@ public static class IteratorAlgorithms
         JoinableTreeNode<TValue> node,
         int index
         )
-       where TValue : struct, ITaggedValue<TValue>
+       where TValue : ITaggedValue<TValue>
     {
         if (node != null) @this.Clear();
         else if (!@this.IsEmpty) node = @this.Top;
