@@ -14,7 +14,7 @@ public class CollectionTreeAdapter<TValue, THolder> :
     where THolder : struct, ITaggedValueHolder<THolder, TValue>, ITreeJoin<THolder>
 {
     /// <summary>
-    /// Initializes an collection.
+    /// Constructor.
     /// </summary>
     /// <param name="root">Tree root from an existing tree, or <c>null</c> to initialize an empty collection.</param>
     /// <param name="transient">Transient tag to reuse, or 0 to create a new one.</param>
