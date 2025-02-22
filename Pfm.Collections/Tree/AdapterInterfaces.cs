@@ -53,15 +53,12 @@ public interface IAdaptedTree<THolder, TValue>
     JoinableTreeNode<THolder>? Root { get; }
 }
 
-#if false
 /// <summary>
 /// Contains extension methods for creating different "System" collection views from a tree.
 /// </summary>
 public static class CollectionAdapters
 {
-    public static object AsCollection<TValue, TJoin, THolder>(this JoinableTreeNode<THolder> @this, ulong transient = 0)
-        where THolder : struct, ITaggedValueHolder<THolder, TValue>
-        where TJoin : struct, ITreeJoin<THolder>
-        => new CollectionTreeAdapter<TValue, TJoin, THolder>(@this, transient);
+    public static object AsCollection<TValue, THolder>(this JoinableTreeNode<THolder> @this, ulong transient = 0)
+        where THolder : struct, ITaggedValueHolder<THolder, TValue>, ITreeJoin<THolder>
+        => new CollectionTreeAdapter<TValue, THolder>(@this, transient);
 }
-#endif

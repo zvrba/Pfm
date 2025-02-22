@@ -116,11 +116,8 @@ public class SetTreeAdapter<TValue, THolder> : CollectionTreeAdapter<TValue, THo
             case IAdaptedTree<THolder, TValue> t:
                 Root = SetIntersection(Root, t.Root);
                 break;
-            case ICollection<TValue> c:
             default:
-                foreach (var v in other)
-                    Add(v);
-                break;
+                throw new NotSupportedException("Intersection with enumerable that is not a joinable tree.");
         }
     }
 
