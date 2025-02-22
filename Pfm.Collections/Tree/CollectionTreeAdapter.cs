@@ -42,7 +42,7 @@ public class CollectionTreeAdapter<TValue, THolder> :
     private ulong _Transient;
 
     /// <inheritdoc/>
-    public JoinableTreeNode<THolder>? Root { get; private set; }
+    public JoinableTreeNode<THolder>? Root { get; protected set; }
 
     /// <inheritdoc/>
     public bool IsReadOnly => false;
