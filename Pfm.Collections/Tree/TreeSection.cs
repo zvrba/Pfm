@@ -102,7 +102,5 @@ public struct TreeSection<TValue> where TValue : ITaggedValue<TValue>
             return new() { Left = j, Middle = s.Middle, Right = s.Right };
         }
     }
-
-
 }
 
