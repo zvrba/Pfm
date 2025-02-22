@@ -2,22 +2,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace Podaga.PersistentCollections.Tree;
 
 /// <summary>
-/// Adapts a joinable tree to <see cref="ICollection{T}"/> and <see cref="IReadOnlyList{T}"/> interfaces.
+/// Adapts a joinable tree to <see cref="ICollection{T}"/>.
 /// </summary>
-public class CollectionTreeAdapter<TValue, TJoin, THolder> :
-    IAdaptedTree<TValue, TJoin, THolder>,
-    ICollection<TValue>,
-    IReadOnlyList<TValue>
-    where TJoin : struct, ITreeJoin<THolder>
-    where THolder : struct, ITaggedValueHolder<THolder, TValue>
+public class CollectionTreeAdapter<TValue, THolder> :
+    IAdaptedTree<THolder, TValue>,
+    ICollection<TValue>
+    where THolder : struct, ITaggedValueHolder<THolder, TValue>, ITreeJoin<THolder>
 {
-    private static ulong NextTransient = 0;
-
     /// <summary>
     /// Initializes an collection.
     /// </summary>
@@ -27,7 +22,7 @@ public class CollectionTreeAdapter<TValue, TJoin, THolder> :
         Root = root;
 
         if (transient == 0)
-            transient = Interlocked.Increment(ref NextTransient);
+            transient = TransientSource.NewTransient();
         _Transient = transient;
     }
 
@@ -37,20 +32,16 @@ public class CollectionTreeAdapter<TValue, TJoin, THolder> :
     /// <returns>
     /// A forked instance that contains the same elements as <c>this</c>.
     /// </returns>
-    public CollectionTreeAdapter<TValue, TJoin, THolder> Fork() {
-        _Transient = Interlocked.Increment(ref NextTransient);
+    public CollectionTreeAdapter<TValue, THolder> Fork() {
+        _Transient = TransientSource.NewTransient();
         return new() { Root = Root };
     }
 
-    /// <summary>
-    /// Transient value for this collection.
-    /// </summary>
+    /// <inheritdoc/>
     public ulong Transient => _Transient;
     private ulong _Transient;
 
-    /// <summary>
-    /// Root of the tree that represents this collection.
-    /// </summary>
+    /// <inheritdoc/>
     public JoinableTreeNode<THolder>? Root { get; private set; }
 
     /// <inheritdoc/>
@@ -59,8 +50,6 @@ public class CollectionTreeAdapter<TValue, TJoin, THolder> :
     /// <inheritdoc/>
     public int Count => Root?.Size ?? 0;
 
-    /// <inheritdoc/>
-    public TValue this[int index] => Root.Nth(index).Value;
 
     /// <inheritdoc/>
     void ICollection<TValue>.Add(TValue item) => Add(item);
@@ -74,7 +63,7 @@ public class CollectionTreeAdapter<TValue, TJoin, THolder> :
     /// </returns>
     public bool Add(TValue item) {
         var state = new ModifyState<THolder> { Value = THolder.Create(item), Transient = Transient };
-        Root = Root.Insert<THolder, TJoin>(ref state);
+        Root = Root.Insert<THolder, THolder>(ref state);
         return state.Found == null;
     }
 
@@ -87,7 +76,7 @@ public class CollectionTreeAdapter<TValue, TJoin, THolder> :
     /// <inheritdoc/>
     public bool Remove(TValue item) {
         var state = new ModifyState<THolder> { Value = THolder.Create(item), Transient = Transient };
-        var root = Root.Delete<THolder, TJoin>(ref state);
+        var root = Root.Delete<THolder, THolder>(ref state);
         if (state.Found == null)
             return false;
         Root = root;

@@ -6,8 +6,9 @@ namespace Podaga.PersistentCollections.Tree;
 /// <summary>
 /// Implementation of <see cref="ITreeJoin{TValue}"/> for AVL trees.
 /// </summary>
-public struct AvlJoin<TValue> : ITreeJoin<TValue>
-    where TValue : struct, ITaggedValue<TValue>
+public interface IAvlJoin<TSelf, TValue> : ITreeJoin<TValue>
+    where TSelf : struct, IAvlJoin<TSelf, TValue>
+    where TValue : ITaggedValue<TValue>
 {
     // UTILITIES
 
@@ -15,21 +16,23 @@ public struct AvlJoin<TValue> : ITreeJoin<TValue>
     private static int H(JoinableTreeNode<TValue> n) => n?.Rank ?? 0;
 
     /// <inheritdoc/>
-    public static int Nil => 0;
+    static int ITreeJoin<TValue>.Nil => 0;
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int Combine(int left, int middle, int right) => 1 + (left > right ? left : right);
+    static int ITreeJoin<TValue>.Combine(int left, int middle, int right) => 1 + (left > right ? left : right);
 
     /// <inheritdoc/>
-    public static JoinableTreeNode<TValue> Join(TreeSection<TValue> jd)
+    static JoinableTreeNode<TValue> ITreeJoin<TValue>.Join(TreeSection<TValue> jd)
     {
         if (H(jd.Left) > H(jd.Right) + 1)
             return JoinR(jd);
         if (H(jd.Right) > H(jd.Left) + 1)
             return JoinL(jd);
-        return jd.JoinBalanced<AvlJoin<TValue>>();
+        return jd.JoinBalanced<TSelf>();
     }
+
+    static void ITreeJoin<TValue>.ValidateStructure(JoinableTreeNode<TValue> node) => ValidateHeights(node);
 
     // Search along the right spine of tl ...
     private static JoinableTreeNode<TValue> JoinR(TreeSection<TValue> jd)
@@ -38,20 +41,20 @@ public struct AvlJoin<TValue> : ITreeJoin<TValue>
         var (l, c) = (tl.Left, tl.Right);
         if (H(c) <= H(jd.Right) + 1) {
             jd.Left = c;
-            var t1 = jd.JoinBalanced<AvlJoin<TValue>>();
+            var t1 = jd.JoinBalanced<TSelf>();
             tl = tl.Clone(jd.Transient);
             tl.Right = t1;
-            tl.Update<AvlJoin<TValue>>();
+            tl.Update<TSelf>();
             if (t1.Rank > H(l) + 1)
-                tl = tl.RotLL<TValue, AvlJoin<TValue>>(jd.Transient);
+                tl = tl.RotLL<TValue, TSelf>(jd.Transient);
         } else {
             jd.Left = c;
             var t1 = JoinR(jd);
             tl = tl.Clone(jd.Transient);
             tl.Right = t1;
-            tl.Update<AvlJoin<TValue>>();
+            tl.Update<TSelf>();
             if (t1.Rank > H(l) + 1)
-                tl = tl.RotL<TValue, AvlJoin<TValue>>(jd.Transient);
+                tl = tl.RotL<TValue, TSelf>(jd.Transient);
         }
         return tl;
     }
@@ -63,26 +66,23 @@ public struct AvlJoin<TValue> : ITreeJoin<TValue>
         var (c, r) = (tr.Left, tr.Right);
         if (H(c) <= H(jd.Left) + 1) {
             jd.Right = c;
-            var t1 = jd.JoinBalanced<AvlJoin<TValue>>();
+            var t1 = jd.JoinBalanced<TSelf>();
             tr = tr.Clone(jd.Transient);
             tr.Left = t1;
-            tr.Update<AvlJoin<TValue>>();
+            tr.Update<TSelf>();
             if (t1.Rank > H(r) + 1)
-                tr = tr.RotRR<TValue, AvlJoin<TValue>>(jd.Transient);
+                tr = tr.RotRR<TValue, TSelf>(jd.Transient);
         } else {
             jd.Right = c;
             var t1 = JoinL(jd);
             tr = tr.Clone(jd.Transient);
             tr.Left = t1;
-            tr.Update<AvlJoin<TValue>>();
+            tr.Update<TSelf>();
             if (t1.Rank > H(r) + 1)
-                tr = tr.RotR<TValue, AvlJoin<TValue>>(jd.Transient);
+                tr = tr.RotR<TValue, TSelf>(jd.Transient);
         }
         return tr;
     }
-
-    /// <inheritdoc/>
-    public static void ValidateStructure(JoinableTreeNode<TValue> node) => ValidateHeights(node);
 
     private static int ValidateHeights(JoinableTreeNode<TValue> node) {
         if (node == null)

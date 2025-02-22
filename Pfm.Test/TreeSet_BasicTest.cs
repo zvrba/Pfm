@@ -7,12 +7,12 @@ using Podaga.PersistentCollections.Tree;
 
 namespace Podaga.PersistentCollections.Test;
 
-internal class TreeSet_BasicTest<TJoin> where TJoin : struct, ITreeJoin<IntValueHolder>
+internal class TreeSet_BasicTest<THolder> where THolder : struct, ITaggedValueHolder<THolder, int>, ITreeJoin<THolder>
 {
     public static void Run(IList<int[]> sequences) {
         for (int i = 0; i < sequences.Count; ++i) {
             for (int j = 0; j < sequences.Count; ++j) {
-                var test = new TreeSet_BasicTest<TJoin>(sequences[i], sequences[j]);
+                var test = new TreeSet_BasicTest<THolder>(sequences[i], sequences[j]);
                 test.Run();
             }
         }
@@ -21,7 +21,7 @@ internal class TreeSet_BasicTest<TJoin> where TJoin : struct, ITreeJoin<IntValue
     private readonly int[] insert;
     private readonly int[] remove;
     private readonly SortedSet<int> contents;
-    private JoinableTreeNode<IntValueHolder> tree;
+    private JoinableTreeNode<THolder> tree;
 
     private TreeSet_BasicTest(int[] insert, int[] remove) {
         this.insert = insert;
@@ -92,7 +92,7 @@ internal class TreeSet_BasicTest<TJoin> where TJoin : struct, ITreeJoin<IntValue
     }
 
     private void CheckPersistence() {
-        var original = new CollectionTreeAdapter<int, TJoin, IntValueHolder>();
+        var original = new CollectionTreeAdapter<int, THolder>();
         for (int i = 0; i < insert.Length; ++i)
             original.Add(insert[i]);
         Assert.True(original.Count == insert.Length);
@@ -108,8 +108,8 @@ internal class TreeSet_BasicTest<TJoin> where TJoin : struct, ITreeJoin<IntValue
     }
 
     private bool TryAdd(ref int v) {
-        var state = new ModifyState<IntValueHolder> { Transient = 1, Value = new() { Value = v } };
-        tree = tree.Insert<IntValueHolder, TJoin>(ref state);
+        var state = new ModifyState<THolder> { Transient = 1, Value = new() { Value = v } };
+        tree = tree.Insert<THolder, THolder>(ref state);
         if (state.Found == null)
             return true;
         v = state.Found.Value.Value;
@@ -127,8 +127,8 @@ internal class TreeSet_BasicTest<TJoin> where TJoin : struct, ITreeJoin<IntValue
     }
 
     private bool TryRemove(ref int v) {
-        var state = new ModifyState<IntValueHolder> { Transient = 1, Value = new() { Value = v } };
-        var root = tree.Delete<IntValueHolder, TJoin>(ref state);
+        var state = new ModifyState<THolder> { Transient = 1, Value = new() { Value = v } };
+        var root = tree.Delete<THolder, THolder>(ref state);
         if (state.Found == null)
             return false;
 
@@ -148,13 +148,13 @@ internal class TreeSet_BasicTest<TJoin> where TJoin : struct, ITreeJoin<IntValue
 
     private void Verify() {
         Assert.True((tree?.Size ?? 0) == contents.Count);
-        TJoin.ValidateStructure(tree);
+        THolder.ValidateStructure(tree);
 
         VerifyOrder(tree, out var traverseCount, contents.Min, contents.Max);
         Assert.True(traverseCount == (tree?.Size ?? 0));
 
         foreach (var i in contents) {
-            var n = tree.Find(new IntValueHolder() { Value = i }, out int found);
+            var n = tree.Find(THolder.Create(i), out int found);
             Assert.True(found == 0 && n.Value.Value == i);
         }
 
@@ -167,7 +167,7 @@ internal class TreeSet_BasicTest<TJoin> where TJoin : struct, ITreeJoin<IntValue
         VerifyIteration(iterator, true, contents.Reverse());
     }
 
-    private void VerifyOrder(JoinableTreeNode<IntValueHolder> node, out int count, int min, int max) {
+    private void VerifyOrder(JoinableTreeNode<THolder> node, out int count, int min, int max) {
         if (node == null) {
             count = 0;
             return;
@@ -185,7 +185,7 @@ internal class TreeSet_BasicTest<TJoin> where TJoin : struct, ITreeJoin<IntValue
     //private delegate TNode Advance(ref Iterator<int, TNode> iterator);
 
     private static void VerifyIteration(
-        TreeIterator<IntValueHolder> iterator,
+        TreeIterator<THolder> iterator,
         bool backwards,
         IEnumerable<int> reference)
     {

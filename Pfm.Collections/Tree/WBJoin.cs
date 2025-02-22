@@ -8,8 +8,9 @@ namespace Podaga.PersistentCollections.Tree;
 /// The balance factor is hard-coded to 1/4.  This value is just below the maximum proven in the paper
 /// that makes the tree strongly joinable.
 /// </summary>
-public struct WBJoin<TValue> : ITreeJoin<TValue>
-    where TValue : struct, ITaggedValue<TValue>
+public interface IWBJoin<TSelf, TValue> : ITreeJoin<TValue>
+    where TSelf : struct, IWBJoin<TSelf, TValue>
+    where TValue : ITaggedValue<TValue>
 {
     private const float Alpha = 0.25f;  // Alpha
     private const float AlphaC = 1 - Alpha;
@@ -40,36 +41,42 @@ public struct WBJoin<TValue> : ITreeJoin<TValue>
     }
 
     /// <inheritdoc/>
-    public static int Nil => 0;
+    static int ITreeJoin<TValue>.Nil => 0;
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int Combine(int left, int middle, int right) => Nil;
+    static int ITreeJoin<TValue>.Combine(int left, int middle, int right) => 0;
 
     /// <inheritdoc/>
-    public static JoinableTreeNode<TValue> Join(TreeSection<TValue> jd)
+    static JoinableTreeNode<TValue> ITreeJoin<TValue>.Join(TreeSection<TValue> jd)
     {
         if (LeftHeavy(S(jd.Left), S(jd.Right)))
             return JoinR(jd);
         if (LeftHeavy(S(jd.Right), S(jd.Left)))
             return JoinL(jd);
-        return jd.JoinBalanced<WBJoin<TValue>>();
+        return jd.JoinBalanced<TSelf>();
+    }
+
+    /// <inheritdoc/>
+    static void ITreeJoin<TValue>.ValidateStructure(JoinableTreeNode<TValue> node) {
+        if (node?.Size > 1)  // Single-element tree cannot be balanced.
+            ValidateWeights(node);
     }
 
     private static JoinableTreeNode<TValue> JoinR(TreeSection<TValue> jd) {
         if (Like(S(jd.Left), S(jd.Right)))             // Base case
-            return jd.JoinBalanced<WBJoin<TValue>>();
+            return jd.JoinBalanced<TSelf>();
 
         var tl = jd.Left;
         jd.Left = tl.Right;
         var t1 = JoinR(jd);
         tl = tl.Clone(jd.Transient);
         tl.Right = t1;
-        tl.Update<WBJoin<TValue>>();
+        tl.Update<TSelf>();
 
         if (!Like(S(tl.Left), S(t1))) {
-            if (IsSingleRotation(S(tl.Left), S(t1))) tl = tl.RotL<TValue, WBJoin<TValue>>(jd.Transient);
-            else tl = tl.RotLL<TValue, WBJoin<TValue>>(jd.Transient);
+            if (IsSingleRotation(S(tl.Left), S(t1))) tl = tl.RotL<TValue, TSelf>(jd.Transient);
+            else tl = tl.RotLL<TValue, TSelf>(jd.Transient);
         }
         return tl;
     }
@@ -77,27 +84,20 @@ public struct WBJoin<TValue> : ITreeJoin<TValue>
     // Follow left branch of tr until a TreeNode c is reached with a weight like to tl.
     private static JoinableTreeNode<TValue> JoinL(TreeSection<TValue> jd) {
         if (Like(S(jd.Left), S(jd.Right)))
-            return jd.JoinBalanced<WBJoin<TValue>>();
+            return jd.JoinBalanced<TSelf>();
 
         var tr = jd.Right;
         jd.Right = tr.Left;
         var t1 = JoinL(jd);
         tr = tr.Clone(jd.Transient);
         tr.Left = t1;
-        tr.Update<WBJoin<TValue>>();
+        tr.Update<TSelf>();
 
         if (!Like(S(t1), S(tr.Right))) {
-            if (IsSingleRotation(S(t1), S(tr.Right))) tr = tr.RotR<TValue, WBJoin<TValue>>(jd.Transient);
-            else tr = tr.RotRR<TValue, WBJoin<TValue>>(jd.Transient);
+            if (IsSingleRotation(S(t1), S(tr.Right))) tr = tr.RotR<TValue, TSelf>(jd.Transient);
+            else tr = tr.RotRR<TValue, TSelf>(jd.Transient);
         }
         return tr;
-    }
-
-    /// <inheritdoc/>
-    public static void ValidateStructure(JoinableTreeNode<TValue> node) {
-        if (node?.Size > 1)  // Single-element tree cannot be balanced.
-            ValidateWeights(node);
-
     }
 
     private static void ValidateWeights(JoinableTreeNode<TValue> node) {

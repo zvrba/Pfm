@@ -4,28 +4,34 @@ using Podaga.PersistentCollections.Tree;
 
 namespace IntTree;
 
-public struct IntValue : ITaggedValue<int>
+public struct AvlIntValueHolder :
+    IAvlJoin<AvlIntValueHolder, AvlIntValueHolder>,
+    ITaggedValueHolder<AvlIntValueHolder, int>
 {
-    public static int Nil => default;
+    public static AvlIntValueHolder Nil => default;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Combine(int left, ref int result, int right) { }
+    public static void Combine(AvlIntValueHolder left, ref AvlIntValueHolder result, AvlIntValueHolder right) { }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int Compare(int left, int right) => left.CompareTo(right);
+    public static int Compare(AvlIntValueHolder left, AvlIntValueHolder right) => left.Value.CompareTo(right.Value);
+
+    public static AvlIntValueHolder Create(int value) => new() { Value = value };
+    public int Value { get; set; }
 }
 
-public struct IntValueHolder : ITaggedValueHolder<IntValueHolder, int>
+public struct WBIntValueHolder :
+    IWBJoin<WBIntValueHolder, WBIntValueHolder>,
+    ITaggedValueHolder<WBIntValueHolder, int>
 {
-    public static IntValueHolder Nil => default;
+    public static WBIntValueHolder Nil => default;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Combine(IntValueHolder left, ref IntValueHolder result, IntValueHolder right) { }
+    public static void Combine(WBIntValueHolder left, ref WBIntValueHolder result, WBIntValueHolder right) { }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int Compare(IntValueHolder left, IntValueHolder right) => left.Value.CompareTo(right.Value);
+    public static int Compare(WBIntValueHolder left, WBIntValueHolder right) => left.Value.CompareTo(right.Value);
 
-    public static IntValueHolder Create(int value) => new() { Value = value };
-
+    public static WBIntValueHolder Create(int value) => new() { Value = value };
     public int Value { get; set; }
 }

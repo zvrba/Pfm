@@ -19,10 +19,10 @@ public static class Program
         Vector_MutationTest.Run(3, 2);
         //Vector_BasicTest.Run(5, 5); // NB! Slow-ish.
 
-        TreeSet_BasicTest<AvlJoin<IntValueHolder>>.Run(sequences);
+        TreeSet_BasicTest<AvlIntValueHolder>.Run(sequences);
         //TreeSet_SetTest<IntAvlTree>.Run(SequenceSize);
         
-        TreeSet_BasicTest<WBJoin<IntValueHolder>>.Run(sequences);
+        TreeSet_BasicTest<WBIntValueHolder>.Run(sequences);
         //TreeSet_SetTest<IntWBTree>.Run(SequenceSize);
     }
 
