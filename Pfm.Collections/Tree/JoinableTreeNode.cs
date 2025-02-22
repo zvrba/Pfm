@@ -1,12 +1,15 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Podaga.PersistentCollections.Tree;
 
 /// <summary>
-/// Node of a binary search tree.  Stores a tagged value.
+/// Node of a binary search tree; stores a tagged value.
+/// Enumerating a node will return its children in in-order traversal.
 /// </summary>
 /// <typeparam name="TValue">Type of values stored in the node.</typeparam>
-public sealed class JoinableTreeNode<TValue> where TValue : ITaggedValue<TValue>
+public sealed class JoinableTreeNode<TValue> : IEnumerable<TValue>
+    where TValue : ITaggedValue<TValue>
 {
     /// <summary>
     /// Constructor.
@@ -89,4 +92,15 @@ public sealed class JoinableTreeNode<TValue> where TValue : ITaggedValue<TValue>
             TValue.Combine(TValue.Nil, ref Value, TValue.Nil);
         }
     }
+
+    /// <inheritdoc/>
+    public IEnumerator<TValue> GetEnumerator() {
+        var it = TreeIterator<TValue>.New();
+        it.First(this);
+        do {
+            yield return it.Top.Value;
+        } while (it.Succ());
+    }
+
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
 }
