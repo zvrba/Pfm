@@ -39,7 +39,7 @@ public interface ITaggedValueHolder<TSelf, TValue> : ITaggedValue<TSelf>
 /// </summary>
 /// <typeparam name="TValue">Value type held by the tree.</typeparam>
 /// <typeparam name="THolder">Join strategy and value traits.</typeparam>
-public interface IAdaptedTree<THolder, TValue>
+public interface IAdaptedTree<TValue, THolder>
     where THolder : struct, ITaggedValueHolder<THolder, TValue>, ITreeJoin<THolder>
 {
     /// <summary>
@@ -58,7 +58,19 @@ public interface IAdaptedTree<THolder, TValue>
 /// </summary>
 public static class CollectionAdapters
 {
-    public static object AsCollection<TValue, THolder>(this JoinableTreeNode<THolder> @this, ulong transient = 0)
+    public static CollectionTreeAdapter<TValue, THolder> AsCollection<TValue, THolder>
+        (
+        this JoinableTreeNode<THolder> @this,
+        ulong transient = 0
+        )
         where THolder : struct, ITaggedValueHolder<THolder, TValue>, ITreeJoin<THolder>
         => new CollectionTreeAdapter<TValue, THolder>(@this, transient);
+
+    public static CollectionTreeAdapter<TValue, THolder> AsCollection<TValue, THolder>
+        (
+        this IAdaptedTree<TValue, THolder> @this,
+        ulong transient = 0
+        )
+        where THolder : struct, ITaggedValueHolder<THolder, TValue>, ITreeJoin<THolder>
+        => new CollectionTreeAdapter<TValue, THolder>(@this.Root, @this.Transient);
 }

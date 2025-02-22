@@ -9,7 +9,7 @@ namespace Podaga.PersistentCollections.Tree;
 /// Adapts a joinable tree to <see cref="ICollection{T}"/>.
 /// </summary>
 public class CollectionTreeAdapter<TValue, THolder> :
-    IAdaptedTree<THolder, TValue>,
+    IAdaptedTree<TValue, THolder>,
     ICollection<TValue>
     where THolder : struct, ITaggedValueHolder<THolder, TValue>, ITreeJoin<THolder>
 {

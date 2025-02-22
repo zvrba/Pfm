@@ -11,7 +11,7 @@ namespace Podaga.PersistentCollections.Tree;
 /// <typeparam name="TValue"></typeparam>
 /// <typeparam name="THolder"></typeparam>
 public class SetTreeAdapter<TValue, THolder> : CollectionTreeAdapter<TValue, THolder>,
-    IAdaptedTree<THolder, TValue>,
+    IAdaptedTree<TValue, THolder>,
     IReadOnlySet<TValue>,
     ISet<TValue>
     where THolder : struct, ITaggedValueHolder<THolder, TValue>, ITreeJoin<THolder>
@@ -26,7 +26,7 @@ public class SetTreeAdapter<TValue, THolder> : CollectionTreeAdapter<TValue, THo
     /// <inheritdoc/>
     public bool SetEquals(IEnumerable<TValue> other) => other switch {
         JoinableTreeNode<THolder> n => SetEqual(Root, n),
-        IAdaptedTree<THolder, TValue> t => SetEqual(Root, t.Root),
+        IAdaptedTree<TValue, THolder> t => SetEqual(Root, t.Root),
         _ => other.Count() == Count && other.Count(Contains) == Count,
     };
 
@@ -71,7 +71,7 @@ public class SetTreeAdapter<TValue, THolder> : CollectionTreeAdapter<TValue, THo
             case JoinableTreeNode<THolder> n:
                 Root = SetUnion(Root, n);
                 break;
-            case IAdaptedTree<THolder, TValue> t:
+            case IAdaptedTree<TValue,THolder> t:
                 Root = SetUnion(Root, t.Root);
                 break;
             default:
@@ -113,7 +113,7 @@ public class SetTreeAdapter<TValue, THolder> : CollectionTreeAdapter<TValue, THo
             case JoinableTreeNode<THolder> n:
                 Root = SetIntersection(Root, n);
                 break;
-            case IAdaptedTree<THolder, TValue> t:
+            case IAdaptedTree<TValue, THolder> t:
                 Root = SetIntersection(Root, t.Root);
                 break;
             default:
@@ -152,7 +152,7 @@ public class SetTreeAdapter<TValue, THolder> : CollectionTreeAdapter<TValue, THo
             case JoinableTreeNode<THolder> n:
                 Root = SetDifference(Root, n);
                 break;
-            case IAdaptedTree<THolder, TValue> t:
+            case IAdaptedTree<TValue, THolder> t:
                 Root = SetDifference(Root, t.Root);
                 break;
             default:
