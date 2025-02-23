@@ -66,6 +66,21 @@ public static class TreeAdapterExtensions
         where TJoin : struct, ITreeTraits<TValue>
         => new(@this.Root, @this.Transient);
 
+    public static ReadOnlyListTreeAdapter<TValue, TJoin> AsReadOnlyList<TValue, TJoin>
+        (
+        this JoinableTreeNode<TValue>? @this,
+        ulong transient = 0
+        )
+        where TJoin : struct, ITreeTraits<TValue>
+        => new(@this, transient);
+
+    public static ReadOnlyListTreeAdapter<TValue, TJoin> AsReadOnlyList<TValue, TJoin>
+        (
+        this IAdaptedTree<TValue, TJoin> @this
+        )
+        where TJoin : struct, ITreeTraits<TValue>
+        => new(@this.Root, @this.Transient);
+
     public static SetTreeAdapter<TValue, TJoin> AsSet<TValue, TJoin>
         (
         this JoinableTreeNode<TValue>? @this,

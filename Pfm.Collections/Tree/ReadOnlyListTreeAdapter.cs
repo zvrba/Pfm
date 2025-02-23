@@ -8,7 +8,7 @@ namespace Podaga.PersistentCollections.Tree;
 /// Adapts a joinable tree to <see cref="IReadOnlyList{T}"/>.  The collection is nevertheless modifiable
 /// through the inherited <see cref="ICollection{T}"/> methods.
 /// </summary>
-class ReadOnlyListTreeAdapter<TValue, TJoin> : CollectionTreeAdapter<TValue, TJoin>, IReadOnlyList<TValue>
+public class ReadOnlyListTreeAdapter<TValue, TJoin> : CollectionTreeAdapter<TValue, TJoin>, IReadOnlyList<TValue>
     where TJoin : struct, ITreeTraits<TValue>
 
 {
