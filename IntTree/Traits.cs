@@ -24,14 +24,32 @@ public struct AvlIntValueHolder :
     IIntValueHolder<AvlIntValueHolder>,
     IAvlJoin<AvlIntValueHolder, AvlIntValueHolder>
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static AvlIntValueHolder Create(int value) => new() { Value = value };
-    public int Value { get; set; }
+    
+    public int Value {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _Value;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set => _Value = value;
+    }
+    private int _Value;
 }
 
 public struct WBIntValueHolder :
     IIntValueHolder<WBIntValueHolder>,
     IWBJoin<WBIntValueHolder, WBIntValueHolder>
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static WBIntValueHolder Create(int value) => new() { Value = value };
-    public int Value { get; set; }
+
+    public int Value {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _Value;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set => _Value = value;
+    }
+    private int _Value;
 }
