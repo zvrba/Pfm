@@ -47,12 +47,12 @@ public class TreeModifyBenchmark
             if ((data[i] & 1) == 1)
                 tree.Add(data[i]);
 
-        tree = tree.Fork();
+        tree = tree.Fork(false);
         for (int i = 0; i < data.Length; ++i)
             if ((data[i] & 1) == 0)
                 tree.Add(data[i]);
 
-        tree = tree.Fork();
+        tree = tree.Fork(false);
         for (int i = data.Length - 1; i >= 0; --i)
             tree.Remove(data[i]);
     }
@@ -64,12 +64,12 @@ public class TreeModifyBenchmark
             if ((data[i] & 1) == 1)
                 tree.Add(data[i]);
 
-        tree = tree.Fork();
+        tree = tree.Fork(false);
         for (int i = 0; i < data.Length; ++i)
             if ((data[i] & 1) == 0)
                 tree.Add(data[i]);
 
-        tree = tree.Fork();
+        tree = tree.Fork(false);
         for (int i = data.Length - 1; i >= 0; --i)
             tree.Remove(data[i]);
     }

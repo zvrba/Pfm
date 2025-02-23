@@ -4,13 +4,12 @@ using System.Runtime.CompilerServices;
 namespace Podaga.PersistentCollections.Tree;
 
 /// <summary>
-/// Implementation of <see cref="ITreeJoin{TValue}"/> for WB trees.
+/// Implementation of <see cref="ITreeTraits{TValue}"/> for WB trees.
 /// The balance factor is hard-coded to 1/4.  This value is just below the maximum proven in the paper
 /// that makes the tree strongly joinable.
 /// </summary>
-public interface IWBJoin<TSelf, TValue> : ITreeJoin<TValue>
+public interface IWBJoin<TSelf, TValue> : ITreeTraits<TValue>
     where TSelf : struct, IWBJoin<TSelf, TValue>
-    where TValue : ITaggedValue<TValue>
 {
     private const float Alpha = 0.25f;  // Alpha
     private const float AlphaC = 1 - Alpha;
@@ -41,14 +40,14 @@ public interface IWBJoin<TSelf, TValue> : ITreeJoin<TValue>
     }
 
     /// <inheritdoc/>
-    static int ITreeJoin<TValue>.Nil => 0;
+    static int ITreeTraits<TValue>.NilRank => 0;
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static int ITreeJoin<TValue>.Combine(int left, int middle, int right) => 0;
+    static int ITreeTraits<TValue>.CombineRanks(int left, int middle, int right) => 0;
 
     /// <inheritdoc/>
-    static JoinableTreeNode<TValue> ITreeJoin<TValue>.Join(TreeSection<TValue> jd)
+    static JoinableTreeNode<TValue> ITreeTraits<TValue>.Join(TreeSection<TValue> jd)
     {
         if (LeftHeavy(S(jd.Left), S(jd.Right)))
             return JoinR(jd);
@@ -58,7 +57,7 @@ public interface IWBJoin<TSelf, TValue> : ITreeJoin<TValue>
     }
 
     /// <inheritdoc/>
-    static void ITreeJoin<TValue>.ValidateStructure(JoinableTreeNode<TValue> node) {
+    static void ITreeTraits<TValue>.ValidateStructure(JoinableTreeNode<TValue> node) {
         if (node?.Size > 1)  // Single-element tree cannot be balanced.
             ValidateWeights(node);
     }
@@ -70,7 +69,7 @@ public interface IWBJoin<TSelf, TValue> : ITreeJoin<TValue>
         var tl = jd.Left;
         jd.Left = tl.Right;
         var t1 = JoinR(jd);
-        tl = tl.Clone(jd.Transient);
+        tl = tl.Clone<TSelf>(jd.Transient);
         tl.Right = t1;
         tl.Update<TSelf>();
 
@@ -89,7 +88,7 @@ public interface IWBJoin<TSelf, TValue> : ITreeJoin<TValue>
         var tr = jd.Right;
         jd.Right = tr.Left;
         var t1 = JoinL(jd);
-        tr = tr.Clone(jd.Transient);
+        tr = tr.Clone<TSelf>(jd.Transient);
         tr.Left = t1;
         tr.Update<TSelf>();
 

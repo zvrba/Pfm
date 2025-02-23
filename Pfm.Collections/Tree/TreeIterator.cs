@@ -26,7 +26,6 @@ namespace Podaga.PersistentCollections.Tree;
 /// </summary>
 /// <typeparam name="TValue">Value type held by tree nodes.</typeparam>
 public struct TreeIterator<TValue>
-    where TValue : ITaggedValue<TValue>
 {
     /// <summary>
     /// Default capacity allocated by the stack.  This should be sufficient for any balanced tree of up to 4G elements.

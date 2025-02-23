@@ -6,14 +6,21 @@ namespace Podaga.PersistentCollections.Tree;
 /// A joinable tree must provide an implementation of this interface.
 /// </summary>
 /// <typeparam name="TValue">Tagged value stored in the tree.</typeparam>
-public interface ITreeJoin<TValue> where TValue : ITaggedValue<TValue>
+public interface ITreeTraits<TValue> : IValueTraits<TValue>
 {
     /// <summary>
     /// Rank corresponding to <c>null</c> node.
     /// </summary>
-    abstract static int Nil { get; }
+    abstract static int NilRank { get; }
 
-    abstract static int Combine(int left, int middle, int right);
+    /// <summary>
+    /// Combines node ranks.
+    /// </summary>
+    /// <param name="left">Rank of the left subtree.</param>
+    /// <param name="middle">Rank of the node being updated.</param>
+    /// <param name="right">Rank of the right subtree.</param>
+    /// <returns>Combined rank value.</returns>
+    abstract static int CombineRanks(int left, int middle, int right);
 
     /// <summary>
     /// 3-way join is the core tree algorithm on which all other operations are based.

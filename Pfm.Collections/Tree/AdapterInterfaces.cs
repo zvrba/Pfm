@@ -5,42 +5,35 @@ using System.Threading;
 
 namespace Podaga.PersistentCollections.Tree;
 
+/// <summary>
+/// Source of unique transient values.
+/// </summary>
 public static class TransientSource
 {
     private static ulong NextTransient = 0;
+
+    /// <summary>
+    /// Generates a new unique transient value.
+    /// </summary>
     public static ulong NewTransient() => Interlocked.Increment(ref NextTransient);
-}
-
-/// <summary>
-/// Bridge between "naked" values of type <typeparamref name="TValue"/> and the underlying joinable tree.
-/// The necessity of this interface is dictated by the fact that types we cannot implement <see cref="ITaggedValue{TValue}"/>
-/// on types we don't control.
-/// </summary>
-/// <typeparam name="TSelf">The concrete implementing type.</typeparam>
-/// <typeparam name="TValue">"Naked" value type held in the container.</typeparam>
-public interface ITaggedValueHolder<TSelf, TValue> : ITaggedValue<TSelf>
-    where TSelf : struct, ITaggedValueHolder<TSelf, TValue>, ITreeJoin<TSelf>
-{
-    /// <summary>
-    /// Creates an instance of <typeparamref name="TSelf"/> from <paramref name="value"/>.
-    /// </summary>
-    /// <param name="value">"Naked" value.</param>
-    /// <returns>An instance of <typeparamref name="TSelf"/> with <see cref="Value"/> being the same as <paramref name="value"/>.</returns>
-    abstract static TSelf Create(TValue value);
 
     /// <summary>
-    /// "Naked" value.
+    /// Conditionally generates a new unique transient value.
     /// </summary>
-    TValue Value { get; set; }
+    /// <param name="transient">Existing transient value to check.</param>
+    /// <returns>
+    /// <paramref name="transient"/> if it was non-zero, a new transient otherwise.
+    /// </returns>
+    public static ulong NewTransient(ulong transient) => transient > 0 ? transient : NewTransient();
 }
 
 /// <summary>
 /// Common interface implemented by all adapters to <c>System.Collection.Generic</c> interfaces.
 /// </summary>
 /// <typeparam name="TValue">Value type held by the tree.</typeparam>
-/// <typeparam name="THolder">Join strategy and value traits.</typeparam>
-public interface IAdaptedTree<TValue, THolder>
-    where THolder : struct, ITaggedValueHolder<THolder, TValue>, ITreeJoin<THolder>
+/// <typeparam name="TTree">The concrete tree implementation.</typeparam>
+public interface IAdaptedTree<TValue, TTree>
+    where TTree : struct, ITreeTraits<TValue>
 {
     /// <summary>
     /// Transient tag to use by the collection.
@@ -50,44 +43,77 @@ public interface IAdaptedTree<TValue, THolder>
     /// <summary>
     /// Root of the collection's underlying tree.  <c>null</c> for empty collection.
     /// </summary>
-    JoinableTreeNode<THolder>? Root { get; }
+    JoinableTreeNode<TValue>? Root { get; }
 }
 
 /// <summary>
 /// Contains extension methods for creating different "System" collection views from a tree.
 /// </summary>
-public static class CollectionAdapters
+public static class TreeAdapterExtensions
 {
-    public static CollectionTreeAdapter<TValue, THolder> AsCollection<TValue, THolder>
+    public static CollectionTreeAdapter<TValue, TJoin> AsCollection<TValue, TJoin>
         (
-        this JoinableTreeNode<THolder>? @this,
+        this JoinableTreeNode<TValue>? @this,
         ulong transient = 0
         )
-        where THolder : struct, ITaggedValueHolder<THolder, TValue>, ITreeJoin<THolder>
-        => new CollectionTreeAdapter<TValue, THolder>(@this, transient);
+        where TJoin : struct, ITreeTraits<TValue>
+        => new(@this, transient);
 
-    public static CollectionTreeAdapter<TValue, THolder> AsCollection<TValue, THolder>
+    public static CollectionTreeAdapter<TValue, TJoin> AsCollection<TValue, TJoin>
         (
-        this IAdaptedTree<TValue, THolder> @this,
+        this IAdaptedTree<TValue, TJoin> @this
+        )
+        where TJoin : struct, ITreeTraits<TValue>
+        => new(@this.Root, @this.Transient);
+
+    public static SetTreeAdapter<TValue, TJoin> AsSet<TValue, TJoin>
+        (
+        this JoinableTreeNode<TValue>? @this,
         ulong transient = 0
         )
-        where THolder : struct, ITaggedValueHolder<THolder, TValue>, ITreeJoin<THolder>
-        => @this.Root.AsCollection<TValue, THolder>();
+        where TJoin : struct, ITreeTraits<TValue>
+        => new(@this, transient);
 
-    public static SetTreeAdapter<TValue, THolder> AsSet<TValue, THolder>
+    public static SetTreeAdapter<TValue, TJoin> AsSet<TValue, TJoin>
         (
-        this JoinableTreeNode<THolder>? @this,
-        ulong transient = 0
+        this IAdaptedTree<TValue, TJoin> @this
         )
-        where THolder : struct, ITaggedValueHolder<THolder, TValue>, ITreeJoin<THolder>
-        => new SetTreeAdapter<TValue, THolder>(@this, transient);
+        where TJoin : struct, ITreeTraits<TValue>
+        => new(@this.Root, @this.Transient);
 
-    public static SetTreeAdapter<TValue, THolder> AsSet<TValue, THolder>
+    public static SetTreeAdapter<TValue, TJoin> SetUnion<TValue, TJoin> 
         (
-        this IAdaptedTree<TValue, THolder> @this,
-        ulong transient = 0
+        this IAdaptedTree<TValue, TJoin> @this,
+        IEnumerable<TValue> other
         )
-        where THolder : struct, ITaggedValueHolder<THolder, TValue>, ITreeJoin<THolder>
-        => @this.Root.AsSet<TValue, THolder>();
+        where TJoin : struct, ITreeTraits<TValue>
+    {
+        var ret = new SetTreeAdapter<TValue, TJoin>(@this.Root, TransientSource.NewTransient());
+        ret.UnionWith(other);
+        return ret;
+    }
 
+    public static SetTreeAdapter<TValue, TJoin> SetIntersection<TValue, TJoin>
+        (
+        this IAdaptedTree<TValue, TJoin> @this,
+        IEnumerable<TValue> other
+        )
+        where TJoin : struct, ITreeTraits<TValue>
+    {
+        var ret = new SetTreeAdapter<TValue, TJoin>(@this.Root, TransientSource.NewTransient());
+        ret.IntersectWith(other);
+        return ret;
+    }
+
+    public static SetTreeAdapter<TValue, TJoin> SetDifference<TValue, TJoin>
+        (
+        this IAdaptedTree<TValue, TJoin> @this,
+        IEnumerable<TValue> other
+        )
+        where TJoin : struct, ITreeTraits<TValue>
+    {
+        var ret = new SetTreeAdapter<TValue, TJoin>(@this.Root, TransientSource.NewTransient());
+        ret.ExceptWith(other);
+        return ret;
+    }
 }

@@ -8,33 +8,41 @@ namespace Podaga.PersistentCollections.Tree;
 /// <summary>
 /// Adapts a joinable tree to <see cref="ICollection{T}"/>.
 /// </summary>
-public class CollectionTreeAdapter<TValue, THolder> :
-    IAdaptedTree<TValue, THolder>,
+public class CollectionTreeAdapter<TValue, TJoin> :
+    IAdaptedTree<TValue, TJoin>,
     ICollection<TValue>
-    where THolder : struct, ITaggedValueHolder<THolder, TValue>, ITreeJoin<THolder>
+    where TJoin : struct, ITreeTraits<TValue>
 {
     /// <summary>
     /// Constructor.
     /// </summary>
     /// <param name="root">Tree root from an existing tree, or <c>null</c> to initialize an empty collection.</param>
     /// <param name="transient">Transient tag to reuse, or 0 to create a new one.</param>
-    public CollectionTreeAdapter(JoinableTreeNode<THolder>? root = null, ulong transient = 0) {
+    public CollectionTreeAdapter(JoinableTreeNode<TValue>? root = null, ulong transient = 0) {
         Root = root;
-
-        if (transient == 0)
-            transient = TransientSource.NewTransient();
-        _Transient = transient;
+        _Transient = TransientSource.NewTransient(transient);
     }
 
     /// <summary>
     /// Forks the collection.  Ensures that modifications to <c>this</c> and the forked version are invisible to each other.
     /// </summary>
+    /// <param name="immediate">
+    /// If true, all nodes are copied into the new instance immediately.  Otherwise, nodes are copied only upon modification.
+    /// </param>
     /// <returns>
     /// A forked instance that contains the same elements as <c>this</c>.
     /// </returns>
-    public CollectionTreeAdapter<TValue, THolder> Fork() {
+    public CollectionTreeAdapter<TValue, TJoin> Fork(bool immediate) {
+        // Original's transient change so that changes in the original do not affect the fork.
         _Transient = TransientSource.NewTransient();
-        return new() { Root = Root };
+
+        // Set up the fork.
+        var t = TransientSource.NewTransient();
+        var f = Root;
+        if (immediate && f != null)
+            f = f.Copy<TValue, TJoin>(t);
+
+        return new(f, t);
     }
 
     /// <inheritdoc/>
@@ -42,7 +50,7 @@ public class CollectionTreeAdapter<TValue, THolder> :
     private ulong _Transient;
 
     /// <inheritdoc/>
-    public JoinableTreeNode<THolder>? Root { get; protected set; }
+    public JoinableTreeNode<TValue>? Root { get; protected set; }
 
     /// <inheritdoc/>
     public bool IsReadOnly => false;
@@ -62,8 +70,8 @@ public class CollectionTreeAdapter<TValue, THolder> :
     /// True if the item was added, false if it already exists in this collection.
     /// </returns>
     public bool Add(TValue item) {
-        var state = new ModifyState<THolder> { Value = THolder.Create(item), Transient = Transient };
-        Root = Root.Insert<THolder, THolder>(ref state);
+        var state = new ModifyState<TValue> { Value = item, Transient = Transient };
+        Root = Root.Insert<TValue, TJoin>(ref state);
         return state.Found == null;
     }
 
@@ -71,12 +79,12 @@ public class CollectionTreeAdapter<TValue, THolder> :
     public void Clear() => Root = null;
 
     /// <inheritdoc/>
-    public bool Contains(TValue item) => Root.Find(THolder.Create(item), out var found) != null && found == 0;
+    public bool Contains(TValue item) => Root.Find<TValue, TJoin>(item, out var found) != null && found == 0;
 
     /// <inheritdoc/>
     public bool Remove(TValue item) {
-        var state = new ModifyState<THolder> { Value = THolder.Create(item), Transient = Transient };
-        var root = Root.Delete<THolder, THolder>(ref state);
+        var state = new ModifyState<TValue> { Value = item, Transient = Transient };
+        var root = Root.Delete<TValue, TJoin>(ref state);
         if (state.Found == null)
             return false;
         Root = root;
@@ -93,12 +101,12 @@ public class CollectionTreeAdapter<TValue, THolder> :
 
     /// <inheritdoc/>
     public IEnumerator<TValue> GetEnumerator() {
-        var it = TreeIterator<THolder>.New();
+        var it = TreeIterator<TValue>.New();
         if (Root is null)
             yield break;
         if (it.First(Root)) {
             do {
-                yield return it.Top.Value.Value;
+                yield return it.Top.Value;
             } while (it.Succ());
         }
     }

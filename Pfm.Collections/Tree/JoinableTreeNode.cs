@@ -9,7 +9,6 @@ namespace Podaga.PersistentCollections.Tree;
 /// </summary>
 /// <typeparam name="TValue">Type of values stored in the node.</typeparam>
 public sealed class JoinableTreeNode<TValue> : IEnumerable<TValue>
-    where TValue : ITaggedValue<TValue>
 {
     /// <summary>
     /// Constructor.
@@ -58,38 +57,39 @@ public sealed class JoinableTreeNode<TValue> : IEnumerable<TValue>
     /// New instance or <c>this</c>, depending on the transient tag.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining /*| MethodImplOptions.AggressiveOptimization*/)]
-    public JoinableTreeNode<TValue> Clone(ulong transient)
+    public JoinableTreeNode<TValue> Clone<TValueTraits>(ulong transient)
+        where TValueTraits : IValueTraits<TValue>
         => transient == Transient 
         ? this 
-        : new(transient, TValue.Clone(Value)) { Left = Left, Right = Right, Size = Size, Rank = Rank };
+        : new(transient, TValueTraits.Clone(Value)) { Left = Left, Right = Right, Size = Size, Rank = Rank };
 
     /// <summary>
-    /// Updates <c>this</c> node's tag by invoking <see cref="ITaggedValue{TValue}.Combine(in TValue, ref TValue, in TValue)"/>
+    /// Updates <c>this</c> node's tag by invoking <see cref="IValueTraits{TValue}.Combine(in TValue, ref TValue, in TValue)"/>
     /// with appropriate arguments.
     /// WARNING: The update is in-place, so the node must have been cloned beforehand.
     /// </summary>
     //[MethodImpl(MethodImplOptions.AggressiveInlining /*| MethodImplOptions.AggressiveOptimization*/)]
-    public void Update<TJoin>() where TJoin : ITreeJoin<TValue>
+    public void Update<TJoin>() where TJoin : ITreeTraits<TValue>
     {
         if (Left != null && Right != null) {
             Size = 1 + Left.Size + Right.Size;
-            Rank = TJoin.Combine(Left.Rank, Rank, Right.Rank);
-            TValue.Combine(Left.Value, ref Value, Right.Value);
+            Rank = TJoin.CombineRanks(Left.Rank, Rank, Right.Rank);
+            TJoin.CombineTags(Left.Value, ref Value, Right.Value);
         }
         else if (Left != null) {
             Size = 1 + Left.Size;
-            Rank = TJoin.Combine(Left.Rank, Rank, TJoin.Nil);
-            TValue.Combine(Left.Value, ref Value, TValue.Nil);
+            Rank = TJoin.CombineRanks(Left.Rank, Rank, TJoin.NilRank);
+            TJoin.CombineTags(Left.Value, ref Value, TJoin.NilTag);
         }
         else if (Right != null) {
             Size = 1 + Right.Size;
-            Rank = TJoin.Combine(TJoin.Nil, Rank, Right.Rank);
-            TValue.Combine(TValue.Nil, ref Value, Right.Value);
+            Rank = TJoin.CombineRanks(TJoin.NilRank, Rank, Right.Rank);
+            TJoin.CombineTags(TJoin.NilTag, ref Value, Right.Value);
         }
         else {
             Size = 1;
-            Rank = TJoin.Combine(TJoin.Nil, TJoin.Nil, TJoin.Nil);
-            TValue.Combine(TValue.Nil, ref Value, TValue.Nil);
+            Rank = TJoin.CombineRanks(TJoin.NilRank, TJoin.NilRank, TJoin.NilRank);
+            TJoin.CombineTags(TJoin.NilTag, ref Value, TJoin.NilTag);
         }
     }
 

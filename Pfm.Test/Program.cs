@@ -20,10 +20,10 @@ public static class Program
         //Vector_BasicTest.Run(5, 5); // NB! Slow-ish.
 
         TreeSet_BasicTest<AvlIntValueHolder>.Run(sequences);
-        //TreeSet_SetTest<IntAvlTree>.Run(SequenceSize);
+        TreeSet_SetTest<AvlIntValueHolder>.Run(SequenceSize);
         
         TreeSet_BasicTest<WBIntValueHolder>.Run(sequences);
-        //TreeSet_SetTest<IntWBTree>.Run(SequenceSize);
+        TreeSet_SetTest<WBIntValueHolder>.Run(SequenceSize);
     }
 
     private static List<int[]> GetSequences(int max) {

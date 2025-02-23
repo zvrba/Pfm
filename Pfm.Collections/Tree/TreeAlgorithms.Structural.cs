@@ -15,18 +15,18 @@ public static partial class TreeAlgorithms
     /// <param name="root">Tree node from which to start copying.</param>
     /// <param name="transient">The required transient tag on the copied subtree.</param>
     /// <returns>The root of the copied subtree.</returns>
-    public static JoinableTreeNode<TValue> Copy<TValue>
+    public static JoinableTreeNode<TValue> Copy<TValue, TValueTraits>
         (
         this JoinableTreeNode<TValue> root,
         ulong transient
         )
-        where TValue : ITaggedValue<TValue>
+        where TValueTraits : IValueTraits<TValue>
     {
-        root = root.Clone(transient);
+        root = root.Clone<TValueTraits>(transient);
         if (root.Left != null)
-            root.Left = Copy(root.Left, transient);
+            root.Left = Copy<TValue, TValueTraits>(root.Left, transient);
         if (root.Right != null)
-            root.Right = Copy(root.Right, transient);
+            root.Right = Copy<TValue, TValueTraits>(root.Right, transient);
         return root;
     }
 
@@ -44,7 +44,6 @@ public static partial class TreeAlgorithms
         this JoinableTreeNode<TValue> root,
         int index
         )
-        where TValue : ITaggedValue<TValue>
     {
         if (root is null || index < 0 || index >= root.Size)
             throw new IndexOutOfRangeException("Invalid tree element index.");
@@ -72,11 +71,10 @@ public static partial class TreeAlgorithms
         this JoinableTreeNode<TValue> @this,
         ulong transient
         )
-        where TValue : ITaggedValue<TValue>
-        where TJoin : struct, ITreeJoin<TValue>
+        where TJoin : struct, ITreeTraits<TValue>
     {
-        @this = @this.Clone(transient);
-        var y = @this.Right.Clone(transient);
+        @this = @this.Clone<TJoin>(transient);
+        var y = @this.Right.Clone<TJoin>(transient);
         @this.Right = y.Left;
         y.Left = @this;
         @this.Update<TJoin>();
@@ -93,12 +91,11 @@ public static partial class TreeAlgorithms
         this JoinableTreeNode<TValue> @this,
         ulong transient
         )
-        where TValue : ITaggedValue<TValue>
-        where TJoin : struct, ITreeJoin<TValue>
+        where TJoin : struct, ITreeTraits<TValue>
     {
-        @this = @this.Clone(transient);
-        var x = @this.Right.Clone(transient);
-        var y = x.Left.Clone(transient);
+        @this = @this.Clone<TJoin>(transient);
+        var x = @this.Right.Clone<TJoin>(transient);
+        var y = x.Left.Clone<TJoin>(transient);
         @this.Right = y.Left;
         x.Left = y.Right;
         y.Left = @this;
@@ -118,11 +115,10 @@ public static partial class TreeAlgorithms
         this JoinableTreeNode<TValue> @this,
         ulong transient
         )
-        where TValue : ITaggedValue<TValue>
-        where TJoin : struct, ITreeJoin<TValue> 
+        where TJoin : struct, ITreeTraits<TValue> 
     {
-        @this = @this.Clone(transient);
-        var x = @this.Left.Clone(transient);
+        @this = @this.Clone<TJoin>(transient);
+        var x = @this.Left.Clone<TJoin>(transient);
         @this.Left = x.Right;
         x.Right = @this;
         @this.Update<TJoin>();
@@ -139,12 +135,11 @@ public static partial class TreeAlgorithms
         this JoinableTreeNode<TValue> @this,
         ulong transient
         )
-        where TValue : ITaggedValue<TValue>
-        where TJoin : struct, ITreeJoin<TValue> 
+        where TJoin : struct, ITreeTraits<TValue> 
     {
-        @this = @this.Clone(transient);
-        var x = @this.Left.Clone(transient);
-        var y = x.Right.Clone(transient);
+        @this = @this.Clone<TJoin>(transient);
+        var x = @this.Left.Clone<TJoin>(transient);
+        var y = x.Right.Clone<TJoin>(transient);
         x.Right = y.Left;
         @this.Left = y.Right;
         y.Left = x;

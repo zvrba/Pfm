@@ -8,29 +8,27 @@ namespace Podaga.PersistentCollections.Tree;
 /// <summary>
 /// Adapts a joinable tree to <see cref="ISet{T}"/> and <see cref="IReadOnlySet{T}"/>.
 /// </summary>
-/// <typeparam name="TValue"></typeparam>
-/// <typeparam name="THolder"></typeparam>
-public class SetTreeAdapter<TValue, THolder> : CollectionTreeAdapter<TValue, THolder>,
-    IAdaptedTree<TValue, THolder>,
+public class SetTreeAdapter<TValue, TJoin> : CollectionTreeAdapter<TValue, TJoin>,
+    IAdaptedTree<TValue, TJoin>,
     IReadOnlySet<TValue>,
     ISet<TValue>
-    where THolder : struct, ITaggedValueHolder<THolder, TValue>, ITreeJoin<THolder>
+    where TJoin : struct, ITreeTraits<TValue>
 {
     /// <summary>
     /// Constructor.
     /// </summary>
     /// <param name="root">Tree root from an existing tree, or <c>null</c> to initialize an empty set.</param>
     /// <param name="transient">Transient tag to reuse, or 0 to create a new one.</param>
-    public SetTreeAdapter(JoinableTreeNode<THolder>? root = null, ulong transient = 0) : base(root, transient) { }
+    public SetTreeAdapter(JoinableTreeNode<TValue>? root = null, ulong transient = 0) : base(root, transient) { }
 
     /// <inheritdoc/>
     public bool SetEquals(IEnumerable<TValue> other) => other switch {
-        JoinableTreeNode<THolder> n => SetEqual(Root, n),
-        IAdaptedTree<TValue, THolder> t => SetEqual(Root, t.Root),
+        JoinableTreeNode<TValue> n => SetEqual(Root, n),
+        IAdaptedTree<TValue, TJoin> t => SetEqual(Root, t.Root),
         _ => other.Count() == Count && other.Count(Contains) == Count,
     };
 
-    protected static bool SetEqual(JoinableTreeNode<THolder>? a, JoinableTreeNode<THolder>? b) {
+    protected static bool SetEqual(JoinableTreeNode<TValue>? a, JoinableTreeNode<TValue>? b) {
         if (a is null || b is null)
             return (a is null) == (b is null);
         if (a.Size != b.Size)
@@ -44,7 +42,7 @@ public class SetTreeAdapter<TValue, THolder> : CollectionTreeAdapter<TValue, THo
 
         // At this point, sizes are equal and at least 1.
         do {
-            if (THolder.Compare(ai.Top.Value, bi.Top.Value) != 0)
+            if (TJoin.Compare(ai.Top.Value, bi.Top.Value) != 0)
                 return false;
         } while (ai.Succ() && bi.Succ());
         return true;
@@ -68,10 +66,10 @@ public class SetTreeAdapter<TValue, THolder> : CollectionTreeAdapter<TValue, THo
     /// <inheritdoc/>
     public void UnionWith(IEnumerable<TValue> other) {
         switch (other) {
-            case JoinableTreeNode<THolder> n:
+            case JoinableTreeNode<TValue> n:
                 Root = SetUnion(Root, n);
                 break;
-            case IAdaptedTree<TValue,THolder> t:
+            case IAdaptedTree<TValue,TJoin> t:
                 Root = SetUnion(Root, t.Root);
                 break;
             default:
@@ -84,10 +82,10 @@ public class SetTreeAdapter<TValue, THolder> : CollectionTreeAdapter<TValue, THo
     /// <summary>
     /// Join-based union algorithm.
     /// </summary>
-    protected JoinableTreeNode<THolder>? SetUnion
+    protected JoinableTreeNode<TValue>? SetUnion
         (
-        JoinableTreeNode<THolder>? t1,
-        JoinableTreeNode<THolder>? t2
+        JoinableTreeNode<TValue>? t1,
+        JoinableTreeNode<TValue>? t2
         )
     {
         if (t1 == null)
@@ -95,25 +93,24 @@ public class SetTreeAdapter<TValue, THolder> : CollectionTreeAdapter<TValue, THo
         if (t2 == null)
             return t1;
 
-        var s = new TreeSection<THolder> { Transient = Transient }.Split<THolder>(t1, t2.Value);
+        var s = new TreeSection<TValue> { Transient = Transient }.Split<TJoin>(t1, t2.Value);
         var l = SetUnion(s.Left, t2.Left);
         var r = SetUnion(s.Right, t2.Right);
         if (s.Middle != null) {
-            t1 = s.Middle.Clone(s.Transient);
-            THolder.Combine(t1.Value, ref t1.Value, t2.Value);
+            t1 = s.Middle.Clone<TJoin>(s.Transient);
         } else {
             t1 = t2;
         }
-        return THolder.Join(new() { Transient = Transient, Left = l, Middle = t1, Right = r });
+        return TJoin.Join(new() { Transient = Transient, Left = l, Middle = t1, Right = r });
     }
 
     /// <inheritdoc/>
     public void IntersectWith(IEnumerable<TValue> other) {
         switch (other) {
-            case JoinableTreeNode<THolder> n:
+            case JoinableTreeNode<TValue> n:
                 Root = SetIntersection(Root, n);
                 break;
-            case IAdaptedTree<TValue, THolder> t:
+            case IAdaptedTree<TValue, TJoin> t:
                 Root = SetIntersection(Root, t.Root);
                 break;
             default:
@@ -128,35 +125,34 @@ public class SetTreeAdapter<TValue, THolder> : CollectionTreeAdapter<TValue, THo
     /// <summary>
     /// Join-based intersection algorithm.
     /// </summary>
-    protected JoinableTreeNode<THolder>? SetIntersection
+    protected JoinableTreeNode<TValue>? SetIntersection
         (
-        JoinableTreeNode<THolder>? t1,
-        JoinableTreeNode<THolder>? t2
+        JoinableTreeNode<TValue>? t1,
+        JoinableTreeNode<TValue>? t2
         )
     {
         if (t1 == null || t2 == null)
             return null;
 
-        var s = new TreeSection<THolder> { Transient = Transient }.Split<THolder>(t1, t2.Value);
+        var s = new TreeSection<TValue> { Transient = Transient }.Split<TJoin>(t1, t2.Value);
         var l = SetIntersection(s.Left, t2.Left);
         var r = SetIntersection(s.Right, t2.Right);
         if (s.Middle != null) {
-            t1 = s.Middle.Clone(Transient);
-            THolder.Combine(t1.Value, ref t1.Value, t2.Value);
-            return THolder.Join(new() { Transient = Transient, Left = l, Middle = t1, Right = r });
+            t1 = s.Middle.Clone<TJoin>(Transient);
+            return TJoin.Join(new() { Transient = Transient, Left = l, Middle = t1, Right = r });
         }
         s.Left = l;
         s.Right = r;
-        return s.Join2<THolder>();
+        return s.Join2<TJoin>();
     }
 
     /// <inheritdoc/>
     public void ExceptWith(IEnumerable<TValue> other) {
         switch (other) {
-            case JoinableTreeNode<THolder> n:
+            case JoinableTreeNode<TValue> n:
                 Root = SetDifference(Root, n);
                 break;
-            case IAdaptedTree<TValue, THolder> t:
+            case IAdaptedTree<TValue, TJoin> t:
                 Root = SetDifference(Root, t.Root);
                 break;
             default:
@@ -169,10 +165,10 @@ public class SetTreeAdapter<TValue, THolder> : CollectionTreeAdapter<TValue, THo
     /// <summary>
     /// Join-based difference algorithm.
     /// </summary>
-    protected JoinableTreeNode<THolder>? SetDifference
+    protected JoinableTreeNode<TValue>? SetDifference
         (
-        JoinableTreeNode<THolder>? t1,
-        JoinableTreeNode<THolder>? t2
+        JoinableTreeNode<TValue>? t1,
+        JoinableTreeNode<TValue>? t2
         )
     {
         if (t1 == null)
@@ -180,12 +176,12 @@ public class SetTreeAdapter<TValue, THolder> : CollectionTreeAdapter<TValue, THo
         if (t2 == null)
             return t1;
 
-        var s = new TreeSection<THolder> { Transient = Transient }.Split<THolder>(t1, t2.Value);
+        var s = new TreeSection<TValue> { Transient = Transient }.Split<TJoin>(t1, t2.Value);
         var l = SetDifference(s.Left, t2.Left);
         var r = SetDifference(s.Right, t2.Right);
         s.Left = l;
         s.Right = r;
-        return s.Join2<THolder>();
+        return s.Join2<TJoin>();
     }
 
     /// <inheritdoc/>

@@ -5,7 +5,7 @@ namespace Podaga.PersistentCollections.Tree;
 /// <summary>
 /// Describes a "section" of a tree.
 /// </summary>
-public struct TreeSection<TValue> where TValue : ITaggedValue<TValue>
+public struct TreeSection<TValue>
 {
     /// <summary>
     /// Transient value for modifications.  Must be initialized before calling any other method.
@@ -35,9 +35,9 @@ public struct TreeSection<TValue> where TValue : ITaggedValue<TValue>
     /// The updated (possibly cloned) node that was <see cref="Middle"/>.
     /// </returns>
     /// <typeparam name="TJoin">The tree's join algorithm.</typeparam>
-    public readonly JoinableTreeNode<TValue> JoinBalanced<TJoin>() where TJoin : ITreeJoin<TValue>
+    public readonly JoinableTreeNode<TValue> JoinBalanced<TJoin>() where TJoin : ITreeTraits<TValue>
     {
-        var m = Middle.Clone(Transient);
+        var m = Middle.Clone<TJoin>(Transient);
         m.Left = Left;
         m.Right = Right;
         m.Update<TJoin>();
@@ -49,7 +49,7 @@ public struct TreeSection<TValue> where TValue : ITaggedValue<TValue>
     /// </summary>
     /// <typeparam name="TJoin">The tree's join algorithm.</typeparam>
     /// <returns>A root of the joined tree.</returns>
-    public JoinableTreeNode<TValue> Join2<TJoin>() where TJoin : ITreeJoin<TValue> {
+    public JoinableTreeNode<TValue> Join2<TJoin>() where TJoin : ITreeTraits<TValue> {
         if (Left == null)
             return Right;
         Left = SplitLast<TJoin>(Left);
@@ -58,7 +58,7 @@ public struct TreeSection<TValue> where TValue : ITaggedValue<TValue>
 
     // Sets Middle to the rightmost value.
     private JoinableTreeNode<TValue> SplitLast<TJoin>(JoinableTreeNode<TValue> node) 
-        where TJoin : ITreeJoin<TValue>
+        where TJoin : ITreeTraits<TValue>
     {
         if (node.Right == null) {
             Middle = node;
@@ -82,11 +82,11 @@ public struct TreeSection<TValue> where TValue : ITaggedValue<TValue>
         JoinableTreeNode<TValue> @this,
         TValue value
         )
-        where TJoin : struct, ITreeJoin<TValue>
+        where TJoin : struct, ITreeTraits<TValue>
     {
         if (@this == null)
             return default;
-        var c = TValue.Compare(value, @this.Value);
+        var c = TJoin.Compare(value, @this.Value);
         if (c == 0)
             return new() { Left = @this.Left, Middle = @this, Right = @this.Right };
 

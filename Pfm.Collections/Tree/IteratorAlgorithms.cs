@@ -19,7 +19,6 @@ public static class IteratorAlgorithms
         (
         this JoinableTreeNode<TValue> @this
         )
-        where TValue : ITaggedValue<TValue>
     {
         var it = TreeIterator<TValue>.New();
         if (@this != null)
@@ -41,13 +40,13 @@ public static class IteratorAlgorithms
     /// Zero means that an equivalent value was found and is on top of the stack.
     /// If <paramref name="node"/> was <c>null</c>, -1 is returned (arbitrarily).
     /// </returns>
-    public static int Find<TValue>
+    public static int Find<TValue, TValueTraits>
         (
         this ref TreeIterator<TValue> @this,
         JoinableTreeNode<TValue> node,
         TValue value
         )
-        where TValue : ITaggedValue<TValue>
+        where TValueTraits : IValueTraits<TValue>
     {
         if (node != null) @this.Clear();
         else node = @this.TryPop();
@@ -55,7 +54,7 @@ public static class IteratorAlgorithms
         int c = -1;
         while (node != null) {
             @this.Push(node);
-            if ((c = TValue.Compare(value, node.Value)) == 0)
+            if ((c = TValueTraits.Compare(value, node.Value)) == 0)
                 break;
             node = c < 0 ? node.Left : node.Right;
         }
@@ -79,7 +78,6 @@ public static class IteratorAlgorithms
         this ref TreeIterator<TValue> @this,
         JoinableTreeNode<TValue> node
         )
-        where TValue : ITaggedValue<TValue>
     {
         if (node != null) @this.Clear();
         else node = @this.TryPop();
@@ -106,7 +104,6 @@ public static class IteratorAlgorithms
         this ref TreeIterator<TValue> @this,
         JoinableTreeNode<TValue> node
         )
-        where TValue : ITaggedValue<TValue>
     {
         if (node != null) @this.Clear();
         else node = @this.TryPop();
@@ -122,7 +119,6 @@ public static class IteratorAlgorithms
     /// <param name="this">Iterator instance.</param>
     /// <returns>True if the next element exists, false otherwise.</returns>
     public static bool Succ<TValue>(this ref TreeIterator<TValue> @this)
-       where TValue : ITaggedValue<TValue>
     {
         var current = @this.TryPop();
         if (current == null)
@@ -150,7 +146,6 @@ public static class IteratorAlgorithms
     /// <param name="this">Iterator instance.</param>
     /// <returns>True if the next element exists, false otherwise.</returns>
     public static bool Pred<TValue>(this ref TreeIterator<TValue> @this)
-       where TValue : ITaggedValue<TValue> 
     {
         var current = @this.TryPop();
         if (current == null)
@@ -190,7 +185,6 @@ public static class IteratorAlgorithms
         JoinableTreeNode<TValue> node,
         int index
         )
-       where TValue : ITaggedValue<TValue>
     {
         if (node != null) @this.Clear();
         else if (!@this.IsEmpty) node = @this.Top;

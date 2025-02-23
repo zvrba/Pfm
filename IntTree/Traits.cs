@@ -4,25 +4,22 @@ using Podaga.PersistentCollections.Tree;
 
 namespace IntTree;
 
-public interface IIntValueHolder<TSelf> : ITaggedValueHolder<TSelf, int>
-    where TSelf : struct, ITaggedValueHolder<TSelf, int>, ITreeJoin<TSelf>
+public interface IIntValueTraits : IValueTraits<int>
 {
-    static TSelf ITaggedValue<TSelf>.Nil {
+    static int IValueTraits<int>.NilTag {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => default;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static void ITaggedValue<TSelf>.Combine(TSelf left, ref TSelf result, TSelf right) { }
+    static void IValueTraits<int>.CombineTags(int left, ref int result, int right) { }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static int ITaggedValue<TSelf>.Compare(TSelf left, TSelf right) =>
-        left.Value < right.Value ? -1 : left.Value > right.Value ? 1 : 0;
+    static int IValueTraits<int>.Compare(int left, int right) =>
+        left < right ? -1 : left > right ? 1 : 0;
 }
 
-public struct AvlIntValueHolder :
-    IIntValueHolder<AvlIntValueHolder>,
-    IAvlJoin<AvlIntValueHolder, AvlIntValueHolder>
+public struct AvlIntValueHolder : IIntValueTraits, IAvlJoin<AvlIntValueHolder, int>
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static AvlIntValueHolder Create(int value) => new() { Value = value };
@@ -37,9 +34,7 @@ public struct AvlIntValueHolder :
     private int _Value;
 }
 
-public struct WBIntValueHolder :
-    IIntValueHolder<WBIntValueHolder>,
-    IWBJoin<WBIntValueHolder, WBIntValueHolder>
+public struct WBIntValueHolder : IIntValueTraits, IWBJoin<WBIntValueHolder, int>
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static WBIntValueHolder Create(int value) => new() { Value = value };
