@@ -9,7 +9,6 @@ namespace Podaga.PersistentCollections.Tree;
 /// Adapts a joinable tree to <see cref="ISet{T}"/> and <see cref="IReadOnlySet{T}"/>.
 /// </summary>
 public class SetTreeAdapter<TValue, TJoin> : CollectionTreeAdapter<TValue, TJoin>,
-    IAdaptedTree<TValue, TJoin>,
     IReadOnlySet<TValue>,
     ISet<TValue>
     where TJoin : struct, ITreeTraits<TValue>
