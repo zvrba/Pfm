@@ -60,7 +60,7 @@ public static class CollectionAdapters
 {
     public static CollectionTreeAdapter<TValue, THolder> AsCollection<TValue, THolder>
         (
-        this JoinableTreeNode<THolder> @this,
+        this JoinableTreeNode<THolder>? @this,
         ulong transient = 0
         )
         where THolder : struct, ITaggedValueHolder<THolder, TValue>, ITreeJoin<THolder>
@@ -72,5 +72,22 @@ public static class CollectionAdapters
         ulong transient = 0
         )
         where THolder : struct, ITaggedValueHolder<THolder, TValue>, ITreeJoin<THolder>
-        => new CollectionTreeAdapter<TValue, THolder>(@this.Root, @this.Transient);
+        => @this.Root.AsCollection<TValue, THolder>();
+
+    public static SetTreeAdapter<TValue, THolder> AsSet<TValue, THolder>
+        (
+        this JoinableTreeNode<THolder>? @this,
+        ulong transient = 0
+        )
+        where THolder : struct, ITaggedValueHolder<THolder, TValue>, ITreeJoin<THolder>
+        => new SetTreeAdapter<TValue, THolder>(@this, transient);
+
+    public static SetTreeAdapter<TValue, THolder> AsSet<TValue, THolder>
+        (
+        this IAdaptedTree<TValue, THolder> @this,
+        ulong transient = 0
+        )
+        where THolder : struct, ITaggedValueHolder<THolder, TValue>, ITreeJoin<THolder>
+        => @this.Root.AsSet<TValue, THolder>();
+
 }
