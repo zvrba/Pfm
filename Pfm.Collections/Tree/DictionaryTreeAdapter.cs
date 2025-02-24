@@ -28,8 +28,8 @@ public class DictionaryTreeAdapter<TKey, TValue, TJoin> :
         set {
             var kv = new KeyValuePair<TKey, TValue>(key, value);
             var n = Root.Find<KeyValuePair<TKey, TValue>, TJoin>(kv, out var found);
-            if (n == null) Add(kv);
-            else n.Value = kv;
+            if (n != null && found == 0) n.Value = kv;
+            else Add(kv);
         }
     }
 
