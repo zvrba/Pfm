@@ -1,7 +1,12 @@
 ﻿#nullable enable
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.ConstrainedExecution;
 
 namespace Podaga.PersistentCollections.Tree;
 
@@ -34,11 +39,11 @@ public class DictionaryTreeAdapter<TKey, TValue, TJoin> :
     }
 
     /// <inheritdoc/>
-    public ICollection<TKey> Keys => throw new NotImplementedException();
+    public ICollection<TKey> Keys => new KeyView(this);
     IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Keys;
 
     /// <inheritdoc/>
-    public ICollection<TValue> Values => throw new NotImplementedException();
+    public ICollection<TValue> Values => new ValueView(this);
     IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
 
     /// <inheritdoc/>
@@ -62,5 +67,54 @@ public class DictionaryTreeAdapter<TKey, TValue, TJoin> :
         }
         value = default;
         return false;
+    }
+
+    private interface IView<TSelf, T> : ICollection<T> where TSelf : IView<TSelf, T>
+    {
+        private static readonly Exception ReadonlyExn = new NotSupportedException($"{typeof(IView<TSelf, T>).FullName} is read-only.");
+
+        abstract static T Extract(KeyValuePair<TKey, TValue> kv);
+        DictionaryTreeAdapter<TKey, TValue, TJoin> Base { get; }
+
+        int ICollection<T>.Count => Base.Count;
+        bool ICollection<T>.IsReadOnly => true;
+
+        void ICollection<T>.Add(T item) => throw ReadonlyExn;
+        void ICollection<T>.Clear() => throw ReadonlyExn;
+        bool ICollection<T>.Remove(T item) => throw ReadonlyExn;
+
+        bool ICollection<T>.Contains(T item) => Base.Select(TSelf.Extract).Contains(item);
+
+        void ICollection<T>.CopyTo(T[] array, int arrayIndex) {
+            Base.CheckCopyLength(array, arrayIndex);
+            foreach (var item in Base)
+                array[arrayIndex++] = TSelf.Extract(item);
+        }
+
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => Base.Select(TSelf.Extract).GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    // Class instead of struct because we're returning ICollection<T>, so it gets boxed anyway.
+
+    private class KeyView : IView<KeyView, TKey>
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TKey Extract(KeyValuePair<TKey, TValue> kv) => kv.Key;
+
+        internal KeyView(DictionaryTreeAdapter<TKey, TValue, TJoin> @base) => Base = @base;
+
+        public DictionaryTreeAdapter<TKey, TValue, TJoin> Base { get; }
+    }
+
+    private class ValueView : IView<ValueView, TValue>
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TValue Extract(KeyValuePair<TKey, TValue> kv) => kv.Value;
+
+        internal ValueView(DictionaryTreeAdapter<TKey, TValue, TJoin> @base) => Base = @base;
+
+        public DictionaryTreeAdapter<TKey, TValue, TJoin> Base { get; }
     }
 }
