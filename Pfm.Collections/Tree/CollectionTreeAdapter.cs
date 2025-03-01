@@ -91,10 +91,17 @@ public class CollectionTreeAdapter<TValue, TJoin> :
         return true;
     }
 
+    internal void CheckCopyLength(Array array, int arrayIndex) {
+        ArgumentNullException.ThrowIfNull(array);
+        if (arrayIndex < 0 || arrayIndex >= array.Length)
+            throw new IndexOutOfRangeException();
+        if (arrayIndex + Count > array.Length)
+            throw new ArgumentOutOfRangeException(nameof(arrayIndex));
+    }
+
     /// <inheritdoc/>
     public void CopyTo(TValue[] array, int arrayIndex) {
-        if (arrayIndex + Count > array.Length)
-            throw new ArgumentException("The destination array is too short.");
+        CheckCopyLength(array, arrayIndex);
         foreach (var item in this)
             array[arrayIndex++] = item;
     }
