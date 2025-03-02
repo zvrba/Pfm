@@ -59,6 +59,6 @@ public partial class Vector<T>
         public Node Clone(ulong transient) => transient == Transient ? this : new(Data.Clone(), transient);
     }
 
-    private Node CreateLink() => new(new Node[Parameters.ISize], transient);
-    private Node CreateLeaf() => new(new T[Parameters.ESize], transient);
+    private Node CreateLink() => new(new Node[Parameters.ISize], Transient);
+    private Node CreateLeaf() => new(new T[Parameters.ESize], Transient);
 }

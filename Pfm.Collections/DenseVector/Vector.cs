@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace Podaga.PersistentCollections.Trie;
@@ -8,14 +9,19 @@ namespace Podaga.PersistentCollections.Trie;
 /// </summary>
 public partial class Vector<T>
 {
-    private static ulong TransientCounter;
-
+    /// <summary>
+    /// Parameters for this vector.
+    /// </summary>
     public readonly VectorParameters Parameters;
-    private readonly ulong transient;
+    
+    /// <summary>
+    /// The vector's transient tag.
+    /// </summary>
+    public readonly ulong Transient;
 
-    protected internal Node _Root;
-    protected internal Node _Tail;
-    protected internal int _Shift; // Levels below the root so that (index >> Shift) & IMask is the correct root slot.
+    internal Node _Root;
+    internal Node _Tail;
+    internal int _Shift; // Levels below the root so that (index >> Shift) & IMask is the correct root slot.
 
     public int Count { get; private set; }
     public T this[int index] {
@@ -27,7 +33,7 @@ public partial class Vector<T>
 
     public Vector(VectorParameters parameters) {
         Parameters = parameters;
-        transient = Interlocked.Increment(ref TransientCounter);
+        Transient = TransientSource.NewTransient();
         _Root = CreateLink();
         _Tail = CreateLeaf();
         _Shift = Parameters.EShift;
@@ -35,7 +41,7 @@ public partial class Vector<T>
 
     private Vector(Vector<T> other) {
         Parameters = other.Parameters;
-        transient = Interlocked.Increment(ref TransientCounter);
+        Transient = TransientSource.NewTransient(); ;
         _Root = other._Root;
         _Tail = other._Tail;
         _Shift = other._Shift;
@@ -70,12 +76,12 @@ public partial class Vector<T>
             //ret.Root = ret.Clone(Root);
             node = ref _Root;
             for (var shift = _Shift; shift >= Parameters.EShift; shift -= Parameters.IShift) {
-                node = node.Clone(transient);
+                node = node.Clone(Transient);
                 node = ref node.Link[(index >> shift) & Parameters.IMask];
             }
         }
 
-        node = node.Clone(transient);
+        node = node.Clone(Transient);
         node.Value[index & Parameters.EMask] = element;
     }
 
@@ -85,7 +91,7 @@ public partial class Vector<T>
                 PushTail();
         }
         else {
-            _Tail = _Tail.Clone(transient);
+            _Tail = _Tail.Clone(Transient);
         }
 
         _Tail.Value[Count & Parameters.EMask] = element;
@@ -104,7 +110,7 @@ public partial class Vector<T>
 
         void DoPush(ref Node node, int shift) {
             if (node.IsNull) node = CreateLink();
-            else node = node.Clone(transient);
+            else node = node.Clone(Transient);
 
             var islot = ((Count - 1) >> shift) & Parameters.IMask;
             if (shift <= Parameters.IShift) node.Link[islot] = _Tail;
@@ -117,7 +123,7 @@ public partial class Vector<T>
             element = default;
             return false;
         }
-        _Tail = _Tail.Clone(transient);
+        _Tail = _Tail.Clone(Transient);
         --Count;
         element = _Tail.Value[Count & Parameters.EMask];
         _Tail.Value[Count & Parameters.EMask] = default;   // Must have for GC to collect previously referenced data.
@@ -140,7 +146,7 @@ public partial class Vector<T>
 
         void DoPop(ref Node node, int shift) {
             var islot = ((Count - 1) >> shift) & Parameters.IMask;
-            node = node.Clone(transient);
+            node = node.Clone(Transient);
 
             if (shift == Parameters.EShift) {
                 _Tail = node.Link[islot];
