@@ -1,13 +1,37 @@
-# Pfm - Persistence for the masses
+# Podaga.PersistentCollections
 
-Immutable collections are "all the rage" these days, for good reasons.  Their story in .NET, however,
-is very fragmented:
+This library implements some persistent data structures:
 
-- `IReadOnlyCollection`, `ReadOnlyCollection` wrappers (not thread-safe)
-- `System.Collections.Immutable` (thread-safe, but slow and memory-hungry)
-- and, int .NET8, "frozen collections", with clumsy semantics (https://devblogs.microsoft.com/premier-developer/immutable-collections-with-mutable-performance/)
+- Balanced binary trees (AVL and weight-balanced)
+- Vector
 
-However, there are no mutable collections with _cheap_ "copy on write" semantics.
+with adapters to standard `IReadOnlyList<T>`, `ICollection<T>`, `ISet<T>` and `IDictionary<K, V>`.
+
+Features that distinguish the above from standard, immutable and frozen collections in the BCL:
+
+- Performance almost on-par with standard mutable collections.
+- Cheap and explicit copy-on-write (COW) semantics.
+- Every adapted collection type based on trees can be re-adapted to any other collection type.
+- Consequently, it is possible to access dictionary and set elements by _index_ and perform set-operations (e.g., union) on dictionaries.
+- Tree iterators supporting forward and backward iteration are provided as well.
+- The tree data structure supports _custom augmentation_, which makes it possible to implement other search structures such
+  as interval trees. (Size/index is a built-in kind of augmentation.)
+
+See [here](TODO!) for full documentation.
+
+# License
+
+The documentation (all content in docs branch) is licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/) license.
+
+Pfm-Docs is a submodule pointing to a private repository where I maintain the documentation.
+You do not need to fetch it to build the code.
+
+# References
+
+The joinable tree algorithms implemented by this library are based on the following paper:
+
+Guy Blelloch, Daniel Ferizovic, and Yihan Sun. 2022. Joinable Parallel Balanced Binary Trees. ACM Trans.
+Parallel Comput. 9, 2, Article 7 (April 2022), 41 pages. https://doi.org/10.1145/3512769
 
 # Library design
 
@@ -118,14 +142,8 @@ than the built-in immutable list.
 
 ## Remarks
 
-`TreeSet` has significantly better lookup performance than `SortedSet`.  I ascribe this to two factors:
-
-- Sorted set uses internally a red-black tree, which is on average deeper than WB or AVL trees.
-- Inspection of the generated assembly shows that JIT is able to inline key comparison method when implemented by
-  a abstract static interface method.  This is not the case for `SortedSet` where the comparison method is a delegate.
-
 I have attempted to convert recursive tree algorithms to iterative algorithms, using `TreeIterator` as a manually
 maintained stack.  Surprisingly, the result was _slower_ due to frequent calls to `CORINFO_HELP_ASSIGN_REF`, which
 doesn't happen when the reference is pushed onto the stack during recursion.
 See https://github.com/dotnet/runtime/issues/59031  This is also the reason for using `ulong` for the node's transient
-tag instead of `object` (as is suggested in the papers).
+tag instead of `object` (as is suggested in other papers).
