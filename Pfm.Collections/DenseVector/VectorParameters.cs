@@ -8,21 +8,20 @@ namespace Podaga.PersistentCollections.Trie;
 /// Used upon vector creation to set the sizes of internal and external nodes.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public readonly struct DenseTrieParameters
+public readonly struct VectorParameters
 {
     /// <summary>
-    /// Constructor.  Both shift parameters must be between 2 and 7 inclusive.
+    /// Constructor.  Both shift parameters must be between 2 and 7 inclusive and <paramref name="eshift"/>
+    /// must be less than or equal to <paramref name="ishift"/>.
     /// </summary>
     /// <param name="ishift">Number of bits determining the size of internal nodes.</param>
     /// <param name="eshift">Number of bits determining the size of external nodes.</param>
-    public DenseTrieParameters(int ishift, int eshift) {
+    public VectorParameters(int ishift, int eshift) {
         if (ishift < 2 || eshift < 2 || ishift > 7 || eshift > ishift)
             throw new ArgumentException("Invalid shift values.");
 
-        checked {
-            Set(ishift, out IShift, out ISize, out IMask);
-            Set(eshift, out EShift, out ESize, out EMask);
-        }
+        Set(ishift, out IShift, out ISize, out IMask);
+        Set(eshift, out EShift, out ESize, out EMask);
 
         Unsafe.SkipInit(out _pad0);
         Unsafe.SkipInit(out _pad1);

@@ -9,7 +9,7 @@ namespace Podaga.PersistentCollections.Test;
 /// </summary>
 internal class Vector_BasicTest
 {
-    private readonly DenseTrie<int> v;
+    private readonly Vector<int> v;
     private readonly int l1Size;
     private readonly int l2Size;
 

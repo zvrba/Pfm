@@ -6,11 +6,11 @@ namespace Podaga.PersistentCollections.Trie;
 /// <summary>
 /// Immutable/transient vector that can also act as a stack.
 /// </summary>
-public partial class DenseTrie<T>
+public partial class Vector<T>
 {
     private static ulong TransientCounter;
 
-    public readonly DenseTrieParameters Parameters;
+    public readonly VectorParameters Parameters;
     private readonly ulong transient;
 
     protected internal Node _Root;
@@ -25,7 +25,7 @@ public partial class DenseTrie<T>
 
     // INVARIANT: The tail is never empty, except when the trie is empty.
 
-    public DenseTrie(DenseTrieParameters parameters) {
+    public Vector(VectorParameters parameters) {
         Parameters = parameters;
         transient = Interlocked.Increment(ref TransientCounter);
         _Root = CreateLink();
@@ -33,7 +33,7 @@ public partial class DenseTrie<T>
         _Shift = Parameters.EShift;
     }
 
-    private DenseTrie(DenseTrie<T> other) {
+    private Vector(Vector<T> other) {
         Parameters = other.Parameters;
         transient = Interlocked.Increment(ref TransientCounter);
         _Root = other._Root;
@@ -42,7 +42,7 @@ public partial class DenseTrie<T>
         Count = other.Count;
     }
 
-    public DenseTrie<T> Fork() => new(this);
+    public Vector<T> Fork() => new(this);
 
     private void CheckIndex(int index) {
         if (index < 0 || index >= Count)

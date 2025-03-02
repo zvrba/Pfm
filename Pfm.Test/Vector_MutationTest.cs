@@ -4,7 +4,7 @@ using Podaga.PersistentCollections.Trie;
 
 namespace Podaga.PersistentCollections.Test;
 
-using VI = DenseTrie<int>;
+using VI = Vector<int>;
 
 internal class Vector_MutationTest
 {

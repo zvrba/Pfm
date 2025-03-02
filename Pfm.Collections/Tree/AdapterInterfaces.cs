@@ -6,28 +6,6 @@ using System.Threading;
 namespace Podaga.PersistentCollections.Tree;
 
 /// <summary>
-/// Source of unique transient values.
-/// </summary>
-public static class TransientSource
-{
-    private static ulong NextTransient = 0;
-
-    /// <summary>
-    /// Generates a new unique transient value.
-    /// </summary>
-    public static ulong NewTransient() => Interlocked.Increment(ref NextTransient);
-
-    /// <summary>
-    /// Conditionally generates a new unique transient value.
-    /// </summary>
-    /// <param name="transient">Existing transient value to check.</param>
-    /// <returns>
-    /// <paramref name="transient"/> if it was non-zero, a new transient otherwise.
-    /// </returns>
-    public static ulong NewTransient(ulong transient) => transient > 0 ? transient : NewTransient();
-}
-
-/// <summary>
 /// Common interface implemented by all adapters to <c>System.Collection.Generic</c> interfaces.
 /// </summary>
 /// <typeparam name="TValue">Value type held by the tree.</typeparam>

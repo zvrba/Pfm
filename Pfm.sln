@@ -16,8 +16,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "IntTree", "IntTree\IntTree.shproj", "{BECB907A-6B35-4C7D-9E19-0A80F3C57B6A}"
 EndProject
-Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "Podaga.PersistentCollections.SBDoc", "Pfm-Docs\Podaga.PersistentCollections.SBDoc\Podaga.PersistentCollections.SBDoc.shfbproj", "{AC957A3F-0BA6-4ED8-9315-49906F018E21}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,10 +34,6 @@ Global
 		{6D3EB6BB-1EE6-4A27-B7D9-6F3926A3F735}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D3EB6BB-1EE6-4A27-B7D9-6F3926A3F735}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D3EB6BB-1EE6-4A27-B7D9-6F3926A3F735}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AC957A3F-0BA6-4ED8-9315-49906F018E21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AC957A3F-0BA6-4ED8-9315-49906F018E21}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AC957A3F-0BA6-4ED8-9315-49906F018E21}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AC957A3F-0BA6-4ED8-9315-49906F018E21}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
