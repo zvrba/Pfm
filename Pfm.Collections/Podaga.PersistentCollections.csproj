@@ -7,5 +7,6 @@
     <Nullable>disable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Title>Podaga persistent collections</Title>
   </PropertyGroup>
 </Project>
