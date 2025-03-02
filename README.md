@@ -9,11 +9,11 @@ with adapters to standard `IReadOnlyList<T>`, `ICollection<T>`, `ISet<T>` and `I
 
 Features that distinguish the above from standard, immutable and frozen collections in the BCL:
 
-- Performance almost on-par with standard mutable collections.
+- Performance almost on-par with standard `SortedSet<T>`.
 - Cheap and explicit copy-on-write (COW) semantics.
 - Every adapted collection type based on trees can be re-adapted to any other collection type.
 - Consequently, it is possible to access dictionary and set elements by _index_ and perform set-operations (e.g., union) on dictionaries.
-- Tree iterators supporting forward and backward iteration are provided as well.
+- Tree iterators supporting seeking, forward and backward iteration are provided as well.
 - The tree data structure supports _custom augmentation_, which makes it possible to implement other search structures such
   as interval trees. (Size/index is a built-in kind of augmentation.)
 
@@ -25,6 +25,8 @@ The documentation (all content in docs branch) is licensed under [CC BY-NC-ND 4.
 
 Pfm-Docs is a submodule pointing to a private repository where I maintain the documentation.
 You do not need to fetch it to build the code.
+
+The package published on NuGet uses strong-naming 
 
 # References
 
