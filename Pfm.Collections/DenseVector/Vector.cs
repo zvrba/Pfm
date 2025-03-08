@@ -23,6 +23,7 @@ public partial class Vector<T>
     internal Node _Tail;
     internal int _Shift; // Levels below the root so that (index >> Shift) & IMask is the correct root slot.
 
+
     public int Count { get; private set; }
     public T this[int index] {
         get => Get(index);
@@ -31,6 +32,10 @@ public partial class Vector<T>
 
     // INVARIANT: The tail is never empty, except when the trie is empty.
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="parameters">Parameters that determine the branching factors.</param>
     public Vector(VectorParameters parameters) {
         Parameters = parameters;
         Transient = TransientSource.NewTransient();
@@ -41,7 +46,7 @@ public partial class Vector<T>
 
     private Vector(Vector<T> other) {
         Parameters = other.Parameters;
-        Transient = TransientSource.NewTransient(); ;
+        Transient = TransientSource.NewTransient();
         _Root = other._Root;
         _Tail = other._Tail;
         _Shift = other._Shift;
