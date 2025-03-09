@@ -16,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "IntTree", "IntTree\IntTree.shproj", "{BECB907A-6B35-4C7D-9E19-0A80F3C57B6A}"
 EndProject
+Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "SBDOC", "Docs\SBDOC\SBDOC.shfbproj", "{E01F5286-2399-41EB-ACC0-BC7AAC27743C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +36,10 @@ Global
 		{6D3EB6BB-1EE6-4A27-B7D9-6F3926A3F735}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D3EB6BB-1EE6-4A27-B7D9-6F3926A3F735}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D3EB6BB-1EE6-4A27-B7D9-6F3926A3F735}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E01F5286-2399-41EB-ACC0-BC7AAC27743C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E01F5286-2399-41EB-ACC0-BC7AAC27743C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E01F5286-2399-41EB-ACC0-BC7AAC27743C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E01F5286-2399-41EB-ACC0-BC7AAC27743C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
