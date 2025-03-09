@@ -1,3 +1,6 @@
 [submodule "Pfm-Docs"]
 	path = Pfm-Docs
 	url = https://github.com/zvrba/Pfm-Docs.git
+[submodule "Docs"]
+	path = Docs
+	url = https://github.com/zvrba/Podaga-Docs
