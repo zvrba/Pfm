@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Podaga.PersistentCollections.Trie;
+namespace Podaga.PersistentCollections.DenseVector;
 
 /// <summary>
 /// Used upon vector creation to set the sizes of internal and external nodes.
@@ -39,12 +39,35 @@ public readonly struct VectorParameters
 
     // Make it take exactly 8 bytes.
 
+    /// <summary>
+    /// "Shift" for internal nodes; this is the value passed to constructor.
+    /// </summary>
     public readonly byte IShift;
+
+    /// <summary>
+    /// Size of (cont of elements in) internal nodes (precomputed).
+    /// </summary>
     public readonly byte ISize;
+
+    /// <summary>
+    /// Index mask for internal node elements (precomputed).
+    /// </summary>
     public readonly byte IMask;
     private readonly byte _pad0;
+
+    /// <summary>
+    /// "Shift" for external nodes; this is the value passed to constructor.
+    /// </summary>
     public readonly byte EShift;
+
+    /// <summary>
+    /// Size of (count of elements in) external nodes (precomputed).
+    /// </summary>
     public readonly byte ESize;
+
+    /// <summary>
+    /// Index mask for external node elements (precomputed).
+    /// </summary>
     public readonly byte EMask;
     private readonly byte _pad1;
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Podaga.PersistentCollections.Trie;
+using Podaga.PersistentCollections.DenseVector;
 
 namespace Podaga.PersistentCollections.Test;
 

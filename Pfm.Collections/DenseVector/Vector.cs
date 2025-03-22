@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading;
 
-namespace Podaga.PersistentCollections.Trie;
+namespace Podaga.PersistentCollections.DenseVector;
 
 /// <summary>
 /// Immutable/transient vector that can also act as a stack.

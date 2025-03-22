@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Podaga.PersistentCollections.Trie;
+namespace Podaga.PersistentCollections.DenseVector;
 
 public partial class Vector<T>
 {
