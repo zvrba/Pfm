@@ -5,24 +5,35 @@ namespace Podaga.PersistentCollections.DenseVector;
 /// <summary>
 /// Immutable/transient vector that can also act as a stack.
 /// </summary>
+/// <typeparam name="T">Element type held stored by the vector.</typeparam>
 public partial class Vector<T>
 {
     /// <summary>
     /// Parameters for this vector.
     /// </summary>
     public readonly VectorParameters Parameters;
-    
+
     /// <summary>
     /// The vector's transient tag.
     /// </summary>
-    public readonly ulong Transient;
+    public ulong Transient => _Transient;
+    private ulong _Transient;
 
     internal Node _Root;
     internal Node _Tail;
     internal int _Shift; // Levels below the root so that (index >> Shift) & IMask is the correct root slot.
 
 
+    /// <summary>
+    /// Number of elements in the vector.
+    /// </summary>
     public int Count { get; private set; }
+
+    /// <summary>
+    /// Provides index-based access to elements.
+    /// </summary>
+    /// <param name="index">Index to access.</param>
+    /// <returns>Value stored at index.</returns>
     public T this[int index] {
         get => Get(index);
         set => Set(index, value);
@@ -36,7 +47,7 @@ public partial class Vector<T>
     /// <param name="parameters">Parameters that determine the branching factors.</param>
     public Vector(VectorParameters parameters) {
         Parameters = parameters;
-        Transient = TransientSource.NewTransient();
+        _Transient = TransientSource.NewTransient();
         _Root = CreateLink();
         _Tail = CreateLeaf();
         _Shift = Parameters.EShift;
@@ -44,14 +55,24 @@ public partial class Vector<T>
 
     private Vector(Vector<T> other) {
         Parameters = other.Parameters;
-        Transient = TransientSource.NewTransient();
+        _Transient = TransientSource.NewTransient();
         _Root = other._Root;
         _Tail = other._Tail;
         _Shift = other._Shift;
         Count = other.Count;
     }
 
-    public Vector<T> Fork() => new(this);
+    /// <summary>
+    /// Forks the vector.  Ensures that modifications to <c>this</c> and the forked version are invisible to each other.
+    /// </summary>
+    /// <returns>
+    /// A forked instance that contains the same elements as <c>this</c>.
+    /// </returns>
+    public Vector<T> Fork() {
+        // Original's transient change so that changes in the original do not affect the fork.
+        _Transient = TransientSource.NewTransient();
+        return new(this);
+    }
 
     private void CheckIndex(int index) {
         if (index < 0 || index >= Count)
@@ -88,6 +109,10 @@ public partial class Vector<T>
         node.Value[index & Parameters.EMask] = element;
     }
 
+    /// <summary>
+    /// Appends an element to <c>this</c>.
+    /// </summary>
+    /// <param name="element">Element to append.</param>
     public void Push(T element) {
         if ((Count & Parameters.EMask) == 0) {
             if (Count > 0)
@@ -121,6 +146,14 @@ public partial class Vector<T>
         }
     }
 
+    /// <summary>
+    /// Removes the last element of <c>this</c>.
+    /// </summary>
+    /// <param name="element">Receives the removed element.</param>
+    /// <returns>
+    /// True if <see cref="Count"/> was positive, in which case <paramref name="element"/> is set to the removed element.
+    /// Otherwise false, and <paramref name="element"/> is set to <c>default</c>.
+    /// </returns>
     public bool TryPop(out T element) {
         if (Count == 0) {
             element = default;
