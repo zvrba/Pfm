@@ -16,6 +16,7 @@ public static partial class TreeAlgorithms
     /// <param name="transient">The required transient tag on the copied subtree.</param>
     /// <returns>The root of the copied subtree.</returns>
     /// <typeparam name="TValue">Tree element type.</typeparam>
+    /// <typeparam name="TValueTraits">Value traits (determine how the value is cloned).</typeparam>
     public static JoinableTreeNode<TValue> Copy<TValue, TValueTraits>
         (
         this JoinableTreeNode<TValue> root,
@@ -67,6 +68,8 @@ public static partial class TreeAlgorithms
     /// <summary>
     /// Single left rotation using <paramref name="this"/> as pivot node.
     /// </summary>
+    /// <param name="this">Pivot node.</param>
+    /// <param name="transient">Transient tag to use during modifications.</param>
     /// <returns>New subtree root such that <paramref name="this"/> is its left child.</returns>
     /// <typeparam name="TValue">Tree element type.</typeparam>
     /// <typeparam name="TJoin">Tree join strategy.</typeparam>
@@ -89,6 +92,8 @@ public static partial class TreeAlgorithms
     /// <summary>
     /// Double left rotation using <paramref name="this"/> as pivot node.
     /// </summary>
+    /// <param name="this">Pivot node.</param>
+    /// <param name="transient">Transient tag to use during modifications.</param>
     /// <returns>New subtree root such that <paramref name="this"/> is its left child.</returns>
     /// <typeparam name="TValue">Tree element type.</typeparam>
     /// <typeparam name="TJoin">Tree join strategy.</typeparam>
@@ -115,6 +120,8 @@ public static partial class TreeAlgorithms
     /// <summary>
     /// Single right rotation using <paramref name="this"/> as pivot node.
     /// </summary>
+    /// <param name="this">Pivot node.</param>
+    /// <param name="transient">Transient tag to use during modifications.</param>
     /// <returns>New subtree root such that <paramref name="this"/> is its right child.</returns>
     /// <typeparam name="TValue">Tree element type.</typeparam>
     /// <typeparam name="TJoin">Tree join strategy.</typeparam>
@@ -137,6 +144,8 @@ public static partial class TreeAlgorithms
     /// <summary>
     /// Double right rotation using <paramref name="this"/> as pivot node.
     /// </summary>
+    /// <param name="this">Pivot node.</param>
+    /// <param name="transient">Transient tag to use during modifications.</param>
     /// <returns>New subtree root such that <paramref name="this"/> is its right child.</returns>
     /// <typeparam name="TValue">Tree element type.</typeparam>
     /// <typeparam name="TJoin">Tree join strategy.</typeparam>
