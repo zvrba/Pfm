@@ -26,6 +26,7 @@ public interface ITreeTraits<TValue> : IValueTraits<TValue>
     /// 3-way join is the core tree algorithm on which all other operations are based.
     /// When the tree is not persistent, this operation is destructive to all inputs.
     /// </summary>
+    /// <param name="jd">Join parameters.  All fields must be initialized.</param>
     /// <returns>
     /// Tree that has same entries and inorder traversal as the node <c>(left, middle, right)</c>.
     /// </returns>
@@ -35,6 +36,7 @@ public interface ITreeTraits<TValue> : IValueTraits<TValue>
     /// This method must validate the tree's structure invariant starting from <paramref name="node"/>.
     /// Mainly for use in stress-tests.
     /// </summary>
+    /// <param name="node">Node from which to begin validation.</param>
     /// <exception cref="NotImplementedException">Thrown when a violation of the structure invariant is detected.</exception>
     abstract static void ValidateStructure(JoinableTreeNode<TValue> node);
 }

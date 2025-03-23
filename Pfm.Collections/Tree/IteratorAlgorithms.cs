@@ -13,6 +13,7 @@ public static class IteratorAlgorithms
     /// Creates an iterator for the tree and pushes the root node (if the tree is not empty) on top of the stack.
     /// This makes other iterator algorithms operate over the complete tree.
     /// </summary>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
     /// <param name="this">The tree for which to create the iterator.</param>
     /// <returns>An iterator instance.</returns>
     public static TreeIterator<TValue> GetIterator<TValue>
@@ -35,6 +36,8 @@ public static class IteratorAlgorithms
     /// Otherwise, <paramref name="this"/> is cleared and search restarted with the given node.
     /// </param>
     /// <param name="value">Value to look for.  Only the key fields must be initialized.</param>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
+    /// <typeparam name="TValueTraits">Value traits.</typeparam>
     /// <returns>
     /// The result of the last comparison leading to the top node in <paramref name="this"/>.
     /// Zero means that an equivalent value was found and is on top of the stack.
@@ -64,6 +67,7 @@ public static class IteratorAlgorithms
     /// <summary>
     /// Moves <c>this</c> to the smallest value in the subtree.
     /// </summary>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
     /// <param name="this">Iterator instance.</param>
     /// <param name="node">
     /// Node to start the search from.  If <c>null</c>, the top node of <c>this</c> is used.
@@ -90,6 +94,7 @@ public static class IteratorAlgorithms
     /// <summary>
     /// Moves <c>this</c> to the largest value in the subtree.
     /// </summary>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
     /// <param name="this">Iterator instance.</param>
     /// <param name="node">
     /// Node to start the search from.  If <c>null</c>, the top node of <c>this</c> is used.
@@ -116,6 +121,7 @@ public static class IteratorAlgorithms
     /// <summary>
     /// Moves <c>this</c> to the next element in sort order.
     /// </summary>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
     /// <param name="this">Iterator instance.</param>
     /// <returns>True if the next element exists, false otherwise.</returns>
     public static bool Succ<TValue>(this ref TreeIterator<TValue> @this)
@@ -143,6 +149,7 @@ public static class IteratorAlgorithms
     /// <summary>
     /// Moves <c>this</c> to the previous element in sort order.
     /// </summary>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
     /// <param name="this">Iterator instance.</param>
     /// <returns>True if the next element exists, false otherwise.</returns>
     public static bool Pred<TValue>(this ref TreeIterator<TValue> @this)
@@ -170,6 +177,7 @@ public static class IteratorAlgorithms
     /// <summary>
     /// Sets <c>this</c> to the n'th element in sorted order in the tree.
     /// </summary>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
     /// <param name="this">Iterator instance.</param>
     /// <param name="node">
     /// Node from which to start the search.  If <c>null</c>, the top node of <c>this</c> is used.

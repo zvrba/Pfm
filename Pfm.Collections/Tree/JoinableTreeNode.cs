@@ -53,6 +53,8 @@ public sealed class JoinableTreeNode<TValue> : IEnumerable<TValue>
     /// <summary>
     /// Clones <c>this</c> if this' transient tag is different from <paramref name="transient"/>.
     /// </summary>
+    /// <param name="transient">Transient tag for the cloned node.</param>
+    /// <typeparam name="TValueTraits">Value traits.</typeparam>
     /// <returns>
     /// New instance or <c>this</c>, depending on the transient tag.
     /// </returns>
@@ -68,6 +70,7 @@ public sealed class JoinableTreeNode<TValue> : IEnumerable<TValue>
     /// with appropriate arguments.
     /// WARNING: The update is in-place, so the node must have been cloned beforehand.
     /// </summary>
+    /// <typeparam name="TJoin">Tree join strategy.</typeparam>
     //[MethodImpl(MethodImplOptions.AggressiveInlining /*| MethodImplOptions.AggressiveOptimization*/)]
     public void Update<TJoin>() where TJoin : ITreeTraits<TValue>
     {
