@@ -8,7 +8,7 @@ using IntTree;
 
 namespace Podaga.PersistentCollections.Benchmark;
 
-[HardwareCounters(HardwareCounter.InstructionRetired, HardwareCounter.CacheMisses, HardwareCounter.BranchInstructions)]
+//[HardwareCounters(HardwareCounter.InstructionRetired, HardwareCounter.CacheMisses, HardwareCounter.BranchInstructions)]
 [MemoryDiagnoser]
 public class TreeModifyBenchmark
 {

@@ -6,24 +6,27 @@ namespace Podaga.PersistentCollections.Tree;
 /// <summary>
 /// <para>
 /// Provides iterative tree navigation algorithms.  At its core, this struct implements a stack, whereas the actual
-/// algorithms are implemented as extension methods.
+/// algorithms are implemented as extension methods on <see cref="IteratorAlgorithms"/> class.
+/// </para>
+/// </summary>
+/// <remarks>
+/// <para>
+/// WARNING:  This is a mutable struct.
 /// </para>
 /// <para>
-/// WARNINGS.  This is a mutable struct.  The <see cref="IsNull"/> property on a <c>default</c> instance is true, and
-/// no other methods or properties on it may be accessed.  For performance reasons, all methods and properties perform
-/// no error checking on their own and rely on the runtime throwing <see cref="NullReferenceException"/> or
-/// <see cref="IndexOutOfRangeException"/>.
+/// WARNING: Iterating over a tree that is simultaneously being modified yields unspecified results.  The modification
+/// does not need to be concurrent either, e.g., using <c>Succ</c> or <c>Pred</c> while inserting or deleting elements
+/// will also lead to unspecified results.
 /// </para>
+/// The <see cref="IsNull"/> property on a <c>default</c> instance is true, and
+/// no other methods or properties on it may be accessed.  For performance reasons, no methods or properties perform
+/// error checking on their own; instead they rely on the runtime throwing <see cref="NullReferenceException"/> or
+/// <see cref="IndexOutOfRangeException"/>.
 /// <para>
 /// Copying of an iterator is shallow: the "original" and its "copy" will share the same underlying stack array.
 /// For deep copying, use the copy constructor.
 /// </para>
-/// <para>
-/// WARNING: Iterating over a non-persistent tree that is being modified yields unspecified results.  The modification
-/// does not need to be concurrent either, e.g., using <c>Succ</c> or <c>Pred</c> while inserting or deleting elements
-/// will also lead to unspecified results.
-/// </para>
-/// </summary>
+/// </remarks>
 /// <typeparam name="TValue">Value type held by tree nodes.</typeparam>
 public struct TreeIterator<TValue>
 {
