@@ -4,6 +4,8 @@ using Podaga.PersistentCollections.Tree;
 
 namespace IntTree;
 
+#region Value traits
+
 public interface IIntValueTraits : IValueTraits<int>
 {
     static int IValueTraits<int>.NilTag {
@@ -19,6 +21,10 @@ public interface IIntValueTraits : IValueTraits<int>
         left < right ? -1 : left > right ? 1 : 0;
 }
 
+#endregion
+
+#region Define tree types
+
 public struct AvlIntTree : IIntValueTraits, IAvlJoin<AvlIntTree, int>
 {
 }
@@ -26,3 +32,5 @@ public struct AvlIntTree : IIntValueTraits, IAvlJoin<AvlIntTree, int>
 public struct WBIntTree : IIntValueTraits, IWBJoin<WBIntTree, int>
 {
 }
+
+#endregion

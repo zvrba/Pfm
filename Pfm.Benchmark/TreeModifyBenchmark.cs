@@ -22,6 +22,8 @@ public class TreeModifyBenchmark
         PermutationGenerators.Random(data);
     }
 
+    #region ICollection adapter
+
     [Benchmark]
     public void AvlTree() {
         var tree = new CollectionTreeAdapter<int, AvlIntTree>();
@@ -30,6 +32,8 @@ public class TreeModifyBenchmark
         for (int i = data.Length - 1; i >= 0; --i)
             tree.Remove(data[i]);
     }
+
+    #endregion
 
     [Benchmark]
     public void WBTree() {
