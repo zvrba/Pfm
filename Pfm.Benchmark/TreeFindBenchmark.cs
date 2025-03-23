@@ -15,8 +15,8 @@ public class TreeFindBenchmark
     private readonly int[] data = new int[Size];
     private System.Collections.Generic.SortedSet<int> sortedSet;
     private System.Collections.Immutable.ImmutableSortedSet<int> immTree;
-    private CollectionTreeAdapter<int, AvlIntValueHolder> avlTreeSet = new();
-    private CollectionTreeAdapter<int, WBIntValueHolder> wbTreeSet = new();
+    private CollectionTreeAdapter<int, AvlIntTree> avlTreeSet = new();
+    private CollectionTreeAdapter<int, WBIntTree> wbTreeSet = new();
 
 #if false
     private Pfm.Collections.JoinTree.JoinTree<int, ImplementationBenchmark.MutableTraits,

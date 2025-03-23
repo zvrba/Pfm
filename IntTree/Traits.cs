@@ -19,32 +19,10 @@ public interface IIntValueTraits : IValueTraits<int>
         left < right ? -1 : left > right ? 1 : 0;
 }
 
-public struct AvlIntValueHolder : IIntValueTraits, IAvlJoin<AvlIntValueHolder, int>
+public struct AvlIntTree : IIntValueTraits, IAvlJoin<AvlIntTree, int>
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static AvlIntValueHolder Create(int value) => new() { Value = value };
-    
-    public int Value {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => _Value;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        set => _Value = value;
-    }
-    private int _Value;
 }
 
-public struct WBIntValueHolder : IIntValueTraits, IWBJoin<WBIntValueHolder, int>
+public struct WBIntTree : IIntValueTraits, IWBJoin<WBIntTree, int>
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static WBIntValueHolder Create(int value) => new() { Value = value };
-
-    public int Value {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => _Value;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        set => _Value = value;
-    }
-    private int _Value;
 }
