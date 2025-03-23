@@ -64,7 +64,7 @@ public sealed class JoinableTreeNode<TValue> : IEnumerable<TValue>
         : new(transient, TValueTraits.Clone(Value)) { Left = Left, Right = Right, Size = Size, Rank = Rank };
 
     /// <summary>
-    /// Updates <c>this</c> node's tag by invoking <see cref="IValueTraits{TValue}.Combine(in TValue, ref TValue, in TValue)"/>
+    /// Updates <c>this</c> node's tag by invoking <see cref="IValueTraits{TValue}.CombineTags(TValue, ref TValue, TValue)"/>
     /// with appropriate arguments.
     /// WARNING: The update is in-place, so the node must have been cloned beforehand.
     /// </summary>

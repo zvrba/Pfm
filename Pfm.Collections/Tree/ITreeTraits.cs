@@ -32,7 +32,7 @@ public interface ITreeTraits<TValue> : IValueTraits<TValue>
     abstract static JoinableTreeNode<TValue> Join(TreeSection<TValue> jd);
 
     /// <summary>
-    /// This method must validate the tree's structure invariant starting from <see cref="node"/>.
+    /// This method must validate the tree's structure invariant starting from <paramref name="node"/>.
     /// Mainly for use in stress-tests.
     /// </summary>
     /// <exception cref="NotImplementedException">Thrown when a violation of the structure invariant is detected.</exception>

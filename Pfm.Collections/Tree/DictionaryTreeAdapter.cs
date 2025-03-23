@@ -11,6 +11,9 @@ namespace Podaga.PersistentCollections.Tree;
 /// <summary>
 /// Adapts a joinable tree to <see cref="IDictionary{TKey, TValue}"/> and <see cref="IReadOnlyDictionary{TKey, TValue}"/>.
 /// </summary>
+/// <typeparam name="TKey">Dictionary key type.</typeparam>
+/// <typeparam name="TValue">Dictionary value type.</typeparam>
+/// <typeparam name="TJoin">Tree join strategy.</typeparam>
 public class DictionaryTreeAdapter<TKey, TValue, TJoin> :
     CollectionTreeAdapter<KeyValuePair<TKey, TValue>, TJoin>,
     IDictionary<TKey, TValue>,

@@ -36,7 +36,7 @@ public static class IteratorAlgorithms
     /// </param>
     /// <param name="value">Value to look for.  Only the key fields must be initialized.</param>
     /// <returns>
-    /// The result of the last comparison leading to the top node in <paramref name="iterator"/>.
+    /// The result of the last comparison leading to the top node in <paramref name="this"/>.
     /// Zero means that an equivalent value was found and is on top of the stack.
     /// If <paramref name="node"/> was <c>null</c>, -1 is returned (arbitrarily).
     /// </returns>

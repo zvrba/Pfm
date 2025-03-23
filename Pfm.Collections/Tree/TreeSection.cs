@@ -5,6 +5,7 @@ namespace Podaga.PersistentCollections.Tree;
 /// <summary>
 /// Describes a "section" of a tree.
 /// </summary>
+/// <typeparam name="TValue">Tree element type.</typeparam>
 public struct TreeSection<TValue>
 {
     /// <summary>

@@ -8,6 +8,8 @@ namespace Podaga.PersistentCollections.Tree;
 /// <summary>
 /// Adapts a joinable tree to <see cref="ISet{T}"/> and <see cref="IReadOnlySet{T}"/>.
 /// </summary>
+/// <typeparam name="TValue">Tree element type.</typeparam>
+/// <typeparam name="TJoin">Tree join strategy.</typeparam>
 public class SetTreeAdapter<TValue, TJoin> : CollectionTreeAdapter<TValue, TJoin>,
     IReadOnlySet<TValue>,
     ISet<TValue>
