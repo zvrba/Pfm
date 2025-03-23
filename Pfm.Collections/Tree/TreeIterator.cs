@@ -18,10 +18,12 @@ namespace Podaga.PersistentCollections.Tree;
 /// does not need to be concurrent either, e.g., using <c>Succ</c> or <c>Pred</c> while inserting or deleting elements
 /// will also lead to unspecified results.
 /// </para>
+/// <para>
 /// The <see cref="IsNull"/> property on a <c>default</c> instance is true, and
 /// no other methods or properties on it may be accessed.  For performance reasons, no methods or properties perform
 /// error checking on their own; instead they rely on the runtime throwing <see cref="NullReferenceException"/> or
 /// <see cref="IndexOutOfRangeException"/>.
+/// </para>
 /// <para>
 /// Copying of an iterator is shallow: the "original" and its "copy" will share the same underlying stack array.
 /// For deep copying, use the copy constructor.
