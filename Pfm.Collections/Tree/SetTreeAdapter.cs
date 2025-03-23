@@ -8,6 +8,12 @@ namespace Podaga.PersistentCollections.Tree;
 /// <summary>
 /// Adapts a joinable tree to <see cref="ISet{T}"/> and <see cref="IReadOnlySet{T}"/>.
 /// </summary>
+/// <remarks>
+/// Implementations of set operations check whether the <see cref="IEnumerable{T}"/> argument is actually an instance of
+/// <see cref="JoinableTreeNode{TValue}"/> or <see cref="SetTreeAdapter{TValue, TJoin}"/>.  If so, a more efficient
+/// join-based recursive strategy is used.  Otherwise, the operation is performed element-wise.  In particular, <see cref="IntersectWith(IEnumerable{TValue})"/>
+/// allocates temporary storage in size proportional with the result.
+/// </remarks>
 /// <typeparam name="TValue">Tree element type.</typeparam>
 /// <typeparam name="TJoin">Tree join strategy.</typeparam>
 public class SetTreeAdapter<TValue, TJoin> : CollectionTreeAdapter<TValue, TJoin>,

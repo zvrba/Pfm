@@ -29,6 +29,16 @@ public interface IAdaptedTree<TValue, TTree>
 /// </summary>
 public static class TreeAdapterExtensions
 {
+    /// <summary>
+    /// Presents a tree as <see cref="ICollection{T}"/>.
+    /// </summary>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
+    /// <typeparam name="TJoin">Tree join strategy.</typeparam>
+    /// <param name="this">Tree root.</param>
+    /// <param name="transient">Transient tag to use.  If 0, a new transient is generated.</param>
+    /// <returns>
+    /// An instance of <see cref="CollectionTreeAdapter{TValue, TJoin}"/>.
+    /// </returns>
     public static CollectionTreeAdapter<TValue, TJoin> AsCollection<TValue, TJoin>
         (
         this JoinableTreeNode<TValue>? @this,
@@ -37,6 +47,15 @@ public static class TreeAdapterExtensions
         where TJoin : struct, ITreeTraits<TValue>
         => new(@this, transient);
 
+    /// <summary>
+    /// Presents a tree as <see cref="ICollection{T}"/>.
+    /// </summary>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
+    /// <typeparam name="TJoin">Tree join strategy.</typeparam>
+    /// <param name="this">Tree adapted as a possibly other collection type.</param>
+    /// <returns>
+    /// An instance of <see cref="CollectionTreeAdapter{TValue, TJoin}"/>.
+    /// </returns>
     public static CollectionTreeAdapter<TValue, TJoin> AsCollection<TValue, TJoin>
         (
         this IAdaptedTree<TValue, TJoin> @this
@@ -44,6 +63,16 @@ public static class TreeAdapterExtensions
         where TJoin : struct, ITreeTraits<TValue>
         => new(@this.Root, @this.Transient);
 
+    /// <summary>
+    /// Presents a tree as <see cref="IReadOnlyList{T}"/>.
+    /// </summary>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
+    /// <typeparam name="TJoin">Tree join strategy.</typeparam>
+    /// <param name="this">Tree root.</param>
+    /// <param name="transient">Transient tag to use.  If 0, a new transient is generated.</param>
+    /// <returns>
+    /// An instance of <see cref="ReadOnlyListTreeAdapter{TValue, TJoin}"/>.
+    /// </returns>
     public static ReadOnlyListTreeAdapter<TValue, TJoin> AsReadOnlyList<TValue, TJoin>
         (
         this JoinableTreeNode<TValue>? @this,
@@ -52,6 +81,15 @@ public static class TreeAdapterExtensions
         where TJoin : struct, ITreeTraits<TValue>
         => new(@this, transient);
 
+    /// <summary>
+    /// Presents a tree as <see cref="IReadOnlyList{T}"/>.
+    /// </summary>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
+    /// <typeparam name="TJoin">Tree join strategy.</typeparam>
+    /// <param name="this">Tree adapted as a possibly other collection type.</param>
+    /// <returns>
+    /// An instance of <see cref="ReadOnlyListTreeAdapter{TValue, TJoin}"/>.
+    /// </returns>
     public static ReadOnlyListTreeAdapter<TValue, TJoin> AsReadOnlyList<TValue, TJoin>
         (
         this IAdaptedTree<TValue, TJoin> @this
@@ -59,6 +97,16 @@ public static class TreeAdapterExtensions
         where TJoin : struct, ITreeTraits<TValue>
         => new(@this.Root, @this.Transient);
 
+    /// <summary>
+    /// Presents a tree as <see cref="ISet{T}"/> and <see cref="IReadOnlySet{T}"/>.
+    /// </summary>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
+    /// <typeparam name="TJoin">Tree join strategy.</typeparam>
+    /// <param name="this">Tree root.</param>
+    /// <param name="transient">Transient tag to use.  If 0, a new transient is generated.</param>
+    /// <returns>
+    /// An instance of <see cref="SetTreeAdapter{TValue, TJoin}"/>.
+    /// </returns>
     public static SetTreeAdapter<TValue, TJoin> AsSet<TValue, TJoin>
         (
         this JoinableTreeNode<TValue>? @this,
@@ -67,6 +115,15 @@ public static class TreeAdapterExtensions
         where TJoin : struct, ITreeTraits<TValue>
         => new(@this, transient);
 
+    /// <summary>
+    /// Presents a tree as <see cref="ISet{T}"/> and <see cref="IReadOnlySet{T}"/>.
+    /// </summary>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
+    /// <typeparam name="TJoin">Tree join strategy.</typeparam>
+    /// <param name="this">Tree adapted as a possibly other collection type.</param>
+    /// <returns>
+    /// An instance of <see cref="SetTreeAdapter{TValue, TJoin}"/>.
+    /// </returns>
     public static SetTreeAdapter<TValue, TJoin> AsSet<TValue, TJoin>
         (
         this IAdaptedTree<TValue, TJoin> @this
@@ -74,6 +131,16 @@ public static class TreeAdapterExtensions
         where TJoin : struct, ITreeTraits<TValue>
         => new(@this.Root, @this.Transient);
 
+    /// <summary>
+    /// Non-destructive set-union between <paramref name="this"/> and <paramref name="other"/>.
+    /// </summary>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
+    /// <typeparam name="TJoin">Tree join strategy.</typeparam>
+    /// <param name="this">Tree adapted as a possibly other collection type.  First argument to union.</param>
+    /// <param name="other">Tree adapted as a possibly other collection type.  Second argument to union.</param>
+    /// <returns>
+    /// A new set that is union of <paramref name="this"/> and <paramref name="other"/>.
+    /// </returns>
     public static SetTreeAdapter<TValue, TJoin> SetUnion<TValue, TJoin> 
         (
         this IAdaptedTree<TValue, TJoin> @this,
@@ -86,6 +153,16 @@ public static class TreeAdapterExtensions
         return ret;
     }
 
+    /// <summary>
+    /// Non-destructive set-intersection between <paramref name="this"/> and <paramref name="other"/>.
+    /// </summary>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
+    /// <typeparam name="TJoin">Tree join strategy.</typeparam>
+    /// <param name="this">Tree adapted as a possibly other collection type.  First argument to union.</param>
+    /// <param name="other">Tree adapted as a possibly other collection type.  Second argument to union.</param>
+    /// <returns>
+    /// A new set that is intersection of <paramref name="this"/> and <paramref name="other"/>.
+    /// </returns>
     public static SetTreeAdapter<TValue, TJoin> SetIntersection<TValue, TJoin>
         (
         this IAdaptedTree<TValue, TJoin> @this,
@@ -98,6 +175,18 @@ public static class TreeAdapterExtensions
         return ret;
     }
 
+    /// <summary>
+    /// Non-destructive set-difference between <paramref name="this"/> and <paramref name="other"/>.
+    /// Difference is a non-commutative operation and <paramref name="this"/> is treated as the "left" argument, i.e.,
+    /// the resulting set wil contain no element present in <paramref name="other"/>.
+    /// </summary>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
+    /// <typeparam name="TJoin">Tree join strategy.</typeparam>
+    /// <param name="this">Tree adapted as a possibly other collection type.  First argument to union.</param>
+    /// <param name="other">Tree adapted as a possibly other collection type.  Second argument to union.</param>
+    /// <returns>
+    /// A new set that is difference of <paramref name="this"/> and <paramref name="other"/>.
+    /// </returns>
     public static SetTreeAdapter<TValue, TJoin> SetDifference<TValue, TJoin>
         (
         this IAdaptedTree<TValue, TJoin> @this,
