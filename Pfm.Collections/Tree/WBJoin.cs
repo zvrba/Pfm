@@ -8,6 +8,8 @@ namespace Podaga.PersistentCollections.Tree;
 /// The balance factor is hard-coded to 1/4.  This value is just below the maximum proven in the paper
 /// that makes the tree strongly joinable.
 /// </summary>
+/// <typeparam name="TSelf">The most-derived type implementing this interface (CRTP pattern).</typeparam>
+/// <typeparam name="TValue">Tree element type.</typeparam>
 public interface IWBJoin<TSelf, TValue> : ITreeTraits<TValue>
     where TSelf : struct, IWBJoin<TSelf, TValue>
 {

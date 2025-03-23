@@ -29,6 +29,15 @@ public class SetTreeAdapter<TValue, TJoin> : CollectionTreeAdapter<TValue, TJoin
         _ => other.Count() == Count && other.Count(Contains) == Count,
     };
 
+    /// <summary>
+    /// Set equality on trees rooted at <paramref name="a"/> and <paramref name="b"/>.
+    /// The implementation uses <see cref="TreeIterator{TValue}"/> to walk both trees.
+    /// </summary>
+    /// <param name="a">Root of the first tree.</param>
+    /// <param name="b">Root of the second tree.</param>
+    /// <returns>
+    /// True if <paramref name="a"/> and <paramref name="b"/> contain the same elements as determined by <typeparamref name="TJoin"/>.
+    /// </returns>
     protected static bool SetEqual(JoinableTreeNode<TValue>? a, JoinableTreeNode<TValue>? b) {
         if (a is null || b is null)
             return (a is null) == (b is null);
@@ -83,6 +92,9 @@ public class SetTreeAdapter<TValue, TJoin> : CollectionTreeAdapter<TValue, TJoin
     /// <summary>
     /// Join-based union algorithm.
     /// </summary>
+    /// <param name="t1">Root of the first tree.</param>
+    /// <param name="t2">Root of the second tree.</param>
+    /// <returns>Root of the tree that is the union of <paramref name="t1"/> and <paramref name="t2"/>.</returns>
     protected JoinableTreeNode<TValue>? SetUnion
         (
         JoinableTreeNode<TValue>? t1,
@@ -126,6 +138,9 @@ public class SetTreeAdapter<TValue, TJoin> : CollectionTreeAdapter<TValue, TJoin
     /// <summary>
     /// Join-based intersection algorithm.
     /// </summary>
+    /// <param name="t1">Root of the first tree.</param>
+    /// <param name="t2">Root of the second tree.</param>
+    /// <returns>Root of the tree that is the intersection of <paramref name="t1"/> and <paramref name="t2"/>.</returns>
     protected JoinableTreeNode<TValue>? SetIntersection
         (
         JoinableTreeNode<TValue>? t1,
@@ -166,6 +181,9 @@ public class SetTreeAdapter<TValue, TJoin> : CollectionTreeAdapter<TValue, TJoin
     /// <summary>
     /// Join-based difference algorithm.
     /// </summary>
+    /// <param name="t1">Root of the first tree.</param>
+    /// <param name="t2">Root of the second tree.</param>
+    /// <returns>Root of the tree that is the difference of <paramref name="t1"/> and <paramref name="t2"/>.</returns>
     protected JoinableTreeNode<TValue>? SetDifference
         (
         JoinableTreeNode<TValue>? t1,

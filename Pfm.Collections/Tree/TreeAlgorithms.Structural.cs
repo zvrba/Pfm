@@ -15,6 +15,7 @@ public static partial class TreeAlgorithms
     /// <param name="root">Tree node from which to start copying.</param>
     /// <param name="transient">The required transient tag on the copied subtree.</param>
     /// <returns>The root of the copied subtree.</returns>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
     public static JoinableTreeNode<TValue> Copy<TValue, TValueTraits>
         (
         this JoinableTreeNode<TValue> root,
@@ -39,6 +40,7 @@ public static partial class TreeAlgorithms
     /// <exception cref="IndexOutOfRangeException">
     /// <paramref name="root"/> is null, or <paramref name="index"/> is outside of range <c>[0, Size-1)</c>, size being the size of the subtree.
     /// </exception>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
     public static TValue Nth<TValue>
         (
         this JoinableTreeNode<TValue> root,
@@ -66,6 +68,8 @@ public static partial class TreeAlgorithms
     /// Single left rotation using <paramref name="this"/> as pivot node.
     /// </summary>
     /// <returns>New subtree root such that <paramref name="this"/> is its left child.</returns>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
+    /// <typeparam name="TJoin">Tree join strategy.</typeparam>
     public static JoinableTreeNode<TValue> RotL<TValue, TJoin>
         (
         this JoinableTreeNode<TValue> @this,
@@ -86,6 +90,8 @@ public static partial class TreeAlgorithms
     /// Double left rotation using <paramref name="this"/> as pivot node.
     /// </summary>
     /// <returns>New subtree root such that <paramref name="this"/> is its left child.</returns>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
+    /// <typeparam name="TJoin">Tree join strategy.</typeparam>
     public static JoinableTreeNode<TValue> RotLL<TValue, TJoin>
         (
         this JoinableTreeNode<TValue> @this,
@@ -110,6 +116,8 @@ public static partial class TreeAlgorithms
     /// Single right rotation using <paramref name="this"/> as pivot node.
     /// </summary>
     /// <returns>New subtree root such that <paramref name="this"/> is its right child.</returns>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
+    /// <typeparam name="TJoin">Tree join strategy.</typeparam>
     public static JoinableTreeNode<TValue> RotR<TValue, TJoin>
         (
         this JoinableTreeNode<TValue> @this,
@@ -130,6 +138,8 @@ public static partial class TreeAlgorithms
     /// Double right rotation using <paramref name="this"/> as pivot node.
     /// </summary>
     /// <returns>New subtree root such that <paramref name="this"/> is its right child.</returns>
+    /// <typeparam name="TValue">Tree element type.</typeparam>
+    /// <typeparam name="TJoin">Tree join strategy.</typeparam>
     public static JoinableTreeNode<TValue> RotRR<TValue, TJoin>
         (
         this JoinableTreeNode<TValue> @this,

@@ -35,6 +35,7 @@ public struct TreeIterator<TValue>
     /// <summary>
     /// Utility method to create a new allocated instance with default capacity.
     /// </summary>
+    /// <returns>A new instance with <see cref="DefaultCapacity"/>.</returns>
     public static TreeIterator<TValue> New() => new(DefaultCapacity);
 
     /// <summary>

@@ -6,6 +6,8 @@ namespace Podaga.PersistentCollections.Tree;
 /// <summary>
 /// Implementation of <see cref="ITreeTraits{TValue}"/> for AVL trees.
 /// </summary>
+/// <typeparam name="TSelf">The most-derived type implementing this interface (CRTP pattern).</typeparam>
+/// <typeparam name="TValue">Tree element type.</typeparam>
 public interface IAvlJoin<TSelf, TValue> : ITreeTraits<TValue>
     where TSelf : struct, IAvlJoin<TSelf, TValue>
 {

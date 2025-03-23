@@ -48,7 +48,7 @@ public struct TreeSection<TValue>
     /// <summary>
     /// Joins <see cref="Left"/> and <see cref="Right"/> balanced subtrees into a single balanced tree.
     /// </summary>
-    /// <typeparam name="TJoin">The tree's join algorithm.</typeparam>
+    /// <typeparam name="TJoin">Tree join strategy.</typeparam>
     /// <returns>A root of the joined tree.</returns>
     public JoinableTreeNode<TValue> Join2<TJoin>() where TJoin : ITreeTraits<TValue> {
         if (Left == null)
@@ -74,6 +74,9 @@ public struct TreeSection<TValue>
     /// Splits a tree rooted at <paramref name="this"/> into left and right subtrees 
     /// holding respectively values less than and greater than <paramref name="value"/>.
     /// </summary>
+    /// <param name="this">Tree root.</param>
+    /// <param name="value">Value used for splitting.</param>
+    /// <typeparam name="TJoin">Tree join strategy.</typeparam>
     /// <returns>
     /// A structure containing the left and right subtrees and a flag indicating whether <paramref name="value"/> was
     /// found in the tree under <paramref name="this"/>.
