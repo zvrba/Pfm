@@ -8,5 +8,6 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Title>Podaga persistent collections</Title>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 </Project>

@@ -6,6 +6,7 @@
     <!-- TODO: Remove when retargeted to net7.0 -->
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
