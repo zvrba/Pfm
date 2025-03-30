@@ -1,3 +1,7 @@
+# ARCHIVED
+
+This repository has been archived and development has been moved [here](https://github.com/zvrba/Podaga).
+
 # Pfm - Persistence for the masses
 
 Immutable collections are "all the rage" these days, for good reasons.  Their story in .NET, however,
